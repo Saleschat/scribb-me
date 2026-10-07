@@ -1,0 +1,408 @@
+# shellcheck shell=bash
+# Shared helpers for scribb.me hooks and scripts. Source it; don't run it.
+# Bash 3.2 compatible (macOS default): no associative arrays, no mapfile, no ${var,,}.
+# No hard dependency on jq: JSON is read with jq when present, with awk otherwise.
+
+SCRIBB_VERSION="0.1.0"
+
+# --- Paths -------------------------------------------------------------------
+
+scribb_plugin_root() {
+  if [ -n "${CLAUDE_PLUGIN_ROOT:-}" ]; then
+    printf '%s\n' "$CLAUDE_PLUGIN_ROOT"
+  else
+    (cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
+  fi
+}
+
+scribb_user_dir() {
+  if [ -n "${SCRIBB_HOME:-}" ]; then
+    printf '%s\n' "$SCRIBB_HOME"
+  else
+    printf '%s\n' "${XDG_CONFIG_HOME:-$HOME/.config}/scribb"
+  fi
+}
+
+# Machine-local state (per-session flags, retry counts, generated checker config).
+# Never inside the user's repo, so a zero-config install leaves no files behind.
+scribb_state_dir() {
+  if [ -n "${SCRIBB_STATE_DIR:-}" ]; then
+    printf '%s\n' "$SCRIBB_STATE_DIR"
+  elif [ -n "${CLAUDE_PLUGIN_DATA:-}" ]; then
+    printf '%s\n' "$CLAUDE_PLUGIN_DATA"
+  else
+    printf '%s\n' "${XDG_CACHE_HOME:-$HOME/.cache}/scribb"
+  fi
+}
+
+# Project root: CLAUDE_PROJECT_DIR, else the git root of $1 (or cwd), else $1.
+# Physical paths (pwd -P), so /var vs /private/var symlinks compare equal.
+scribb_project_dir() {
+  local root
+  if [ -n "${CLAUDE_PROJECT_DIR:-}" ]; then
+    root="$CLAUDE_PROJECT_DIR"
+  else
+    local start="${1:-$PWD}"
+    root=$(git -C "$start" rev-parse --show-toplevel 2>/dev/null) || root="$start"
+  fi
+  (cd "$root" 2>/dev/null && pwd -P) || printf '%s\n' "$root"
+}
+
+# abs_path FILE: absolute physical path of a file (the file need not exist,
+# its directory must).
+abs_path() {
+  local dir base
+  case "$1" in /*) dir=$(dirname "$1") ;; *) dir="$PWD/$(dirname "$1")" ;; esac
+  base=$(basename "$1")
+  dir=$( (cd "$dir" 2>/dev/null && pwd -P) || printf '%s' "$dir")
+  printf '%s/%s\n' "$dir" "$base"
+}
+
+# Creates .scribb/local/ with a self-ignoring .gitignore, so local state never
+# shows up in git status even before /scribb:setup adds the .gitignore entry.
+scribb_ensure_local_dir() {
+  local dir="$1/.scribb/local"
+  if [ ! -d "$dir" ]; then
+    mkdir -p "$dir" || return 1
+  fi
+  [ -f "$dir/.gitignore" ] || printf '*\n' > "$dir/.gitignore"
+  printf '%s\n' "$dir"
+}
+
+# --- JSON (hook input) ---------------------------------------------------------
+
+# json_get KEY [FILE]: the first string value for KEY, unescaped. Reads stdin if
+# no file. Only string values; good enough for hook input fields.
+json_get() {
+  local key="$1" file="${2:-/dev/stdin}"
+  if [ -z "${SCRIBB_NO_JQ:-}" ] && command -v jq >/dev/null 2>&1; then
+    jq -r --arg k "$key" 'first(.. | objects | select(has($k)) | .[$k] | select(type == "string")) // empty' "$file" 2>/dev/null
+    return
+  fi
+  awk -v key="$key" '
+    BEGIN { RS = "\001" }
+    {
+      pat = "\"" key "\"[ \t\r\n]*:[ \t\r\n]*\""
+      if (!match($0, pat)) exit
+      s = substr($0, RSTART + RLENGTH)
+      out = ""
+      n = length(s)
+      for (i = 1; i <= n; i++) {
+        c = substr(s, i, 1)
+        if (c == "\\") {
+          i++; e = substr(s, i, 1)
+          if (e == "n") out = out "\n"
+          else if (e == "t") out = out "\t"
+          else if (e == "r") out = out "\r"
+          else if (e == "b" || e == "f") out = out " "
+          else if (e == "u") { out = out "\\u"; }
+          else out = out e
+        } else if (c == "\"") {
+          break
+        } else {
+          out = out c
+        }
+      }
+      printf "%s", out
+    }' "$file"
+}
+
+# json_get_bool KEY [FILE]: prints true or false.
+json_get_bool() {
+  local key="$1" file="${2:-/dev/stdin}"
+  if grep -Eq "\"$key\"[[:space:]]*:[[:space:]]*true" "$file" 2>/dev/null; then
+    printf 'true\n'
+  else
+    printf 'false\n'
+  fi
+}
+
+# json_escape: escapes stdin as the inside of a JSON string.
+json_escape() {
+  awk '
+    BEGIN { RS = "\001"; ORS = "" }
+    {
+      gsub(/\\/, "\\\\")
+      gsub(/"/, "\\\"")
+      gsub(/\t/, "\\t")
+      gsub(/\r/, "")
+      gsub(/\n/, "\\n")
+      print
+    }'
+}
+
+# emit_json SYSTEM_MESSAGE EVENT CONTEXT: prints one hook output object.
+# Empty arguments are left out; prints nothing if both are empty.
+emit_json() {
+  local sys="$1" event="$2" ctx="$3" out="" sep=""
+  if [ -n "$sys" ]; then
+    out="\"systemMessage\":\"$(printf '%s' "$sys" | json_escape)\""
+    sep=","
+  fi
+  if [ -n "$ctx" ]; then
+    out="$out$sep\"hookSpecificOutput\":{\"hookEventName\":\"$event\",\"additionalContext\":\"$(printf '%s' "$ctx" | json_escape)\"}"
+  fi
+  [ -n "$out" ] && printf '{%s}\n' "$out"
+  return 0
+}
+
+# --- Config --------------------------------------------------------------------
+
+# yaml_get FILE KEY: value of a flat "key: value" line, quotes stripped.
+yaml_get() {
+  [ -f "$1" ] || return 1
+  local line
+  line=$(grep -E "^$2:[[:space:]]*" "$1" 2>/dev/null | tail -n 1) || return 1
+  [ -n "$line" ] || return 1
+  printf '%s\n' "$line" | sed -E "s/^$2:[[:space:]]*//; s/[[:space:]]+#.*$//; s/[[:space:]]*$//; s/^[\"'](.*)[\"']$/\\1/"
+}
+
+# yaml_set FILE KEY VALUE: replaces or appends a flat key.
+yaml_set() {
+  local file="$1" key="$2" value="$3" tmp
+  mkdir -p "$(dirname "$file")"
+  touch "$file"
+  tmp="$file.tmp.$$"
+  grep -vE "^$key:" "$file" > "$tmp" 2>/dev/null || true
+  printf '%s: %s\n' "$key" "$value" >> "$tmp"
+  mv "$tmp" "$file"
+}
+
+# yaml_unset FILE KEY
+yaml_unset() {
+  local file="$1" key="$2" tmp
+  [ -f "$file" ] || return 0
+  tmp="$file.tmp.$$"
+  grep -vE "^$key:" "$file" > "$tmp" 2>/dev/null || true
+  mv "$tmp" "$file"
+}
+
+# Config files in precedence order, highest first. Needs SCRIBB_PROJECT and,
+# for the session scope, SCRIBB_SESSION.
+scribb_config_files() {
+  if [ -n "${SCRIBB_SESSION:-}" ]; then
+    printf '%s\n' "$(scribb_state_dir)/sessions/$SCRIBB_SESSION.yaml"
+  fi
+  printf '%s\n' "$SCRIBB_PROJECT/.scribb/local/config.yaml"
+  printf '%s\n' "$SCRIBB_PROJECT/.scribb/config.yaml"
+  printf '%s\n' "$(scribb_user_dir)/config.yaml"
+}
+
+scribb_config_file_for_scope() {
+  case "$1" in
+    session) printf '%s\n' "$(scribb_state_dir)/sessions/${SCRIBB_SESSION:?session id needed}.yaml" ;;
+    local) printf '%s\n' "$SCRIBB_PROJECT/.scribb/local/config.yaml" ;;
+    project) printf '%s\n' "$SCRIBB_PROJECT/.scribb/config.yaml" ;;
+    user) printf '%s\n' "$(scribb_user_dir)/config.yaml" ;;
+    *) return 1 ;;
+  esac
+}
+
+scribb_default() {
+  case "$1" in
+    enabled) echo true ;;
+    style) echo none ;;
+    checker) echo vale ;;
+    reviewer) echo auto ;;
+    capture | inject | nudges) echo on ;;
+    paths_ignore) echo "node_modules/*, vendor/*, dist/*, build/*, .git/*, .scribb/*, .claude/*, CHANGELOG.md, LICENSE*, NOTICE*, CLAUDE.md, CLAUDE.local.md, AGENTS.md, SKILL.md" ;;
+    *) echo "" ;;
+  esac
+}
+
+# cfg KEY: effective value across scopes.
+cfg() {
+  local f v
+  while IFS= read -r f; do
+    if v=$(yaml_get "$f" "$1"); then
+      printf '%s\n' "$v"
+      return
+    fi
+  done <<EOF
+$(scribb_config_files)
+EOF
+  scribb_default "$1"
+}
+
+# cfg_scope KEY: which scope set the effective value (session/local/project/user/default).
+cfg_scope() {
+  local s
+  for s in session local project user; do
+    [ "$s" = session ] && [ -z "${SCRIBB_SESSION:-}" ] && continue
+    if yaml_get "$(scribb_config_file_for_scope "$s")" "$1" >/dev/null; then
+      echo "$s"
+      return
+    fi
+  done
+  echo default
+}
+
+is_off() {
+  case "$1" in
+    off | false | no | 0 | none) return 0 ;;
+    *) return 1 ;;
+  esac
+}
+
+# The kill switch. Every hook calls this first.
+scribb_disabled() {
+  case "${SCRIBB_DISABLE:-}" in
+    1 | true | yes) return 0 ;;
+  esac
+  is_off "$(cfg enabled)"
+}
+
+# --- Packs ---------------------------------------------------------------------
+
+# pack_dir ID: first match in local > project > user > built-in.
+pack_dir() {
+  local id="$1" d
+  for d in "$SCRIBB_PROJECT/.scribb/local/packs/$id" "$SCRIBB_PROJECT/.scribb/packs/$id" "$(scribb_user_dir)/packs/$id" "$(scribb_plugin_root)/packs/$id"; do
+    if [ -f "$d/pack.yaml" ]; then
+      printf '%s\n' "$d"
+      return 0
+    fi
+  done
+  return 1
+}
+
+pack_field() {
+  yaml_get "$1/pack.yaml" "$2"
+}
+
+# All pack directories, every scope, one per line ("scope<TAB>dir").
+list_pack_dirs() {
+  local scope base d
+  for scope in local project user built-in; do
+    case "$scope" in
+      local) base="$SCRIBB_PROJECT/.scribb/local/packs" ;;
+      project) base="$SCRIBB_PROJECT/.scribb/packs" ;;
+      user) base="$(scribb_user_dir)/packs" ;;
+      built-in) base="$(scribb_plugin_root)/packs" ;;
+    esac
+    [ -d "$base" ] || continue
+    for d in "$base"/*/; do
+      [ -f "$d/pack.yaml" ] && printf '%s\t%s\n' "$scope" "${d%/}"
+    done
+  done
+}
+
+# --- Files → content type --------------------------------------------------------
+
+# match_globs REL "a, b, c": does the repo-relative path match any glob?
+# In case patterns * also matches /, so "docs/*.md" covers nested files and a
+# bare "*.md" matches anywhere.
+match_globs() {
+  local rel="$1" list="$2" g noglob=no
+  # Split on commas without expanding the globs against the current directory.
+  case $- in *f*) noglob=yes ;; esac
+  set -f
+  local IFS=','
+  for g in $list; do
+    g=$(printf '%s' "$g" | sed -E 's/^[[:space:]]+//; s/[[:space:]]+$//; s/\*\*/*/g')
+    [ -n "$g" ] || continue
+    # shellcheck disable=SC2254
+    case "$rel" in
+      $g | */$g)
+        [ "$noglob" = yes ] || set +f
+        return 0 ;;
+    esac
+  done
+  [ "$noglob" = yes ] || set +f
+  return 1
+}
+
+# content_type_for FILE: prints tech-docs, ux-microcopy or nothing.
+content_type_for() {
+  local file rel
+  file=$(abs_path "$1")
+  case "$file" in
+    "$SCRIBB_PROJECT"/*) rel="${file#"$SCRIBB_PROJECT"/}" ;;
+    /*) return 0 ;; # outside the project: leave it alone
+    *) rel="$file" ;;
+  esac
+  match_globs "$rel" "$(cfg paths_ignore)" && return 0
+  local docs ui
+  docs=$(cfg paths_docs)
+  [ -n "$docs" ] || docs="*.md, *.mdx"
+  ui=$(cfg paths_ui)
+  [ -n "$ui" ] || ui="*.tsx, *.jsx"
+  if match_globs "$rel" "$docs"; then
+    echo tech-docs
+  elif match_globs "$rel" "$ui"; then
+    echo ux-microcopy
+  fi
+}
+
+content_type_label() {
+  case "$1" in
+    tech-docs) echo Docs ;;
+    ux-microcopy) echo "UI copy" ;;
+    *) echo "$1" ;;
+  esac
+}
+
+# freedom_for CONTENT_TYPE: the effective freedom.
+freedom_for() {
+  local f d
+  f=$(cfg freedom)
+  if [ -z "$f" ] && d=$(pack_dir "$1"); then
+    f=$(pack_field "$d" freedom)
+  fi
+  echo "${f:-balanced}"
+}
+
+# --- Session state -----------------------------------------------------------------
+
+session_dir() {
+  local d
+  d="$(scribb_state_dir)/sessions/${SCRIBB_SESSION:-nosession}.d"
+  mkdir -p "$d"
+  printf '%s\n' "$d"
+}
+
+# A short stable key for a path, for state file names.
+path_key() {
+  printf '%s' "$1" | cksum | awk '{print $1}'
+}
+
+counter_get() {
+  local f
+  f="$(session_dir)/$1"
+  if [ -f "$f" ]; then cat "$f"; else echo 0; fi
+}
+
+counter_incr() {
+  local f n
+  f="$(session_dir)/$1"
+  n=$(counter_get "$1")
+  echo $((n + 1)) > "$f"
+}
+
+# Removes session files older than 7 days. Cheap; runs at session start.
+prune_sessions() {
+  local d
+  d="$(scribb_state_dir)/sessions"
+  [ -d "$d" ] || return 0
+  find "$d" -mindepth 1 -maxdepth 1 -mtime +7 -exec rm -rf {} + 2>/dev/null || true
+}
+
+# --- Misc ------------------------------------------------------------------------------
+
+# The approver for anything a human approves: git user, else $USER.
+scribb_approver() {
+  local name email
+  name=$(git config user.name 2>/dev/null)
+  email=$(git config user.email 2>/dev/null)
+  if [ -n "$name" ] && [ -n "$email" ]; then
+    printf '%s <%s>\n' "$name" "$email"
+  elif [ -n "$name" ]; then
+    printf '%s\n' "$name"
+  else
+    printf '%s\n' "${USER:-unknown}"
+  fi
+}
+
+word_count() {
+  wc -w | awk '{print $1}'
+}

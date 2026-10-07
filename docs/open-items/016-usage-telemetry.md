@@ -5,7 +5,7 @@ Status: decided, needs implementation
 ## Decision
 - **From day one:**
   - Passive signals: GitHub stars, traffic, issues, discussions, contributed styles.
-  - `/scribb:report`: drafts a GitHub issue (e.g. "false positive: rule X flagged this sentence") for the user to review, edit and submit. Shows exactly what will be sent.
+  - `/scribb:report`: drafts a GitHub issue (for example, "false positive: rule X flagged this sentence") for the user to review, edit and submit. Shows exactly what will be sent.
 - **Opt-in anonymous telemetry** (counts only):
   - Off by default. Offered once through the nudge system after some real use, never at install.
   - Each user decides for themselves: only a user-scope setting enables it. A project setting can't turn it on for everyone, but can point the endpoint at a self-hosted collector for internal analytics.
@@ -18,3 +18,6 @@ Status: decided, needs implementation
 ## Open questions
 - Which analytics backend (any tool with an HTTP capture API; self-hostable preferred).
 - How many sessions before the opt-in offer appears.
+
+## Implemented in v0.1 (branch `v1-claude-code-plugin`, 2026-10-07)
+- `/scribb:report` exists. No telemetry is collected or sent in v0.1, and the `telemetry-optin` nudge isn't wired up.

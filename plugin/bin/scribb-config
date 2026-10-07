@@ -1,0 +1,169 @@
+#!/usr/bin/env bash
+# scribb-config: reads and writes scribb settings for the skills.
+#
+# Usage:
+#   scribb-config status [--session ID]          effective settings and active packs
+#   scribb-config get KEY [--session ID]
+#   scribb-config set KEY VALUE --scope SCOPE [--session ID]
+#   scribb-config unset KEY --scope SCOPE [--session ID]
+#   scribb-config off [--session ID | --repo | --team | --everywhere]
+#   scribb-config on  [--session ID | --repo | --team | --everywhere]
+#   scribb-config packs [--kind KIND]            id, kind, scope, version, tagline
+#   scribb-config paths                          where each scope lives
+#   scribb-config approver                       who to record as the approver
+#
+# SCOPE is session, local (this repo, just me), project (this repo, whole team)
+# or user (everywhere, for me).
+set -u
+
+SELF_DIR=$(cd "$(dirname "$0")" && pwd)
+# shellcheck source=../lib/scribb.sh
+. "$SELF_DIR/../lib/scribb.sh"
+
+usage() { sed -n '2,16p' "$0" | sed 's/^# \{0,1\}//'; exit 3; }
+
+cmd="${1:-}"
+[ $# -gt 0 ] && shift
+SCRIBB_SESSION="${SCRIBB_SESSION:-}"
+scope="" kind="" target="" args=""
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --session) SCRIBB_SESSION="$2"; target=session; shift 2 ;;
+    --scope) scope="$2"; shift 2 ;;
+    --kind) kind="$2"; shift 2 ;;
+    --repo) target=local; shift ;;
+    --team) target=project; shift ;;
+    --everywhere) target=user; shift ;;
+    *) args="$args$1"$'\n'; shift ;;
+  esac
+done
+arg1=$(printf '%s' "$args" | sed -n 1p)
+arg2=$(printf '%s' "$args" | sed -n 2p)
+
+SCRIBB_PROJECT=$(scribb_project_dir "$PWD")
+export SCRIBB_PROJECT SCRIBB_SESSION
+
+valid_value() {
+  case "$1" in
+    enabled) case "$2" in true | false) return 0 ;; esac ;;
+    freedom) case "$2" in strict | balanced | expressive) return 0 ;; esac ;;
+    reviewer) case "$2" in off | auto | always) return 0 ;; esac ;;
+    checker) case "$2" in vale | none) return 0 ;; esac ;;
+    capture | inject | nudges | write_session) case "$2" in on | off) return 0 ;; esac ;;
+    style)
+      [ "$2" = none ] && return 0
+      local d
+      d=$(pack_dir "$2") && [ "$(pack_field "$d" kind)" = style ] && return 0
+      echo "scribb-config: no style pack called '$2'. See: scribb-config packs --kind style" >&2
+      return 1 ;;
+    content_type) case "$2" in tech-docs | ux-microcopy) return 0 ;; esac ;;
+    feedbackRate) printf '%s' "$2" | grep -Eq '^(0(\.[0-9]+)?|1(\.0+)?)$' && return 0 ;;
+    paths_docs | paths_ui | paths_ignore) return 0 ;;
+    *) echo "scribb-config: unknown setting '$1'" >&2; return 1 ;;
+  esac
+  echo "scribb-config: '$2' isn't a valid value for $1" >&2
+  return 1
+}
+
+show_setting() {
+  printf '  %-13s %-28s (%s)\n' "$1" "$(cfg "$1")" "$(cfg_scope "$1")"
+}
+
+case "$cmd" in
+  status)
+    if scribb_disabled; then
+      if [ "${SCRIBB_DISABLE:-}" != "" ]; then
+        echo "scribb.me is OFF (SCRIBB_DISABLE=$SCRIBB_DISABLE)."
+      else
+        echo "scribb.me is OFF (enabled: false, set in the $(cfg_scope enabled) scope)."
+      fi
+    else
+      echo "scribb.me is on."
+    fi
+    echo "Project: $SCRIBB_PROJECT"
+    echo "Settings (value, and the scope that set it):"
+    for k in style freedom reviewer checker capture inject nudges paths_docs paths_ui; do
+      show_setting "$k"
+    done
+    echo "Content types:"
+    for ct in tech-docs ux-microcopy; do
+      if d=$(pack_dir "$ct"); then
+        printf '  %-13s %s; default freedom %s; now %s\n' "$(content_type_label "$ct")" "$(pack_field "$d" tagline)" "$(pack_field "$d" freedom)" "$(freedom_for "$ct")"
+      fi
+    done
+    st=$(cfg style)
+    if ! is_off "$st" && d=$(pack_dir "$st"); then
+      echo "Style: $st — $(pack_field "$d" tagline) ($d)"
+    else
+      echo "Style: none (neutral house style: base + content type)"
+    fi
+    if command -v vale >/dev/null 2>&1; then
+      echo "Checker: $(vale --version 2>/dev/null)"
+    else
+      echo "Checker: Vale not installed (checks after edits are skipped)"
+    fi
+    n=0
+    for dir in "$SCRIBB_PROJECT/.scribb/local/memories" "$SCRIBB_PROJECT/.scribb/memories" "$(scribb_user_dir)/memories"; do
+      [ -d "$dir" ] && n=$((n + $(find "$dir" -maxdepth 1 -name '*.md' | wc -l)))
+    done
+    inbox=0
+    [ -d "$SCRIBB_PROJECT/.scribb/local/inbox" ] && inbox=$(find "$SCRIBB_PROJECT/.scribb/local/inbox" -maxdepth 1 -name '*.md' | wc -l | awk '{print $1}')
+    echo "Memories: $n; inbox: $inbox pending"
+    ;;
+  get)
+    [ -n "$arg1" ] || usage
+    cfg "$arg1"
+    ;;
+  set)
+    [ -n "$arg1" ] && [ -n "$arg2" ] && [ -n "$scope" ] || usage
+    valid_value "$arg1" "$arg2" || exit 1
+    f=$(scribb_config_file_for_scope "$scope") || usage
+    [ "$scope" = local ] && scribb_ensure_local_dir "$SCRIBB_PROJECT" >/dev/null
+    yaml_set "$f" "$arg1" "$arg2"
+    # A new write session gets a fresh Stop-hook retry budget.
+    [ "$arg1" = write_session ] && [ -n "$SCRIBB_SESSION" ] && rm -f "$(session_dir)/stop-lint"
+    echo "Set $arg1: $arg2 in the $scope scope ($f)."
+    ;;
+  unset)
+    [ -n "$arg1" ] && [ -n "$scope" ] || usage
+    f=$(scribb_config_file_for_scope "$scope") || usage
+    yaml_unset "$f" "$arg1"
+    echo "Removed $arg1 from the $scope scope."
+    ;;
+  off | on)
+    [ -n "$target" ] || usage
+    f=$(scribb_config_file_for_scope "$target") || usage
+    [ "$target" = local ] && scribb_ensure_local_dir "$SCRIBB_PROJECT" >/dev/null
+    if [ "$cmd" = off ]; then
+      yaml_set "$f" enabled false
+      case "$target" in
+        session) echo "scribb.me is off for this session." ;;
+        local) echo "scribb.me is off in this repo, for you ($f)." ;;
+        project) echo "scribb.me is off in this repo for the whole team ($f). Commit the file to share it." ;;
+        user) echo "scribb.me is off everywhere for you ($f)." ;;
+      esac
+    else
+      yaml_set "$f" enabled true
+      echo "scribb.me is on in the $target scope."
+      if scribb_disabled; then
+        echo "Note: it's still off because of SCRIBB_DISABLE or a higher-precedence scope ($(cfg_scope enabled))."
+      fi
+    fi
+    ;;
+  packs)
+    list_pack_dirs | while IFS="$(printf '\t')" read -r s d; do
+      k=$(pack_field "$d" kind)
+      [ -z "$kind" ] || [ "$kind" = "$k" ] || continue
+      printf '%s\t%s\t%s\t%s\t%s\n' "$(pack_field "$d" id)" "$k" "$s" "$(pack_field "$d" version)" "$(pack_field "$d" tagline)"
+    done
+    ;;
+  paths)
+    echo "plugin:  $(scribb_plugin_root)"
+    echo "user:    $(scribb_user_dir)"
+    echo "project: $SCRIBB_PROJECT/.scribb"
+    echo "local:   $SCRIBB_PROJECT/.scribb/local"
+    echo "state:   $(scribb_state_dir)"
+    ;;
+  approver) scribb_approver ;;
+  *) usage ;;
+esac

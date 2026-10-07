@@ -1,0 +1,8 @@
+# Lints string literals in .tsx files. Vale 3.24 parses .tsx with the
+# TypeScript grammar, which has no jsx_text node, so JSX text in .tsx is not
+# reachable by the checker. The reviewer covers it.
+engine: tree-sitter
+scopes:
+  - name: strings
+    expr: "(string_fragment) @text"
+    type: md

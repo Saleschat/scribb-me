@@ -1,0 +1,22 @@
+id: warm-and-plain
+kind: style
+version: 0.1.0
+tagline: Friendly, everyday language, like a helpful colleague explaining it.
+license: MIT
+traits:
+  formality: casual
+  density: balanced
+  person: we
+  source_type: original
+  good_for: [docs, ui]
+extends: null
+sources:
+  - name: PostHog handbook style guides
+    url: https://github.com/PostHog/posthog.com/tree/master/contents/handbook
+    license: MIT
+    use: inspiration; written in our own words
+  - name: PatternFly brand voice and tone
+    url: https://github.com/patternfly/patternfly-org
+    license: MIT
+    use: inspiration; written in our own words
+tags: [friendly, plain-language]

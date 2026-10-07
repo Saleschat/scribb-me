@@ -1,0 +1,11 @@
+extends: existence
+message: "'%s' announces the content instead of giving it. Start with the content."
+level: error
+ignorecase: true
+tokens:
+  - let's dive (?:in|into)
+  - let's break (?:it|this|that) down
+  - here's the thing
+  - in this (?:article|post|guide|blog post), (?:we|I) will
+  - without further ado
+  - buckle up

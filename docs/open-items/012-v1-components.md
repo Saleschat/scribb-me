@@ -1,6 +1,6 @@
 # 012 — v1 component set
 
-Status: decided, needs implementation
+Status: implemented in v0.1 (Claude Code); Codex and generic adapters not started
 
 ## Skills (Agent Skills standard; in Claude Code they also show up as `/scribb:*` commands)
 | Skill | Started by | Does |
@@ -30,3 +30,10 @@ Status: decided, needs implementation
 - `base` (anti-AI habits)
 - `tech-docs` and `ux-microcopy` content types
 - 1–2 sample styles from openly licensed sources (TBD)
+
+## Implemented in v0.1 (branch `v1-claude-code-plugin`, 2026-10-07)
+- Everything above is in `plugin/`, plus:
+  - a `report` skill (from 016),
+  - `bin/scribb-config` (settings, status, off/on, packs) and `bin/scribb-nudge` (nudge checks for skills),
+  - three starter styles: `direct-developer-docs`, `crisp-product-ui` and `warm-and-plain`.
+- `setup`, `report` set `disable-model-invocation`; `scribb-style` is model-only (`user-invocable: false`).

@@ -1,0 +1,8 @@
+extends: existence
+message: "Avoid 'not just X, but Y' framing. State the point directly."
+level: error
+ignorecase: true
+nonword: true
+tokens:
+  - '\b(?:not just|not only|not merely|not simply)\b[^.!?;]{1,60}?,?\s+but(?: also)?\b'
+  - '\b(?:isn''t|is not|aren''t|are not|wasn''t|it''s not)\s+(?:just|merely|only|simply)\b[^.!?]{1,60}?[,;:—–]\s*(?:it''s|it is|they''re|they are|this is|but)\b'

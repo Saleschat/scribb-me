@@ -18,3 +18,7 @@ Status: decided, needs implementation
 ## Open questions
 - Does `claude plugin eval` fit layers 2–4, or do we need our own runner?
 - Cost budget for nightly runs.
+
+## Implemented in v0.1 (branch `v1-claude-code-plugin`, 2026-10-07)
+- Layer 1: `evals/rules/run.sh` runs a bad/good pair for every rule plus a false-positive pass of the base rules over every good example and pack text. `tests/hooks/run.sh` tests the hook adapter with and without jq. CI (`.github/workflows/ci.yml`) runs both, shellcheck and `claude plugin validate`.
+- `claude plugin eval` exists (cases of prompt + graders, `--ablation with-without`), so it likely fits layer 2. Not tried yet.

@@ -1,0 +1,13 @@
+extends: substitution
+message: "Consider '%s' instead of '%s'."
+level: suggestion
+ignorecase: true
+swap:
+  in order to: to
+  is able to: can
+  are able to: can
+  utiliz(?:e|es|ed|ing): use
+  leverag(?:e|es|ed|ing): use
+  a number of: some (or the number)
+  at this point in time: now
+  prior to: before

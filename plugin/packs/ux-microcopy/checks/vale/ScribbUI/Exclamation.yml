@@ -1,0 +1,6 @@
+extends: existence
+message: "Don't use exclamation marks in UI copy."
+level: warning
+nonword: true
+tokens:
+  - '\w!(?:\s|$)'

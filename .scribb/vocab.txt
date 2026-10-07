@@ -1,0 +1,5 @@
+# Product and tool names that keep their own casing.
+scribb.me
+Claude Code
+Codex
+Vale

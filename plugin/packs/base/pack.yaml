@@ -1,0 +1,25 @@
+id: base
+kind: base
+version: 0.1.0
+tagline: Universal rules against AI writing habits. Always on.
+license: MIT
+traits:
+  medium: [docs, ui, marketing, editorial, social, email]
+sources:
+  - name: blader/humanizer
+    url: https://github.com/blader/humanizer
+    license: MIT
+    use: inspiration
+  - name: "Wikipedia: Signs of AI writing"
+    url: https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing
+    license: CC-BY-SA-4.0
+    use: inspiration only; no text is quoted
+  - name: a16z crypto, "habits of AI writing" (22 Aug 2026)
+    url: null  # TODO: add the post's URL
+    license: all rights reserved
+    use: inspiration only; reworded, never quoted
+  - name: sam-paech/slop-score
+    url: https://github.com/sam-paech/slop-score
+    license: MIT
+    use: inspiration for the "not X, but Y" patterns
+tags: [anti-ai]

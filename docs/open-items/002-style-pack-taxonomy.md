@@ -22,5 +22,8 @@ Status: decided, needs implementation
 - Free tags that show up often get promoted to traits.
 
 ## Open questions
-- The text of the shared reference paragraph (one per content type?).
 - How the webapp library shows traits as filters.
+
+## Implemented in v0.1 (branch `v1-claude-code-plugin`, 2026-10-07)
+- The shared reference texts are one per content type: `plugin/packs/tech-docs/sample.md` (rotating an API key) and `plugin/packs/ux-microcopy/sample.md` (the strings for deleting a project). Each style's `sample.md` rewrites both where its `good_for` includes them.
+- `pack.yaml` fields are in `docs/pack-format.md`.

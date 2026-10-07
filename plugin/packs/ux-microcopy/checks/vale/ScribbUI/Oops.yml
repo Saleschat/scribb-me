@@ -1,0 +1,9 @@
+extends: existence
+message: "Don't use '%s'. Say what happened."
+level: warning
+ignorecase: true
+tokens:
+  - oops
+  - whoops
+  - uh[ -]oh
+  - yikes

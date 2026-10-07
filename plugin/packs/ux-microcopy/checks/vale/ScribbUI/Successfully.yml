@@ -1,0 +1,6 @@
+extends: existence
+message: "Drop 'successfully'. 'Project deleted' already says it worked."
+level: warning
+ignorecase: true
+tokens:
+  - successfully

@@ -1,0 +1,19 @@
+extends: existence
+message: "'%s' is a common AI-writing tell. Use a plain word, or cut it."
+level: error
+ignorecase: true
+tokens:
+  - delv(?:e|es|ed|ing)
+  - (?:rich )?tapestry
+  - (?:a|is a|stands as a) testament to
+  - in today's (?:fast-paced|digital|ever-changing) (?:world|landscape|age)
+  - navigat(?:e|es|ing) the complexities
+  - unlock(?:s|ing)? the (?:full )?(?:power|potential) of
+  - harness(?:es|ing)? the (?:full )?power of
+  - ever-evolving
+  - plays? a (?:pivotal|crucial|vital) role
+  - in the realm of
+  - game[- ]changer
+  - supercharg(?:e|es|ed|ing)
+  - embark(?:s|ing)? on (?:a|an|your) journey
+  - multifaceted

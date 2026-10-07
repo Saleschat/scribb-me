@@ -1,0 +1,18 @@
+{
+  "name": "scribb-me",
+  "owner": {
+    "name": "Saleschat",
+    "url": "https://github.com/Saleschat"
+  },
+  "metadata": {
+    "description": "scribb.me: a writing-style plugin for docs and UI copy."
+  },
+  "plugins": [
+    {
+      "name": "scribb",
+      "source": "./plugin",
+      "description": "Writing style for docs and UI copy: anti-AI-writing rules, content-type conventions, optional styles, a checker loop and learned preferences.",
+      "category": "writing"
+    }
+  ]
+}

@@ -21,4 +21,6 @@ Status: decided, flow details open
 
 ## Open questions
 - How a user creates their own style (uploads or links) the first time they ask for one.
-- A way to turn off all nudges (`nudges: off`).
+
+## Implemented in v0.1 (branch `v1-claude-code-plugin`, 2026-10-07)
+- `nudges: off` turns off every nudge except the one that says scribb is on by default and how to turn it off (017).

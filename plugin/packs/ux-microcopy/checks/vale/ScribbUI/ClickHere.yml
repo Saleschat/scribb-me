@@ -1,0 +1,8 @@
+extends: existence
+message: "Don't use '%s'. Name the destination or the action."
+level: warning
+ignorecase: true
+tokens:
+  - click here
+  - tap here
+  - learn more here

@@ -1,0 +1,53 @@
+#!/usr/bin/env bash
+# scribb-nudge: nudge checks for skills and for tools without hooks.
+# The Claude Code hooks use lib/nudge.sh directly.
+#
+# Usage:
+#   scribb-nudge pick EVENT [--file PATH] [--session ID]
+#       Prints "<channel>\t<text>" for the nudge to show, or nothing.
+#   scribb-nudge should-rate [--session ID]
+#       Exit 0 if this is the moment to ask for a rating (sampled at feedbackRate).
+#   scribb-nudge reset
+#       Forgets which nudges were shown.
+set -u
+
+SELF_DIR=$(cd "$(dirname "$0")" && pwd)
+# shellcheck source=../lib/scribb.sh
+. "$SELF_DIR/../lib/scribb.sh"
+# shellcheck source=../lib/nudge.sh
+. "$SELF_DIR/../lib/nudge.sh"
+
+cmd="${1:-}"
+[ $# -gt 0 ] && shift
+event="" file="" SCRIBB_SESSION="${SCRIBB_SESSION:-}"
+if [ "$cmd" = pick ]; then
+  event="${1:-}"
+  [ $# -gt 0 ] && shift
+fi
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --file) file="$2"; shift 2 ;;
+    --session) SCRIBB_SESSION="$2"; shift 2 ;;
+    *) echo "scribb-nudge: unknown argument $1" >&2; exit 3 ;;
+  esac
+done
+
+SCRIBB_PROJECT=$(scribb_project_dir "$PWD")
+export SCRIBB_PROJECT SCRIBB_SESSION
+scribb_disabled && exit 1
+
+case "$cmd" in
+  pick)
+    NUDGE_CT=""
+    if [ -n "$file" ]; then
+      case "$file" in /*) ;; *) file="$PWD/$file" ;; esac
+      NUDGE_CT=$(content_type_for "$file")
+    fi
+    if nudge_pick "$event"; then
+      printf '%s\t%s\n' "$NUDGE_CHANNEL" "$NUDGE_TEXT"
+    fi
+    ;;
+  should-rate) nudge_should_rate ;;
+  reset) rm -f "$(nudge_state_file)" ;;
+  *) sed -n '2,12p' "$0" | sed 's/^# \{0,1\}//'; exit 3 ;;
+esac

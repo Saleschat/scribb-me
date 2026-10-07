@@ -42,7 +42,7 @@ At most 2 rounds, then present the result with any remaining flags.
 ## Open questions
 - Retry cap and threshold defaults for each freedom level.
 - Should the reviewer run on a different or cheaper model by default?
-- Over-correction: tests that check revisions don't become stilted (e.g. every em dash removed, every sentence the same length).
+- Over-correction: tests that check revisions don't become stilted (for example, every em dash removed, every sentence the same length).
 
 ## Decided: running the reviewer without `/scribb:write`
 - Setting `reviewer: off | auto | always`, default `auto`.
@@ -81,3 +81,10 @@ Applies to the reviewer, the checker loop, memory capture, nudges and the sessio
 - Run the checker hook with `asyncRewake: true`, so writing never waits on Vale and Claude is woken only when there are hard errors.
 - Keep every synchronous hook to grep, ls or cat only (well under the 30s UserPromptSubmit timeout).
 - In the Claude Code adapter, the `auto` reviewer could be an `agent`-type hook. Portable adapters keep the bash + additionalContext approach.
+
+## Implemented in v0.1 (branch `v1-claude-code-plugin`, 2026-10-07)
+- One hook adapter, `plugin/hooks/scribb-hook <event>`, registered in `plugin/hooks/hooks.json`. PostToolUse runs two handlers: a synchronous one (nudges and the auto reviewer trigger) and an `asyncRewake` one (the checker). A real headless session confirmed that the checker wakes Claude with its findings and Claude revises.
+- Retry cap: 2 for every freedom level. On the third blocking result the hook tells Claude to stop revising and list what's left for the user, because a background hook's `systemMessage` isn't shown to the user.
+- The Stop hook reads `last_assistant_message`, and only runs while `write_session: on` is set in the session scope by `/scribb:write`.
+- The auto reviewer triggers once per file per session (`reviewer: always` every time).
+- The reviewer agent inherits the session's model for now; a cheaper default is still open.

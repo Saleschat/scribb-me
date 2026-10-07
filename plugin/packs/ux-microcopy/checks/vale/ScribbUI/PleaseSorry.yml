@@ -1,0 +1,8 @@
+extends: existence
+message: "Remove '%s'. UI copy states what happened and what to do."
+level: warning
+ignorecase: true
+tokens:
+  - please
+  - sorry
+  - we apologi[sz]e

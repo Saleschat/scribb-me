@@ -1,0 +1,24 @@
+id: tech-docs
+kind: content-type
+version: 0.1.0
+tagline: Clear, task-first developer documentation.
+license: MIT
+traits:
+  medium: docs
+freedom: strict
+paths: ["*.md", "*.mdx"]
+extends: null
+sources:
+  - name: Google developer documentation style guide
+    url: https://developers.google.com/style
+    license: CC-BY-4.0
+    use: inspiration; rules rewritten in our own words
+  - name: PostHog handbook style guides (contents/handbook/content/posthog-style-guide.md, contents/handbook/wizard-and-docs/docs-style-guide.mdx)
+    url: https://github.com/PostHog/posthog.com/tree/master/contents/handbook
+    license: MIT
+    use: inspiration; rules rewritten in our own words
+  - name: Diátaxis
+    url: https://diataxis.fr/
+    license: CC-BY-SA-4.0
+    use: inspiration for the format split; no text is quoted
+tags: [docs, developer]

@@ -1,0 +1,9 @@
+extends: substitution
+message: "Consider '%s' instead of '%s'."
+level: suggestion
+ignorecase: true
+swap:
+  functionality: feature
+  facilitat(?:e|es|ed|ing): help
+  commenc(?:e|es|ed|ing): start
+  terminat(?:e|es|ed|ing): end
