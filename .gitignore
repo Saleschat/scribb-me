@@ -1,0 +1,46 @@
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editors
+.idea/
+.vscode/
+*.swp
+*~
+
+# Secrets and environment
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Node (npx installer / future CLI)
+node_modules/
+npm-debug.log*
+yarn-error.log*
+.npm/
+*.tgz
+dist/
+coverage/
+
+# Logs and temp
+*.log
+tmp/
+.cache/
+
+# scribb local scope: personal overrides, inbox, ratings, telemetry, hook state.
+# The project scope (.scribb/) is meant to be committed; only local/ is private.
+.scribb/local/
+
+# Claude Code / agent tools: personal, machine-local settings
+.claude/settings.local.json
+CLAUDE.local.md
+.codex/local/
+
+# Evals: downloaded third-party datasets and raw run output are never committed
+# (licences and size; see docs/open-items/015-evals.md). Only the scoreboard is.
+evals/data/
+evals/.cache/
+evals/runs/
