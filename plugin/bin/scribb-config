@@ -115,7 +115,7 @@ case "$cmd" in
     cfg "$arg1"
     ;;
   set)
-    [ -n "$arg1" ] && [ -n "$arg2" ] && [ -n "$scope" ] || usage
+    if [ -z "$arg1" ] || [ -z "$arg2" ] || [ -z "$scope" ]; then usage; fi
     valid_value "$arg1" "$arg2" || exit 1
     f=$(scribb_config_file_for_scope "$scope") || usage
     [ "$scope" = local ] && scribb_ensure_local_dir "$SCRIBB_PROJECT" >/dev/null
@@ -125,7 +125,7 @@ case "$cmd" in
     echo "Set $arg1: $arg2 in the $scope scope ($f)."
     ;;
   unset)
-    [ -n "$arg1" ] && [ -n "$scope" ] || usage
+    if [ -z "$arg1" ] || [ -z "$scope" ]; then usage; fi
     f=$(scribb_config_file_for_scope "$scope") || usage
     yaml_unset "$f" "$arg1"
     echo "Removed $arg1 from the $scope scope."

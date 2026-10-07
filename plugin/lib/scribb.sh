@@ -45,7 +45,7 @@ scribb_project_dir() {
     local start="${1:-$PWD}"
     root=$(git -C "$start" rev-parse --show-toplevel 2>/dev/null) || root="$start"
   fi
-  (cd "$root" 2>/dev/null && pwd -P) || printf '%s\n' "$root"
+  if [ -d "$root" ]; then (cd "$root" && pwd -P); else printf '%s\n' "$root"; fi
 }
 
 # abs_path FILE: absolute physical path of a file (the file need not exist,
@@ -54,7 +54,7 @@ abs_path() {
   local dir base
   case "$1" in /*) dir=$(dirname "$1") ;; *) dir="$PWD/$(dirname "$1")" ;; esac
   base=$(basename "$1")
-  dir=$( (cd "$dir" 2>/dev/null && pwd -P) || printf '%s' "$dir")
+  [ -d "$dir" ] && dir=$(cd "$dir" && pwd -P)
   printf '%s/%s\n' "$dir" "$base"
 }
 

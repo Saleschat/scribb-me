@@ -172,11 +172,13 @@ post_edit() {
     if [ "$ct" = tech-docs ]; then
       count=$(printf '%s' "$text" | word_count)
       words="about $count words of Docs prose"
-      big=$([ "$count" -ge 150 ] && echo yes || echo no)
+      big=no
+      [ "$count" -ge 150 ] && big=yes
     else
       count=$(printf '%s' "$text" | ui_string_count)
       words="about $count UI strings"
-      big=$([ "$count" -ge 5 ] && echo yes || echo no)
+      big=no
+      [ "$count" -ge 5 ] && big=yes
     fi
     if [ "$mode" = always ] || { [ "$big" = yes ] && [ "$(counter_get "$key")" -eq 0 ]; }; then
       counter_incr "$key"
@@ -194,7 +196,7 @@ post_edit() {
 check() {
   local file ct rel key tries out blocks warns
   file=$(json_get file_path "$INPUT")
-  [ -n "$file" ] && [ -f "$file" ] || return 0
+  if [ -z "$file" ] || [ ! -f "$file" ]; then return 0; fi
   ct=$(content_type_for "$file")
   [ -n "$ct" ] || return 0
   command -v vale >/dev/null 2>&1 || return 0
