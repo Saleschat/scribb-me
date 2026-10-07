@@ -18,20 +18,29 @@ Status: decided, needs implementation
 
 ## Rules
 - Each nudge is shown once, ever (user scope). At most one per session.
-- Priority: inbox memory suggestion > pick a style > install Vale > rating > telemetry opt-in.
+- Priority: on by default > inbox memory suggestion > pick a style > install Vale > rating > telemetry opt-in.
 
 ## Initial nudges
 | id | event | condition | channel |
 |---|---|---|---|
+| on-by-default | PostToolUse | first time scribb acts automatically (checker ran, or the reviewer was asked to run) | user |
 | inbox-ready | SessionStart | inbox signal above threshold | claude (every session it applies, not once) |
 | pick-style | PostToolUse | file matches content type, no style set | claude |
 | install-checker | PostToolUse | a check would have run, `command -v vale` fails | user |
 | rate-rewrite | after `/scribb:write` or an auto review | sampled at `feedbackRate` (default 0.1) | claude + AskUserQuestion; repeatable, still one per session |
 | telemetry-optin | SessionStart | N sessions of real use | claude + AskUserQuestion |
 
+## On by default
+scribb starts working as soon as it's installed, so the first time it acts on its own, the user should learn that and how to stop it.
+- Message (exact wording, `emit_user`):
+  > scribb.me just checked this file's writing style. It's on by default. To turn it off: `/scribb:style off` (this session), `/scribb:style off --repo` or `--everywhere`, or set `SCRIBB_DISABLE=1`.
+- It's shown even when `nudges: off` is set, because it's how users find the off switch. `SCRIBB_DISABLE`, `DO_NOT_TRACK` and `DISABLE_TELEMETRY` don't silence it: with `SCRIBB_DISABLE` scribb never acts, so the condition can't be met.
+- When the user asks how to turn scribb off (or says it's in the way), Claude answers with the levels from 011's "switched off at every level" table and offers to run the command. The SessionStart injection carries one line for this, so it works even after the nudge was shown.
+
 ## Ratings
 - Bad / Fine / Good / Dismiss → `.scribb/local/ratings.jsonl` → a learner signal (e.g. "Bad" on strict Docs suggests a rule is over-firing).
 - Sent only as a count, and only if the user opted into telemetry (016).
 
 ## Open questions
+- Whether `on-by-default` should repeat once per new repo, since project scope settings differ.
 - N for the telemetry offer; whether the `feedbackRate` default should drop after the first ratings.

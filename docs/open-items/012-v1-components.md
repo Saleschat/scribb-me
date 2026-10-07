@@ -8,7 +8,7 @@ Status: decided, needs implementation
 | `setup` | user | Onboarding: pick content type and style (or zero-config defaults). Writes `.scribb/` (including the generated checker config), adds `.scribb/local/` to `.gitignore` |
 | `write` | user | Outer loop: brief → draft → checker → reviewer → revise, at most 2 rounds |
 | `review` | user | Reviews existing text, a file or a diff. Reports findings, and only rewrites if asked |
-| `style` | user | Shows the active style (which layers, from which scope). Switches style, content type or freedom for this piece or repo |
+| `style` | user | Shows the active style (which layers, from which scope). Switches style, content type or freedom for this piece or repo. `off` / `on` turns scribb off or back on for the session, `--repo` or `--everywhere` |
 | `learn` | user | (a) from sources: create or update a style pack; (b) from the inbox: group, score, suggest. Hands off to the learner agent |
 | `remember` | user, or Claude after a hook prompt | Saves one memory, asks for its scope, records the approver |
 | `scribb-style` | model (from its description) | Background guidance: when writing any prose, apply the active style. A best-effort safety net |
@@ -21,7 +21,7 @@ Status: decided, needs implementation
 ## Hooks (bash only)
 | Event | Does |
 |---|---|
-| SessionStart | Injects the active style summary + top memories + pending inbox count |
+| SessionStart | Injects the active style summary + top memories + pending inbox count + one line on how to turn scribb off if the user asks |
 | UserPromptSubmit | Captures correction phrasing → inbox + an "offer to save" line |
 | PostToolUse (Write\|Edit) | Runs `scribb-check` on files that match a content-type pattern; exit code 2 sends findings back; at most 2 retries |
 | Stop | Lints the last reply, only while a write session is active |
