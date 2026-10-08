@@ -104,16 +104,6 @@ Developer docs and newsletters have no default folder, because every repo is lai
 
 To make your own voice, see [Create your own style](#create-your-own-style). (For contributors, the full pack format is in [docs/pack-format.md](docs/pack-format.md).)
 
-## Create your own style
-
-Teach scribb a voice from writing you like: your own posts, your company's best docs, a newsletter you admire.
-
-1. Run `/scribb:learn` and give it 5–20 samples: files, links or pasted text.
-2. It shows you the style it found, with a sample paragraph written that way. Say yes to keep it, and choose **just me** (every repo) or **my team** (this repo).
-3. Use it: `/scribb:style use <name>`. Or just ask for it in a request ("write this in my-style").
-
-In claude.ai chat, `/scribb:learn` gives you the style as a file to upload in **Customize > Skills**.
-
 ## Commands
 
 Type `/scribb` to list them all, in any of the three apps. In chat, `/scribb:setup` and `/scribb:contribute` explain that they need Claude Code or Cowork.
@@ -139,6 +129,16 @@ With no style set, scribb uses a neutral house style. Two starter styles ship wi
 | `crisp-product-ui` | Plain, compact interface copy that never makes people read twice. |
 
 Pick one with `/scribb:style list`, or [create your own](#create-your-own-style).
+
+## Create your own style
+
+Teach scribb a voice from writing you like: your own posts, your company's best docs, a newsletter you admire.
+
+1. Run `/scribb:learn` and give it 5–20 samples: files, links or pasted text.
+2. It shows you the style it found, with a sample paragraph written that way. Say yes to keep it, and choose **just me** (every repo) or **my team** (this repo).
+3. Use it: `/scribb:style use <name>`. Or just ask for it in a request ("write this in my-style").
+
+In claude.ai chat, `/scribb:learn` gives you the style as a file to upload in **Customize > Skills**.
 
 ## Turning it off
 
