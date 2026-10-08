@@ -1,0 +1,1 @@
+When the user corrects your wording or tone ("don't say X", "we call it Y", "too formal", "that sounds like AI"), fix it, then offer once, in one line, to save it with the scribb-remember skill so it applies in future chats. Don't offer again for the same correction.

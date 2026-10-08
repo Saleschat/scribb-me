@@ -8,14 +8,6 @@ allowed-tools: Bash(${CLAUDE_PLUGIN_ROOT}/scripts/scribb-config *) Bash(${CLAUDE
 
 # /scribb:contribute
 
-Current setup:
-!`"${CLAUDE_PLUGIN_ROOT}/scripts/scribb-config" status`
-
-## Where you're running
-Look at this path: `${CLAUDE_PLUGIN_ROOT}/scripts`.
-- **Claude Code:** it's a real folder path. Use the helpers and follow the numbered steps; the "In chat" section doesn't apply. If the setup above is still a literal `!` command (that happens when the plugin is synced from claude.ai), run that command yourself first, on its own.
-- **claude.ai chat, or another app without scribb's helpers:** it still reads `${CLAUDE_PLUGIN_ROOT}`. Don't run any `${CLAUDE_PLUGIN_ROOT}` command; skip to **In chat** at the end.
-
 **Running the helpers:** run each helper as its own command, with nothing chained before or after it (no `;`, `&&`, `|`, `2>&1` or `echo`). A chained command doesn't match this skill's allowed tools, so it would stop and ask the user for permission. Use the helpers instead of `cat` or `ls` on plugin files.
 
 What to share: `$ARGUMENTS`
@@ -66,6 +58,3 @@ Say plainly: "This will be posted publicly to github.com/Saleschat/scribb-me." A
 - With approval and `gh`: commit, push the branch (to the fork, if you forked), and run `gh pr create --repo Saleschat/scribb-me`. Give the user the pull request link.
 - Without `gh`: give the user the files and the pull request text, and the link https://github.com/Saleschat/scribb-me/compare to open it themselves.
 - Then add `contributed: <PR link>` to each local memory that was shared, so it isn't suggested again.
-
-## In chat
-This command clones the scribb.me repository and runs its tests, so it needs Claude Code. In chat, draft the change instead (steps 1–3, then the rule and its bad/good examples from step 4) and give the user the text, with a link to https://github.com/Saleschat/scribb-me/blob/main/CONTRIBUTING.md.

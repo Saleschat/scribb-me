@@ -1,0 +1,23 @@
+{
+  "name": "scribb-chat",
+  "displayName": "scribb.me for chat",
+  "version": "0.1.0",
+  "description": "scribb.me for claude.ai chat: write and review docs, UI copy and newsletters without AI writing habits, with a built-in checker. For Claude Code, use the scribb plugin.",
+  "author": {
+    "name": "Saleschat",
+    "url": "https://github.com/Saleschat"
+  },
+  "homepage": "https://github.com/Saleschat/scribb-me",
+  "repository": "https://github.com/Saleschat/scribb-me",
+  "license": "MIT",
+  "keywords": [
+    "writing",
+    "style",
+    "docs",
+    "ux-writing",
+    "microcopy",
+    "vale",
+    "lint"
+  ],
+  "defaultEnabled": false
+}

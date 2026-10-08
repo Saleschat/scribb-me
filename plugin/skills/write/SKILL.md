@@ -14,11 +14,6 @@ Request: `$ARGUMENTS`
 Current setup:
 !`"${CLAUDE_PLUGIN_ROOT}/scripts/scribb-config" status --session "${CLAUDE_SESSION_ID}"`
 
-## Where you're running
-Look at this path: `${CLAUDE_PLUGIN_ROOT}/scripts`.
-- **Claude Code:** it's a real folder path. Use the helpers and follow the numbered steps; the "In chat" section doesn't apply. If the setup above is still a literal `!` command (that happens when the plugin is synced from claude.ai), run that command yourself first, on its own.
-- **claude.ai chat, or another app without scribb's helpers:** it still reads `${CLAUDE_PLUGIN_ROOT}`. Don't run any `${CLAUDE_PLUGIN_ROOT}` command; skip to **In chat** at the end. Everything you need is in this skill's own folder: `references/` (the guides) and `scripts/check.py` (the checker). Paths are relative to this file, and `${CLAUDE_SKILL_DIR}` points at the folder where an app fills it in.
-
 Helpers (full paths): `"${CLAUDE_PLUGIN_ROOT}/scripts/scribb-config"`, `"${CLAUDE_PLUGIN_ROOT}/scripts/scribb-guide"`, `"${CLAUDE_PLUGIN_ROOT}/scripts/scribb-check"`, `"${CLAUDE_PLUGIN_ROOT}/scripts/scribb-nudge"`.
 
 ## 1. Brief
@@ -52,17 +47,3 @@ Re-check after revising. Stop after two rounds, or earlier when there are no `bl
 Present the piece (or confirm the file). If anything is still flagged, list it in one or two lines. Leave the write session on: the Stop hook checks this reply and then ends it.
 
 Then run `scribb-nudge should-rate --session ${CLAUDE_SESSION_ID}`. If it exits 0, ask once with AskUserQuestion: "How was this draft?" with options Good, Fine, Bad, and Dismiss. Append the answer as one JSON line to `.scribb/local/ratings.jsonl`: `{"at": "<UTC time>", "content_type": "<ct>", "format": "<format>", "freedom": "<f>", "style": "<style>", "rating": "<answer>"}`. Never include the text.
-
-## In chat
-The references, all relative to this skill's folder:
-- `references/base/guide.md` (always), `references/base/summary.md`
-- `references/content-types/<id>/guide.md`, `summary.md`, `sample.md`, `formats/<format>.md`, and for UI copy `roles/shadcn.yaml`. Content types: `product-docs`, `developer-docs`, `ux-microcopy`, `newsletter`; each `pack.yaml` has its tagline and default freedom.
-- `references/styles/<id>/guide.md`, `summary.md`, `sample.md`. Styles: `direct-developer-docs`, `crisp-product-ui`.
-
-1. **Brief.** Infer it as in step 1, from the request alone: content type, format, audience, length, freedom (the content type's default unless the user says otherwise) and style (only if the user names one). Show the brief as one line and go on unless the user corrects it.
-2. **Read** the base guide, the content type's guide, the format if there is one, and the style's guide. Follow any writing preferences in the user's Project instructions or earlier in the conversation; they beat the style.
-3. **Draft.** Strict: plain and conventional. Balanced: one good version. Expressive: freer, with 2–3 options for short pieces.
-4. **Check.** Run the checker if you can run code (code execution): save the text to a file, then `python3 scripts/check.py --content-type <ct> --freedom <level> [--style <id>] <file>`. Use a `.jsx` file for UI strings inside components, `.md` otherwise. It prints `file:line:col:action:severity:rule:message`, the same findings scribb's Vale checker gives in Claude Code. Fix every `block` finding and consider `warn` ones. If you can't run code, say once that the automatic check didn't run, and be extra careful in the review pass.
-5. **Review it yourself, as a fresh reader.** Reread the draft against the base guide and the content type's guide, and list the exact passages that break a rule. Leave out anything you're unsure of, and don't over-correct (one em dash is fine; a habit is the problem).
-6. **Revise**, re-check, and stop after two rounds. Present the piece, and list anything still flagged in one or two lines.
-7. If the user corrects your wording during this, offer to turn the correction into a line for their Project instructions, so it applies next time (see the `remember` skill).

@@ -7,14 +7,6 @@ allowed-tools: Bash(${CLAUDE_PLUGIN_ROOT}/scripts/scribb-config *) Bash(${CLAUDE
 
 # /scribb:remember
 
-Current setup:
-!`"${CLAUDE_PLUGIN_ROOT}/scripts/scribb-config" status`
-
-## Where you're running
-Look at this path: `${CLAUDE_PLUGIN_ROOT}/scripts`.
-- **Claude Code:** it's a real folder path. Use the helpers and follow the numbered steps; the "In chat" section doesn't apply. If the setup above is still a literal `!` command (that happens when the plugin is synced from claude.ai), run that command yourself first, on its own.
-- **claude.ai chat, or another app without scribb's helpers:** it still reads `${CLAUDE_PLUGIN_ROOT}`. Don't run any `${CLAUDE_PLUGIN_ROOT}` command; skip to **In chat** at the end.
-
 **Running the helpers:** run each helper as its own command, with nothing chained before or after it (no `;`, `&&`, `|`, `2>&1` or `echo`). A chained command doesn't match this skill's allowed tools, so it would stop and ask the user for permission. Use the helpers instead of `cat` or `ls` on plugin files.
 
 Preference: `$ARGUMENTS`
@@ -48,9 +40,3 @@ Helper: `"${CLAUDE_PLUGIN_ROOT}/scripts/scribb-config"`.
 6. **Names.** If the memory is a product or feature name with its own casing, also append it to `vocab.txt` in the same scope (`.scribb/vocab.txt` for the team), so the checker accepts it.
 7. **Checker rule (optional).** If the memory is a fixed word or phrase, offer to also make it a checker rule. On yes, write a Vale rule in `.scribb/packs/rules/checks/vale/ScribbProject/` (or the local equivalent `.scribb/local/packs/rules/checks/vale/ScribbLocal/`), create that pack's `pack.yaml` if missing (`id: rules`, `kind: memory-rules`, `version: 0.1.0`, `tagline: Rules promoted from memories`, `license: MIT`), and set `promoted_to_rule:` to the rule path.
 8. Confirm in one line: what was saved, where, and that it applies from now on (and from the next session start for the injected summary).
-
-## In chat
-Chat has no `.scribb/` folder, so a memory can't be saved as a file. Instead:
-1. Write the preference as one imperative sentence (step 1 above).
-2. Give the user a line to paste into their Project instructions (or a personal preference in claude.ai settings), for example: `scribb memory: Say "board", never "dashboard", in user-facing docs.`
-3. Tell them that in Claude Code, `/scribb:remember` saves it for a repo or their whole team.
