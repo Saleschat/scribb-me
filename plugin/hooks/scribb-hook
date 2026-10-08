@@ -145,13 +145,19 @@ The user can always skip scribb for a piece (\"skip review\", \"no checks\"); re
 # --- UserPromptSubmit: correction capture --------------------------------------------
 
 # shellcheck disable=SC1111 # curly quotes are part of the pattern
-CORRECTION_RE="(don'?t|do not|never|stop) (say|saying|use|using|write|writing|call|calling)\b|(instead of|rather than) [\"'“‘]|we (call|say|write) (it|them|this)\b|(too|so|very) (formal|casual|wordy|long|verbose|stiff|robotic|salesy|chatty|corporate|fluffy)\b|(sounds|reads) (like (an? )?(ai|chatgpt|robot|bot|marketing)|robotic|stiff)|(less|more) (formal|casual|wordy|salesy|concise|direct|friendly)\b|no (more )?em[ -]?dash|(use|prefer) [\"'“‘][^\"'”’]{1,40}[\"'”’] (not|instead|over)"
+CORRECTION_RE="(don'?t|do not|never|stop) (say|saying|use|using|write|writing|call|calling) [\"'“‘]|(instead of|rather than) [\"'“‘]|we (call|say|write) (it|them|this)\b|(too|so|very) (formal|casual|wordy|long|verbose|stiff|robotic|salesy|chatty|corporate|fluffy)\b|(sounds|reads) (like (an? )?(ai|chatgpt|robot|bot|marketing)|robotic|stiff)|(less|more) (formal|casual|wordy|salesy|concise|direct|friendly)\b|no (more )?em[ -]?dash|(use|prefer) [\"'“‘][^\"'”’]{1,40}[\"'”’] (not|instead|over)"
 
 prompt_capture() {
   is_off "$(cfg capture)" && return 0
   local prompt match dir f ts
   prompt=$(json_get prompt "$INPUT")
   [ -n "$prompt" ] || return 0
+  # Hook and checker output can reach this hook as if the user typed it; skip it.
+  case "$prompt" in
+    *"scribb.me checker"* | *"scribb.me:"* | *":block:"* | *":warn:"* | *"<system-reminder>"* | *"hook feedback"* | *"Stop hook"*)
+      hook_log "skip capture: hook or checker output, not the user"
+      return 0 ;;
+  esac
   match=$(printf '%s' "$prompt" | grep -Eoi "$CORRECTION_RE" | head -n 1)
   [ -n "$match" ] || return 0
   dir=$(scribb_ensure_local_dir "$SCRIBB_PROJECT") || return 0

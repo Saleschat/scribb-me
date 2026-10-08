@@ -158,6 +158,11 @@ for jqmode in jq nojq; do
   assert "prompt: local dir ignores itself" [ -z "$(git status --porcelain)" ]
   out=$(run_hook prompt '{"session_id":"s1","cwd":"'"$T/proj"'","prompt":"Add a retry to the upload function"}')
   assert "prompt: ignores ordinary prompts" [ -z "$out" ]
+  out=$(run_hook prompt '{"session_id":"s1","cwd":"'"$T/proj"'","prompt":"Using a shell command, not the file editor, create docs/test.md. Don'"'"'t use the Write tool."}')
+  assert "prompt: tool instructions aren't style corrections" [ -z "$out" ]
+  out=$(run_hook prompt '{"session_id":"s1","cwd":"'"$T/proj"'","prompt":"scribb.me checker: docs/a.md has writing issues to fix:\ndocs/a.md:3:1:block:convention:ScribbDocs.Exclamation:Don'"'"'t use exclamation marks in docs. Too formal."}')
+  assert "prompt: scribb's own feedback isn't captured" [ -z "$out" ]
+  assert "prompt: only the real correction reached the inbox" [ "$(find .scribb/local/inbox -name '*.md' | wc -l | tr -d ' ')" = 1 ]
   mkdir -p .scribb && echo "capture: off" > .scribb/config.yaml
   out=$(run_hook prompt '{"session_id":"s1","cwd":"'"$T/proj"'","prompt":"too formal, rewrite it"}')
   assert "prompt: capture off" [ -z "$out" ]

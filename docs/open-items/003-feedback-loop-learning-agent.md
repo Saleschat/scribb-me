@@ -53,3 +53,8 @@ promoted_to_rule: null # or the checker rule path, once a memory becomes a lint 
 - Correction phrasing list and its false-positive rate.
 - The size cap for injected memories, and what to do when memories exceed it.
 - Re-learning from sources on demand (`/scribb:learn --from-sources`).
+
+## Capture fixes (2026-10-08, from a Cowork test)
+- "don't say / use / call / write" now counts as a correction only when a quoted word follows (`don't say "account"`). Before, instructions about tools ("don't use the Write tool") filled the inbox.
+- Prompts that are hook or checker output (they contain `scribb.me checker`, `:block:`, a system reminder and so on) are skipped. The checker's own "Don't use exclamation marks…" had been captured as if the user typed it.
+
