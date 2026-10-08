@@ -1,29 +1,71 @@
 # scribb.me
 
-scribb.me is a writing-style plugin for coding agents. It makes the docs, UI copy and newsletters your agent writes read like a careful human wrote them: no AI writing habits, your team's conventions, and optionally a style you pick or teach it.
+scribb.me is a writing-style plugin for Claude. It makes the docs, UI copy and newsletters Claude writes read like a careful human wrote them: no AI writing habits, your team's conventions, and optionally a style you pick or teach it.
 
-v0.1 supports Claude Code. Codex and other tools are planned (see [docs/open-items](docs/open-items/)).
+It's one plugin that works in Claude Code, Cowork and claude.ai chat. Codex and other tools are planned (see [docs/open-items](docs/open-items/)).
 
-## Install (Claude Code)
+## Choose where to use it
+
+The same plugin works in three Claude apps. Each one loads a different part of it, so pick by where you write.
+
+| | **Claude Code** | **Cowork** | **claude.ai chat** |
+|---|---|---|---|
+| Best for | Docs and UI copy that live in a code repository | Writing tasks on your computer, outside a repository | Drafting and reviewing in a conversation |
+| Install from | `/plugin` in Claude Code | Your claude.ai account (Customize > Plugins) | Your claude.ai account (Customize > Plugins) |
+| Write and review (`/scribb:write`, `/scribb:review`) | ✓ | ✓ | ✓ |
+| Rules applied whenever you ask for docs, UI copy or a newsletter | ✓ | ✓ | ✓ |
+| Checker | Vale, after every file edit | Vale if installed, after every file edit | Built-in checker, when code execution is on |
+| Fresh-context reviewer agent | ✓ | ✓ | Self-review pass in the same chat |
+| Corrections captured automatically | ✓ | ✓ | Offered when you correct a word |
+| Memories (saved preferences) | Files for you or your team | Files in the folder you work on | A line for your Project instructions |
+| Learn a style from samples | ✓ saved as a style pack | ✓ saved as a style pack | ✓ handed back as a skill to upload |
+| Team setup, contributing fixes upstream | ✓ | ✓ | ✗ |
+
+**Which to choose**
+- **You write docs or UI copy in a repository:** use **Claude Code**. It's the full version: checks after every edit, team settings and memories committed with the repo, and the reviewer agent.
+- **You work on files outside a repository** (a folder of drafts, a newsletter, a handbook): use **Cowork**. It runs the same hooks and agents as Claude Code.
+- **You draft or review in a conversation,** or don't use Claude Code: use **claude.ai chat**. You get the guides, the built-in checker and a review pass, but nothing runs automatically between messages.
+
+You can use more than one. Plugins you add on claude.ai appear in Cowork and also sync into Claude Code. If you've installed scribb in Claude Code from the marketplace too, Claude Code uses that copy and skips the synced one, so it never loads twice.
+
+## Install
+
+### Claude Code
 
 ```
 /plugin marketplace add Saleschat/scribb-me
 /plugin install scribb@scribb-me
 ```
 
-Then just write. There's no setup step.
+`/plugin install` asks where to install it:
+- **Just you, in this repository** (local scope): good for trying it.
+- **Everyone in this repository** (project scope): writes `.claude/settings.json`, which you commit. Each teammate also runs `/plugin install scribb@scribb-me` once.
+- **You, in every repository** (user scope).
+
+Then run `/reload-plugins` (or start a new session) and just write. There's no setup step; run `/scribb:setup` when you want team defaults.
+
+For the checks after each edit, install [Vale](https://vale.sh/docs/install) (`brew install vale` on macOS). Without Vale, everything else still works.
+
+### Cowork
+
+1. In the Claude desktop app, open **Customize > Plugins > Add > Add marketplace**, enter `Saleschat/scribb-me`, and add **scribb**.
+2. Start a new Cowork task. Plugins load when a task starts.
+3. Use it as in Claude Code: `/scribb:write`, `/scribb:review`, or just ask for docs, UI copy or a newsletter.
+
+Not yet tested in Cowork: whether Vale is available in Cowork's environment (without it, the after-edit check is skipped), and whether personal settings and memories outside the folder you work on carry over between tasks. [Report](https://github.com/Saleschat/scribb-me/issues/new?template=bug.yml) what you find.
 
 ### claude.ai chat
 
-In claude.ai (or the desktop app's chat), go to **Customize > Plugins > Add > Add marketplace**, enter `Saleschat/scribb-me`, and add **scribb**.
+1. In claude.ai (or the desktop app's chat), open **Customize > Plugins > Add > Add marketplace**, enter `Saleschat/scribb-me`, and add **scribb**.
+2. In a chat, **type `/scribb`** in the message box to list every scribb skill (write, review, learn, remember, style…), or just ask for docs, UI copy or a newsletter and scribb's guidance applies on its own.
+3. For the built-in checker, turn on code execution in your claude.ai settings if it's off. Without it, scribb still writes from its guides and reviews its own draft.
 
-In chat, scribb works from the files inside each skill: the guides and a built-in checker. Ask it to write or review ("write this with scribb"), or **type `/scribb` in the message box** to list every scribb skill (write, review, learn, remember, style…), or just ask for docs, UI copy or a newsletter and the background skill applies. The checker needs code execution, which may need to be turned on in your claude.ai settings; without it, scribb still writes from the guides and reviews its own draft.
+Chat runs skills only, so these stay in Claude Code and Cowork: checks after every edit, the reviewer agent, automatic correction capture, memory files, `/scribb:setup` and `/scribb:contribute`. When you correct scribb's wording in chat, it offers to save the correction; `/scribb:remember` then gives you a `scribb memory:` line for your Project instructions or personal preferences.
 
-Chat has no hooks, agents or repo files, so these are Claude Code only: checks after every edit, correction capture, the reviewer agent, `/scribb:setup` and `/scribb:contribute`. To keep a preference in chat, `/scribb:remember` gives you a line for your Project instructions.
+### Updates
 
-Plugins you add on claude.ai also appear in Claude Code. If you've installed scribb there from the marketplace too, Claude Code keeps using that copy and skips the synced one.
-
-For the automatic checks after each edit, also install [Vale](https://vale.sh/docs/install) (`brew install vale` on macOS). Without Vale, everything else still works.
+- **Claude Code:** `/plugin marketplace update scribb-me`, then `/reload-plugins`.
+- **Cowork and chat:** scribb updates from the repository on its own. To get the latest right away, select **Check for updates** in **Customize > Plugins**, or turn on **Sync automatically** for the marketplace.
 
 ## What it does
 
@@ -78,7 +120,7 @@ The built-in packs in `plugin/packs/` double as worked examples of each layer. T
 
 ## Commands
 
-Type `/scribb` to list them all, in Claude Code and in claude.ai chat.
+Type `/scribb` to list them all, in any of the three apps. In chat, `/scribb:setup` and `/scribb:contribute` explain that they need Claude Code or Cowork.
 
 | Command | Does |
 |---|---|
