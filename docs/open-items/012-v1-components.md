@@ -34,7 +34,7 @@ Status: implemented in v0.1 (Claude Code); Codex and generic adapters not starte
 ## Implemented in v0.1 (branch `v1-claude-code-plugin`, 2026-10-07)
 - Everything above is in `plugin/`, plus:
   - a `report` skill (from 016) and a `contribute` skill (local memory or rule → pull request against the built-in packs),
-  - `bin/scribb-config` (settings, status, off/on, packs, inbox, memories, approvals, versions), `bin/scribb-guide` (all the guidance for one piece in one call) and `bin/scribb-nudge` (nudge checks for skills),
+  - `scripts/scribb-config` (settings, status, off/on, packs, inbox, memories, approvals, versions), `scripts/scribb-guide` (all the guidance for one piece in one call) and `scripts/scribb-nudge` (nudge checks for skills),
   - a `newsletter` content type (issues, product updates, welcome emails), and two starter styles: `direct-developer-docs` and `crisp-product-ui`. `warm-and-plain` was dropped (002).
 - `setup`, `report` set `disable-model-invocation`; `scribb-style` is model-only (`user-invocable: false`).
 
@@ -47,7 +47,7 @@ Every command was run headless against throwaway repos (about $5 in total), with
   - The checker missed JSX text in `.tsx`, where most UI copy lives. `scribb-check` now lints a `.jsx` copy (see 008).
   - `HeadingCase` flagged "iOS setup"; common lower-case-first names are now exceptions.
 - **Permission prompts removed:** skills and agents read pack files outside the project, chained helper calls (`cat a; ls b; …`), wrote temp draft files outside the project, and appended to the approvals index by hand, each of which asks the user. Now:
-  - `bin/scribb-guide` prints the base, content type, format and style guides, the UI role map and the memories in one allowed call; the reviewer gets that text from the caller.
+  - `scripts/scribb-guide` prints the base, content type, format and style guides, the UI role map and the memories in one allowed call; the reviewer gets that text from the caller.
   - `scribb-check --text "…"` checks a draft without a file.
   - `scribb-config` gained `inbox`, `memories`, `approvals`, `record-approval`, `hash` and `versions`.
   - Every skill says to run helpers as single commands, and allows `Read` on the plugin folder plus `Read`/`Write`/`Edit` on `~/.config/scribb/**` where it saves there.

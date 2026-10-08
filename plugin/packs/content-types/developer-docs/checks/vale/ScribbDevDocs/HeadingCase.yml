@@ -9,6 +9,7 @@ threshold: 0.5
 indicators:
   - ":"
 exceptions:
+  - AI
   - iOS
   - iPadOS
   - macOS

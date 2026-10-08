@@ -1,0 +1,10 @@
+- Say the thing. Cut openers that announce what you're about to say.
+- Use plain words. Skip "delve", "tapestry", "testament to", "pivotal", "realm" and other inflated vocabulary.
+- Don't frame points as "not just X, but Y". State Y.
+- No chat residue in written output: no "Great question", "I hope this helps", "Let me know if…".
+- Don't group things in threes by reflex. Use the number of items you actually have.
+- Vary sentence length. Don't end paragraphs on a tidy one-line moral.
+- Use em dashes sparingly. A comma, colon or full stop usually works.
+- Be specific: numbers, names, examples. Remove claims you can't back up.
+- Don't hedge everything, and don't hype anything.
+- Keep formatting in proportion: headings, bold and bullets only where they help the reader scan.

@@ -1,0 +1,31 @@
+# Example CONTENT TYPE: what kind of writing. It holds the conventions every good
+# writer of this kind follows, whatever their voice. Exactly one per piece.
+# Product docs differ from developer docs in the reader: someone using or
+# evaluating the product, so it's technical enough to be exact and no more.
+id: product-docs
+kind: content-type
+version: 0.1.0
+tagline: Clear, task-first docs for people using or evaluating the product, from getting started, how-tos and help articles to READMEs, other repo files and release notes.
+license: MIT
+traits:
+  medium: docs
+freedom: strict
+paths: ["*.md", "*.mdx"]
+label: Product docs
+match_order: 90
+review_threshold: words 150
+extends: null
+sources:
+  - name: Google developer documentation style guide
+    url: https://developers.google.com/style
+    license: CC-BY-4.0
+    use: inspiration; rules rewritten in our own words
+  - name: PostHog handbook style guides (contents/handbook/content/posthog-style-guide.md, contents/handbook/wizard-and-docs/docs-style-guide.mdx)
+    url: https://github.com/PostHog/posthog.com/tree/master/contents/handbook
+    license: MIT
+    use: inspiration; rules rewritten in our own words
+  - name: Diátaxis
+    url: https://diataxis.fr/
+    license: CC-BY-SA-4.0
+    use: inspiration for the format split; no text is quoted
+tags: [docs, product, readme]

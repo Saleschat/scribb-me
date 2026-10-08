@@ -2,7 +2,7 @@
 name: write
 description: Write a piece of prose with scribb.me's full loop: infer a brief (content type, format, audience, length, freedom, style), draft, run the checker, get a fresh-context review, revise, at most two rounds. Use for docs, READMEs, guides, release notes, UI copy or chat-only pieces when the user asks scribb to write something or wants a careful, reviewed draft.
 argument-hint: "<what to write> [--freedom strict|balanced|expressive] [--style <id>] [--format <id>] [--no-review]"
-allowed-tools: Bash(${CLAUDE_PLUGIN_ROOT}/bin/scribb-config *) Bash(${CLAUDE_PLUGIN_ROOT}/bin/scribb-guide *) Bash(${CLAUDE_PLUGIN_ROOT}/bin/scribb-check *) Bash(${CLAUDE_PLUGIN_ROOT}/bin/scribb-nudge *) Read(/${CLAUDE_PLUGIN_ROOT}/**)
+allowed-tools: Bash(${CLAUDE_PLUGIN_ROOT}/scripts/scribb-config *) Bash(${CLAUDE_PLUGIN_ROOT}/scripts/scribb-guide *) Bash(${CLAUDE_PLUGIN_ROOT}/scripts/scribb-check *) Bash(${CLAUDE_PLUGIN_ROOT}/scripts/scribb-nudge *) Read(/${CLAUDE_PLUGIN_ROOT}/**)
 ---
 
 # /scribb:write
@@ -12,9 +12,14 @@ allowed-tools: Bash(${CLAUDE_PLUGIN_ROOT}/bin/scribb-config *) Bash(${CLAUDE_PLU
 Request: `$ARGUMENTS`
 
 Current setup:
-!`"${CLAUDE_PLUGIN_ROOT}/bin/scribb-config" status --session "${CLAUDE_SESSION_ID}"`
+!`"${CLAUDE_PLUGIN_ROOT}/scripts/scribb-config" status --session "${CLAUDE_SESSION_ID}"`
 
-Helpers (full paths): `"${CLAUDE_PLUGIN_ROOT}/bin/scribb-config"`, `"${CLAUDE_PLUGIN_ROOT}/bin/scribb-guide"`, `"${CLAUDE_PLUGIN_ROOT}/bin/scribb-check"`, `"${CLAUDE_PLUGIN_ROOT}/bin/scribb-nudge"`.
+## Where you're running
+Look at this path: `${CLAUDE_PLUGIN_ROOT}/scripts`.
+- **Claude Code:** it's a real folder path. Use the helpers and follow the numbered steps; the "In chat" section doesn't apply. If the setup above is still a literal `!` command (that happens when the plugin is synced from claude.ai), run that command yourself first, on its own.
+- **claude.ai chat, or another app without scribb's helpers:** it still reads `${CLAUDE_PLUGIN_ROOT}`. Don't run any `${CLAUDE_PLUGIN_ROOT}` command; skip to **In chat** at the end. Everything you need is in this skill's own folder: `references/` (the guides) and `scripts/check.py` (the checker). Paths are relative to this file, and `${CLAUDE_SKILL_DIR}` points at the folder where an app fills it in.
+
+Helpers (full paths): `"${CLAUDE_PLUGIN_ROOT}/scripts/scribb-config"`, `"${CLAUDE_PLUGIN_ROOT}/scripts/scribb-guide"`, `"${CLAUDE_PLUGIN_ROOT}/scripts/scribb-check"`, `"${CLAUDE_PLUGIN_ROOT}/scripts/scribb-nudge"`.
 
 ## 1. Brief
 Infer the brief from the request and the target file. The user never writes YAML.
@@ -32,7 +37,7 @@ If the output is chat (no file), turn on the write session so the Stop hook chec
 `scribb-config set write_session on --scope session --session ${CLAUDE_SESSION_ID}`, then `scribb-config set content_type <ct> --scope session --session ${CLAUDE_SESSION_ID}`, and for a non-default freedom `scribb-config set write_freedom <level> --scope session --session ${CLAUDE_SESSION_ID}`. The Stop hook ends the write session itself after it has checked the reply; don't turn it off yourself.
 
 ## 2. Draft
-Get the guidance in one call: `"${CLAUDE_PLUGIN_ROOT}/bin/scribb-guide" --content-type <ct> --format <format> --session ${CLAUDE_SESSION_ID}` (leave out `--format` if there's none). It prints the base guide, the content type's guide, the format, the style and the approved memories. Write the draft. Strict: plain and conventional. Balanced: one good version. Expressive: freer phrasing, and offer 2–3 options for short pieces (titles, UI strings).
+Get the guidance in one call: `"${CLAUDE_PLUGIN_ROOT}/scripts/scribb-guide" --content-type <ct> --format <format> --session ${CLAUDE_SESSION_ID}` (leave out `--format` if there's none). It prints the base guide, the content type's guide, the format, the style and the approved memories. Write the draft. Strict: plain and conventional. Balanced: one good version. Expressive: freer phrasing, and offer 2–3 options for short pieces (titles, UI strings).
 
 ## 3. Check
 If the piece is in a file, the checker hook runs on its own after the write. For a chat piece, check the draft before you show it, without writing a file: `scribb-check --session ${CLAUDE_SESSION_ID} --content-type <ct> --freedom <f> --text "<the draft>"` (findings say `text:line`). Fix every `block` finding. Consider `warn` ones.
@@ -47,3 +52,17 @@ Re-check after revising. Stop after two rounds, or earlier when there are no `bl
 Present the piece (or confirm the file). If anything is still flagged, list it in one or two lines. Leave the write session on: the Stop hook checks this reply and then ends it.
 
 Then run `scribb-nudge should-rate --session ${CLAUDE_SESSION_ID}`. If it exits 0, ask once with AskUserQuestion: "How was this draft?" with options Good, Fine, Bad, and Dismiss. Append the answer as one JSON line to `.scribb/local/ratings.jsonl`: `{"at": "<UTC time>", "content_type": "<ct>", "format": "<format>", "freedom": "<f>", "style": "<style>", "rating": "<answer>"}`. Never include the text.
+
+## In chat
+The references, all relative to this skill's folder:
+- `references/base/guide.md` (always), `references/base/summary.md`
+- `references/content-types/<id>/guide.md`, `summary.md`, `sample.md`, `formats/<format>.md`, and for UI copy `roles/shadcn.yaml`. Content types: `product-docs`, `developer-docs`, `ux-microcopy`, `newsletter`; each `pack.yaml` has its tagline and default freedom.
+- `references/styles/<id>/guide.md`, `summary.md`, `sample.md`. Styles: `direct-developer-docs`, `crisp-product-ui`.
+
+1. **Brief.** Infer it as in step 1, from the request alone: content type, format, audience, length, freedom (the content type's default unless the user says otherwise) and style (only if the user names one). Show the brief as one line and go on unless the user corrects it.
+2. **Read** the base guide, the content type's guide, the format if there is one, and the style's guide. Follow any writing preferences in the user's Project instructions or earlier in the conversation; they beat the style.
+3. **Draft.** Strict: plain and conventional. Balanced: one good version. Expressive: freer, with 2–3 options for short pieces.
+4. **Check.** Run the checker if you can run code (code execution): save the text to a file, then `python3 scripts/check.py --content-type <ct> --freedom <level> [--style <id>] <file>`. Use a `.jsx` file for UI strings inside components, `.md` otherwise. It prints `file:line:col:action:severity:rule:message`, the same findings scribb's Vale checker gives in Claude Code. Fix every `block` finding and consider `warn` ones. If you can't run code, say once that the automatic check didn't run, and be extra careful in the review pass.
+5. **Review it yourself, as a fresh reader.** Reread the draft against the base guide and the content type's guide, and list the exact passages that break a rule. Leave out anything you're unsure of, and don't over-correct (one em dash is fine; a habit is the problem).
+6. **Revise**, re-check, and stop after two rounds. Present the piece, and list anything still flagged in one or two lines.
+7. If the user corrects your wording during this, offer to turn the correction into a line for their Project instructions, so it applies next time (see the `remember` skill).

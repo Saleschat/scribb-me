@@ -169,49 +169,49 @@ for jqmode in jq nojq; do
   assert "SCRIBB_DISABLE=1 silences hooks" [ -z "$out" ]
   out=$(SCRIBB_DISABLE=1 run_hook session-start '{"session_id":"s1","cwd":"'"$T/proj"'"}')
   assert "SCRIBB_DISABLE=1 silences session start" [ -z "$out" ]
-  "$PLUGIN/bin/scribb-config" off --session s5 >/dev/null
+  "$PLUGIN/scripts/scribb-config" off --session s5 >/dev/null
   out=$(run_hook post-edit "$(edit_input s5 "$T/proj/docs/a.md")")
   assert "off for a session" [ -z "$out" ]
   out=$(run_hook post-edit "$(edit_input s6 "$T/proj/docs/a.md")")
   assert "other sessions still on" [ -n "$out" ]
-  "$PLUGIN/bin/scribb-config" off --repo >/dev/null
+  "$PLUGIN/scripts/scribb-config" off --repo >/dev/null
   out=$(run_hook session-start '{"session_id":"s7","cwd":"'"$T/proj"'"}')
   assert "off for this repo (local scope)" [ -z "$out" ]
-  assert "status says off" contains "$("$PLUGIN/bin/scribb-config" status)" "is OFF"
-  "$PLUGIN/bin/scribb-config" off --session s10 --everywhere >/dev/null
+  assert "status says off" contains "$("$PLUGIN/scripts/scribb-config" status)" "is OFF"
+  "$PLUGIN/scripts/scribb-config" off --session s10 --everywhere >/dev/null
   assert "off: --everywhere wins over --session, in any order" [ "$(yaml_val "$HOME/.config/scribb/config.yaml" enabled)" = false ]
-  "$PLUGIN/bin/scribb-config" on --everywhere --session s10 >/dev/null
+  "$PLUGIN/scripts/scribb-config" on --everywhere --session s10 >/dev/null
   assert "on: --everywhere wins over --session" [ "$(yaml_val "$HOME/.config/scribb/config.yaml" enabled)" = true ]
   refute "off: --session with a scope flag doesn't write the session" [ -f "$SCRIBB_STATE_DIR/sessions/s10.yaml" ]
-  "$PLUGIN/bin/scribb-config" on --repo >/dev/null
+  "$PLUGIN/scripts/scribb-config" on --repo >/dev/null
   out=$(run_hook session-start '{"session_id":"s8","cwd":"'"$T/proj"'"}')
   assert "on again" [ -n "$out" ]
   teardown
 
   # --- config ---
   setup
-  "$PLUGIN/bin/scribb-config" set freedom balanced --scope user >/dev/null
-  "$PLUGIN/bin/scribb-config" set freedom expressive --scope local >/dev/null
-  assert "config: local beats user" [ "$("$PLUGIN/bin/scribb-config" get freedom)" = expressive ]
-  refute "config: rejects bad values" "$PLUGIN/bin/scribb-config" set freedom wild --scope user 2>/dev/null
-  refute "config: rejects unknown styles" "$PLUGIN/bin/scribb-config" set style nope --scope user 2>/dev/null
-  assert "config: accepts built-in styles" "$PLUGIN/bin/scribb-config" set style crisp-product-ui --scope project >/dev/null
-  assert "config: accepts content types from packs" "$PLUGIN/bin/scribb-config" set content_type newsletter --scope user >/dev/null
-  refute "config: rejects unknown content types" "$PLUGIN/bin/scribb-config" set content_type poetry --scope user 2>/dev/null
+  "$PLUGIN/scripts/scribb-config" set freedom balanced --scope user >/dev/null
+  "$PLUGIN/scripts/scribb-config" set freedom expressive --scope local >/dev/null
+  assert "config: local beats user" [ "$("$PLUGIN/scripts/scribb-config" get freedom)" = expressive ]
+  refute "config: rejects bad values" "$PLUGIN/scripts/scribb-config" set freedom wild --scope user 2>/dev/null
+  refute "config: rejects unknown styles" "$PLUGIN/scripts/scribb-config" set style nope --scope user 2>/dev/null
+  assert "config: accepts built-in styles" "$PLUGIN/scripts/scribb-config" set style crisp-product-ui --scope project >/dev/null
+  assert "config: accepts content types from packs" "$PLUGIN/scripts/scribb-config" set content_type newsletter --scope user >/dev/null
+  refute "config: rejects unknown content types" "$PLUGIN/scripts/scribb-config" set content_type poetry --scope user 2>/dev/null
   mkdir -p "$HOME/.config/scribb/packs/styles/my-voice"
   printf 'id: my-voice\nkind: style\nversion: 0.1.0\ntagline: Mine.\nlicense: MIT\n' > "$HOME/.config/scribb/packs/styles/my-voice/pack.yaml"
-  assert "packs: a user style in packs/styles/ is found" "$PLUGIN/bin/scribb-config" set style my-voice --scope user >/dev/null
-  ( cd "$T/proj" && "$PLUGIN/bin/scribb-config" record-approval project "Say board." ) >/dev/null
+  assert "packs: a user style in packs/styles/ is found" "$PLUGIN/scripts/scribb-config" set style my-voice --scope user >/dev/null
+  ( cd "$T/proj" && "$PLUGIN/scripts/scribb-config" record-approval project "Say board." ) >/dev/null
   mkdir -p "$T/other" && git -C "$T/other" init -q
-  out=$(cd "$T/other" && CLAUDE_PROJECT_DIR="$T/other" "$PLUGIN/bin/scribb-config" record-approval project "Say board.")
+  out=$(cd "$T/other" && CLAUDE_PROJECT_DIR="$T/other" "$PLUGIN/scripts/scribb-config" record-approval project "Say board.")
   assert "approvals: counts repos that approved a statement" contains "$out" "Approved in 2 repo(s)"
-  out=$("$PLUGIN/bin/scribb-guide" --content-type product-docs --format how-to)
+  out=$("$PLUGIN/scripts/scribb-guide" --content-type product-docs --format how-to)
   assert "scribb-guide: prints base, content type and format" contains "$out" "===== Format: how-to"
   assert "scribb-guide: includes memories" contains "$out" "Approved memories"
-  refute "scribb-guide: rejects unknown content types" "$PLUGIN/bin/scribb-guide" --content-type poetry 2>/dev/null
-  assert "scribb-config versions: lists packs" contains "$("$PLUGIN/bin/scribb-config" versions)" "pack product-docs"
-  assert "scribb-config inbox: empty inbox" contains "$("$PLUGIN/bin/scribb-config" inbox)" "The inbox is empty"
-  assert "config: lists styles" contains "$("$PLUGIN/bin/scribb-config" packs --kind style)" "direct-developer-docs"
+  refute "scribb-guide: rejects unknown content types" "$PLUGIN/scripts/scribb-guide" --content-type poetry 2>/dev/null
+  assert "scribb-config versions: lists packs" contains "$("$PLUGIN/scripts/scribb-config" versions)" "pack product-docs"
+  assert "scribb-config inbox: empty inbox" contains "$("$PLUGIN/scripts/scribb-config" inbox)" "The inbox is empty"
+  assert "config: lists styles" contains "$("$PLUGIN/scripts/scribb-config" packs --kind style)" "direct-developer-docs"
   teardown
 
   # --- checker loop ---
@@ -219,18 +219,18 @@ for jqmode in jq nojq; do
     setup
     printf '%s\n' "$BAD_DOC" > docs/bad.md
     printf '%s\n' "$GOOD_DOC" > docs/good.md
-    "$PLUGIN/bin/scribb-check" docs/good.md >/dev/null
+    "$PLUGIN/scripts/scribb-check" docs/good.md >/dev/null
     assert "scribb-check: good doc passes" [ $? -eq 0 ]
-    out=$("$PLUGIN/bin/scribb-check" docs/bad.md)
+    out=$("$PLUGIN/scripts/scribb-check" docs/bad.md)
     assert "scribb-check: bad doc blocks" [ $? -eq 1 ]
     assert "scribb-check: finds base rules" contains "$out" ":block:hard:ScribbBase.AIVocabulary:"
-    out=$("$PLUGIN/bin/scribb-check" --freedom expressive docs/bad.md)
+    out=$("$PLUGIN/scripts/scribb-check" --freedom expressive docs/bad.md)
     assert "scribb-check: expressive turns conventions into warnings" contains "$out" ":warn:convention:ScribbDocs.HeadingCase:"
     printf 'export const A = () => <p>{"Oops! Please try again."}</p>;\n' > A.tsx
-    out=$("$PLUGIN/bin/scribb-check" A.tsx)
+    out=$("$PLUGIN/scripts/scribb-check" A.tsx)
     assert "scribb-check: lints strings in .tsx" contains "$out" "ScribbUI.Oops"
     printf 'type P = { n: number };\nexport function E({ n }: P): JSX.Element {\n  return <h2>Oops! No projects yet</h2>;\n}\n' > B.tsx
-    out=$("$PLUGIN/bin/scribb-check" B.tsx)
+    out=$("$PLUGIN/scripts/scribb-check" B.tsx)
     assert "scribb-check: lints JSX text in .tsx" contains "$out" "B.tsx:3:"
     assert "scribb-check: reports the .tsx path, not the copy" contains "$out" "B.tsx:3:14:block:convention:ScribbUI.Oops"
     run_hook check "$(edit_input s1 "$T/proj/docs/good.md")" >/dev/null 2>&1
@@ -246,18 +246,18 @@ for jqmode in jq nojq; do
     run_hook check "$(edit_input s1 "$T/proj/docs/bad.md")" >/dev/null 2>&1
     assert "check hook: then goes quiet" [ $? -eq 0 ]
     printf '# Use Foo With The Bar Service\n\nText.\n' > docs/name.md
-    out=$("$PLUGIN/bin/scribb-check" docs/name.md)
+    out=$("$PLUGIN/scripts/scribb-check" docs/name.md)
     assert "vocab: title case is flagged" contains "$out" "HeadingCase"
     mkdir -p .scribb && printf 'Foo\nBar Service\nThe Bar Service\n' > .scribb/vocab.txt
     printf '# Use Foo with the Bar Service\n\nText.\n' > docs/name.md
-    out=$("$PLUGIN/bin/scribb-check" docs/name.md)
+    out=$("$PLUGIN/scripts/scribb-check" docs/name.md)
     refute "vocab: accepted names pass HeadingCase" contains "$out" "HeadingCase"
     mkdir -p newsletter
     printf '# Issue 12\n\nI hope this email finds you well. We are thrilled to announce reports!!\n' > newsletter/i12.md
-    out=$("$PLUGIN/bin/scribb-check" newsletter/i12.md)
+    out=$("$PLUGIN/scripts/scribb-check" newsletter/i12.md)
     assert "newsletter: its rules run on newsletter/ files" contains "$out" "ScribbNewsletter.EmailCliches"
     refute "newsletter: Docs rules don't" contains "$out" "ScribbDocs."
-    "$PLUGIN/bin/scribb-check" --export .scribb/checker >/dev/null
+    "$PLUGIN/scripts/scribb-check" --export .scribb/checker >/dev/null
     assert "export: writes vale.ini" [ -f .scribb/checker/vale.ini ]
     out=$(vale --config=.scribb/checker/vale.ini --output=line newsletter/i12.md 2>&1)
     assert "export: newsletter section wins over *.md" contains "$out" "ScribbNewsletter."
@@ -269,7 +269,7 @@ for jqmode in jq nojq; do
     stop_input() { printf '{"session_id":"s9","cwd":"%s","hook_event_name":"Stop","stop_hook_active":%s,"last_assistant_message":"%s"}' "$T/proj" "$1" "$2"; }
     out=$(run_hook stop "$(stop_input false "Great question! Let us delve in.")")
     assert "stop: inactive outside a write session" [ -z "$out" ]
-    "$PLUGIN/bin/scribb-config" set write_session on --scope session --session s9 >/dev/null
+    "$PLUGIN/scripts/scribb-config" set write_session on --scope session --session s9 >/dev/null
     out=$(run_hook stop "$(stop_input false "Great question! Let us delve in.")")
     assert "stop: blocks with findings in a write session" contains "$out" '"decision":"block"'
     assert "stop: valid JSON" valid_json "$out"
@@ -280,7 +280,7 @@ for jqmode in jq nojq; do
     assert "stop: a clean reply ends the write session" [ -z "$(yaml_val "$SCRIBB_STATE_DIR/sessions/s9.yaml" write_session)" ]
     out=$(run_hook stop "$(stop_input false "Great question! Let us delve in.")")
     assert "stop: after the session ends, replies aren't checked" [ -z "$out" ]
-    out=$("$PLUGIN/bin/scribb-check" --content-type newsletter --text "We are thrilled to announce it.")
+    out=$("$PLUGIN/scripts/scribb-check" --content-type newsletter --text "We are thrilled to announce it.")
     assert "scribb-check --text: checks text without a file" contains "$out" "text:1:"
     teardown
   else

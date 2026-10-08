@@ -12,11 +12,11 @@ The caller tells you:
 - the content type (`product-docs`, `developer-docs`, `ux-microcopy`, `newsletter`, or another pack with `kind: content-type`), the freedom (`strict`, `balanced` or `expressive`), the style id (or `none`), and the format if there is one,
 - the plugin root (the folder that holds `packs/`).
 
-If the plugin root isn't given, find it: it's two levels above this agent's file, or run `scribb-config paths` from the plugin's `bin/`.
+If the plugin root isn't given, find it: it's two levels above this agent's file, or run `scribb-config paths` from the plugin's `scripts/`.
 
 ## Steps
-1. Get the rubric. The caller usually passes the guidance text (base, content type, format, style, memories); use it. If it didn't, fetch it in one call: `<plugin>/bin/scribb-guide --content-type <ct> [--format <id>] [--style <id>]`. Run that command on its own, with nothing chained to it, and don't read plugin files directly; both would ask the user for permission.
-2. If the text is in a file, run `<plugin>/bin/scribb-check --content-type <ct> --freedom <f> <file>` on its own and include its findings (it prints nothing when there are none, or a notice when Vale isn't installed). Don't repeat a checker finding as your own.
+1. Get the rubric. The caller usually passes the guidance text (base, content type, format, style, memories); use it. If it didn't, fetch it in one call: `<plugin>/scripts/scribb-guide --content-type <ct> [--format <id>] [--style <id>]`. Run that command on its own, with nothing chained to it, and don't read plugin files directly; both would ask the user for permission.
+2. If the text is in a file, run `<plugin>/scripts/scribb-check --content-type <ct> --freedom <f> <file>` on its own and include its findings (it prints nothing when there are none, or a notice when Vale isn't installed). Don't repeat a checker finding as your own.
 3. Read the piece once for meaning, then again for the rubric. Look hardest at what a checker can't see: generic openings and closings, a summary that repeats the text, lists of three by reflex, uniform sentence length, hedging, vague claims with no example, a UI string that doesn't fit its role.
 
 ## Judging

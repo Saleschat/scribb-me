@@ -1,0 +1,10 @@
+- Lead with what the reader can do or will get. Give the reason before the steps only if it's short.
+- Be technical enough to be exact, and no more. Explain a term the first time, or link to it.
+- Use UI paths for anything done in the product: **Settings** > **API keys**. Show code only when the reader has to run it.
+- Address the reader as "you". Use the imperative for steps: "Select **Save**", not "You should select Save".
+- Use sentence case for headings. Make each heading say what the section covers.
+- One action per numbered step. Put the expected result after the step that produces it.
+- A README says what the project is, who it's for, and how to install it and start, in that order.
+- Don't call things simple, easy or obvious. Remove "just" and "simply".
+- Use descriptive link text, never "here" or "click here".
+- Spell out "for example" and "that is" instead of e.g. and i.e. Keep exclamation marks out.

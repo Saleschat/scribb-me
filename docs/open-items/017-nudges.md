@@ -3,7 +3,7 @@
 Status: decided, needs implementation
 
 ## Mechanism
-- `bin/scribb-nudge <event>` (bash), registered in the plugin's `hooks/hooks.json` for SessionStart and PostToolUse (`Write|Edit`). Claude Code passes the event JSON on stdin and waits for the script to finish.
+- `scripts/scribb-nudge <event>` (bash), registered in the plugin's `hooks/hooks.json` for SessionStart and PostToolUse (`Write|Edit`). Claude Code passes the event JSON on stdin and waits for the script to finish.
 - Checks are file lookups and grep only, with no LLM call:
   - opt-outs (`SCRIBB_DISABLE`, `DO_NOT_TRACK`, `DISABLE_TELEMETRY`, `nudges: off`),
   - the nudge's condition,

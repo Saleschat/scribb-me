@@ -13,6 +13,16 @@ v0.1 supports Claude Code. Codex and other tools are planned (see [docs/open-ite
 
 Then just write. There's no setup step.
 
+### claude.ai chat
+
+In claude.ai (or the desktop app's chat), go to **Customize > Plugins > Add > Add marketplace**, enter `Saleschat/scribb-me`, and add **scribb**.
+
+In chat, scribb works from the files inside each skill: the guides and a built-in checker. Ask it to write or review ("write this with scribb", or type `/` and pick a scribb skill), or just ask for docs, UI copy or a newsletter and the background skill applies. The checker needs code execution, which may need to be turned on in your claude.ai settings; without it, scribb still writes from the guides and reviews its own draft.
+
+Chat has no hooks, agents or repo files, so these are Claude Code only: checks after every edit, correction capture, the reviewer agent, `/scribb:setup` and `/scribb:contribute`. To keep a preference in chat, `/scribb:remember` gives you a line for your Project instructions.
+
+Plugins you add on claude.ai also appear in Claude Code. If you've installed scribb there from the marketplace too, Claude Code keeps using that copy and skips the synced one.
+
 For the automatic checks after each edit, also install [Vale](https://vale.sh/docs/install) (`brew install vale` on macOS). Without Vale, everything else still works.
 
 ## What it does

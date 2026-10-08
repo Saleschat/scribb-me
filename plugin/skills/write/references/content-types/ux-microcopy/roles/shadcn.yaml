@@ -1,0 +1,46 @@
+# Maps shadcn/ui components to the generic UI roles in guide.md.
+# The model uses this when it writes or reviews strings; the checker doesn't
+# read it in v1. Add a file like this one for another design system.
+system: shadcn/ui
+components:
+  Button: button
+  AlertDialogTitle: dialog-title
+  AlertDialogDescription: dialog-description
+  AlertDialogAction: destructive-confirm
+  AlertDialogCancel: button
+  DialogTitle: dialog-title
+  DialogDescription: dialog-description
+  SheetTitle: dialog-title
+  SheetDescription: dialog-description
+  DrawerTitle: dialog-title
+  DrawerDescription: dialog-description
+  FormLabel: label
+  Label: label
+  FormDescription: field-help
+  FormMessage: field-error
+  Input.placeholder: placeholder
+  Textarea.placeholder: placeholder
+  SelectValue.placeholder: placeholder
+  TooltipContent: tooltip
+  HoverCardContent: tooltip
+  Badge: badge
+  AlertTitle: dialog-title
+  AlertDescription: dialog-description
+  CardTitle: heading
+  CardDescription: dialog-description
+  DropdownMenuItem: menu-item
+  ContextMenuItem: menu-item
+  CommandEmpty: empty-state
+  TabsTrigger: label
+  BreadcrumbPage: label
+calls:
+  toast: toast
+  toast.success: toast
+  toast.error: toast
+  toast.warning: toast
+  toast.info: toast
+  toast.message: toast
+notes:
+  - AlertDialogAction is a destructive-confirm only when the dialog confirms a destructive action; otherwise treat it as a button.
+  - sonner's toast(title, { description }) has two strings. The title follows the toast role; the description follows dialog-description.
+  - menu-item, heading and field-help follow the button, dialog-title and dialog-description rules respectively.

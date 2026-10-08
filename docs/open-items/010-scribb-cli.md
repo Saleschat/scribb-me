@@ -3,7 +3,7 @@
 Status: deferred, not in v1
 
 ## Context
-v1 needs no custom CLI: the checker (Vale behind `bin/scribb-check`) handles deterministic linting, and skills handle merging and memory. A `scribb` CLI would add:
+v1 needs no custom CLI: the checker (Vale behind `scripts/scribb-check`) handles deterministic linting, and skills handle merging and memory. A `scribb` CLI would add:
 - deterministic merging of layers and scopes into one effective style (instead of the agent re-doing it every session),
 - schema validation of packs that users write,
 - memory and pack management commands,
