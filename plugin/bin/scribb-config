@@ -237,7 +237,7 @@ case "$cmd" in
     done
     ;;
   record-approval)
-    [ -n "$arg1" ] && [ -n "$arg2" ] || usage
+    if [ -z "$arg1" ] || [ -z "$arg2" ]; then usage; fi
     idx="$(scribb_user_dir)/approvals.index"
     mkdir -p "$(dirname "$idx")"
     repo=$(basename "$SCRIBB_PROJECT")
