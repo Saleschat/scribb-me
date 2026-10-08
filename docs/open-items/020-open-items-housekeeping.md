@@ -1,4 +1,4 @@
-# 020: Open-items housekeeping
+# 020 — Open-items housekeeping
 
 Status: open
 
