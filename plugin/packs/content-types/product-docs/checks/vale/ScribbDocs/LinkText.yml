@@ -1,0 +1,8 @@
+extends: existence
+message: "Use link text that says where the link goes, not '%s'."
+level: warning
+ignorecase: true
+scope: raw
+nonword: true
+tokens:
+  - '\[(?:here|click here|this link|this page|link|read more|more)\]\('

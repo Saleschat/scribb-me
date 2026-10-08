@@ -22,5 +22,24 @@ Status: decided, needs implementation
 - Free tags that show up often get promoted to traits.
 
 ## Open questions
-- The text of the shared reference paragraph (one per content type?).
 - How the webapp library shows traits as filters.
+
+## Implemented in v0.1 (branch `v1-claude-code-plugin`, 2026-10-07)
+- The shared reference texts are one per content type: `plugin/packs/content-types/tech-docs/sample.md` (rotating an API key) and `plugin/packs/content-types/ux-microcopy/sample.md` (the strings for deleting a project). Each style's `sample.md` rewrites both where its `good_for` includes them.
+- `pack.yaml` fields are in `docs/pack-format.md`.
+
+## Changed in v0.1: newsletter content type, no persona concept (2026-10-08)
+- New content type `newsletter` (`medium: email`), for founders and creators sending issues, product updates and welcome emails. Its shared reference text is `plugin/packs/content-types/newsletter/sample.md` (a product-update issue).
+- The `warm-and-plain` style was removed: a vague voice nobody would pick on purpose. New packs start from a persona and their tasks, and a persona's writing task is a **content type**, not a style.
+- Content types are data: `pack.yaml` gained `label`, `match_order` and `review_threshold` (see `docs/pack-format.md`).
+
+## Changed in v0.1: packs split by kind (2026-10-08)
+- Content types and styles answer different questions (what kind of writing vs. who it sounds like), so they now live in different folders in every scope: `packs/base/`, `packs/content-types/<id>/`, `packs/styles/<id>/`, plus `packs/rules/` for promoted memory rules. `kind:` in `pack.yaml` must match the folder.
+- Test for where a rule goes: if two excellent writers would both follow it, it's a content-type rule; if they'd disagree, it's a style rule.
+
+## Changed in v0.1: product docs and developer docs (2026-10-08)
+- `tech-docs` is split into two content types with the same conventions but different readers:
+  - `product-docs`: people using or evaluating the product. Getting started, how-tos, help articles, release notes, and GitHub repo files (README, CONTRIBUTING): technical enough to be exact, no more. Default for all Markdown.
+  - `developer-docs`: people writing code against the product. API, SDK and CLI reference, integration guides.
+- Developer docs have **no default paths**, because docs layouts vary too much (a GitBook repo, a Docusaurus site, a `docs/` folder). A file gets `developer-docs` from its frontmatter (`scribb-content-type: developer-docs`), from `paths_developer_docs` (which `/scribb:setup` proposes after reading the real layout, including GitBook `SUMMARY.md`), or from the request when Claude writes the page. If the checker hook picks product docs for a developer page, little is lost: the two share nearly all checker rules; the differences are in the guides and formats Claude applies.
+- The built-in packs are marked as worked examples of each layer (base, content type, format, style), for people building their own. The explanation of the layers is in the README.

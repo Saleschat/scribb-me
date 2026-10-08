@@ -1,0 +1,40 @@
+name: False positive
+description: A checker rule or the reviewer flagged writing that was fine.
+title: "False positive: <RuleID> flags \"<short phrase>\""
+labels: [false-positive]
+body:
+  - type: markdown
+    attributes:
+      value: "Thanks. `/scribb:report` can fill this in for you from inside a session. Please don't paste private or customer text; trim or rewrite the example so it still shows the problem."
+  - type: input
+    id: rule
+    attributes:
+      label: Rule ID
+      description: From the checker output, for example `ScribbDocs.HeadingCase`. Write "reviewer" if the reviewer agent flagged it.
+    validations:
+      required: true
+  - type: textarea
+    id: example
+    attributes:
+      label: The text that was flagged
+      description: The smallest example that still triggers it.
+      render: markdown
+    validations:
+      required: true
+  - type: textarea
+    id: why
+    attributes:
+      label: Why it's fine
+      description: For example "it's a product name", "the word is quoted, not used", "this is standard in API docs".
+    validations:
+      required: true
+  - type: input
+    id: content-type
+    attributes:
+      label: Content type and file
+      description: For example "Product docs, README.md" or "UI copy, src/Dialog.tsx".
+  - type: input
+    id: versions
+    attributes:
+      label: Versions
+      description: scribb version (from `/scribb:style`), pack version, Vale version.

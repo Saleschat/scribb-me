@@ -10,7 +10,7 @@ Status: decided, needs implementation
   - resolves the config by scope (local > project),
   - runs the engine and normalises its output to `file:line:severity:rule:message`,
   - exits 0 when the engine is missing (with one notice), so nothing breaks.
-- **Rule format is engine-specific, and kept in its own folder:** `packs/<id>/checks/vale/*.yml`. A future engine adds `checks/<engine>/` beside it. Prose guidance and examples are engine-neutral.
+- **Rule format is engine-specific, and kept in its own folder:** `packs/<kind folder>/<id>/checks/vale/*.yml`. A future engine adds `checks/<engine>/` beside it. Prose guidance and examples are engine-neutral.
 - **Severity map:** our severity (hard/convention/preference) maps to the engine's levels (Vale: error/warning/suggestion). Freedom maps to the engine's minimum alert level (Vale: `MinAlertLevel`).
 - **Engine config is generated into `.scribb/checker/`,** not the repo root:
   - project: `.scribb/checker/vale.ini`,
@@ -32,4 +32,12 @@ Status: decided, needs implementation
 ## Open questions
 - Can the engine's file-pattern sections express everything we need for the brief, or does the brief stay prose-only?
 - The exact severity → level map, and how freedom overrides it per piece (env var read by the wrapper?).
-- Editor integrations (e.g. Vale's VS Code extension) look for config at the repo root. Do we offer an optional root symlink?
+- Editor integrations (for example, Vale's VS Code extension) look for config at the repo root. Do we offer an optional root symlink?
+
+## Implemented in v0.1 (branch `v1-claude-code-plugin`, 2026-10-07)
+- `scribb-check` output is `file:line:col:action:severity:rule:message` (`action` is block, warn or suggest, from the freedom table). Exit 1 means something blocks.
+- Severity map: Vale `error` = hard, `warning` = convention, `suggestion` = preference.
+- **Changed:** at runtime the Vale config is generated in a temp folder for each run, so a zero-config install writes nothing into the repo. `scribb-check --export .scribb/checker` writes a standalone `vale.ini` plus rules for CI and editor extensions (offered by `/scribb:setup --ci`). This answers the root-symlink question: point the editor at `.scribb/checker/vale.ini`.
+- Machine-local state (session flags, retry counts) lives in the plugin data dir (`${CLAUDE_PLUGIN_DATA}`, else `~/.cache/scribb`), not `.scribb/local/`. `.scribb/local/` holds only the inbox, local config, memories and ratings, and writes a self-ignoring `.gitignore` when it's created.
+- `vocab.txt` in any scope lists accepted terms (product names); they become a Vale vocabulary.
+- The brief stays prose-only; file-pattern sections only map paths to content types.

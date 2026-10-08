@@ -1,0 +1,49 @@
+extends: capitalization
+message: "Use sentence case for headings: '%s'."
+level: warning
+scope: heading
+match: $sentence
+# At least half the words must follow sentence case, so product names
+# ("Connect Foo to Slack") pass and Title Case Headings don't.
+threshold: 0.5
+indicators:
+  - ":"
+exceptions:
+  - iOS
+  - iPadOS
+  - macOS
+  - watchOS
+  - tvOS
+  - iPhone
+  - iPad
+  - iCloud
+  - npm
+  - pnpm
+  - gRPC
+  - jQuery
+  - eBay
+  - pytest
+  - API
+  - APIs
+  - CLI
+  - CSS
+  - GitHub
+  - GitLab
+  - HTML
+  - HTTP
+  - HTTPS
+  - ID
+  - JSON
+  - JavaScript
+  - Markdown
+  - Node.js
+  - OAuth
+  - README
+  - REST
+  - SDK
+  - SQL
+  - TypeScript
+  - UI
+  - URL
+  - URLs
+  - YAML

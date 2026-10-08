@@ -1,0 +1,37 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      VALE_VERSION: "3.24.0"
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Vale
+        run: |
+          curl -fsSL "https://github.com/vale-cli/vale/releases/download/v${VALE_VERSION}/vale_${VALE_VERSION}_Linux_64-bit.tar.gz" | sudo tar -xz -C /usr/local/bin vale
+          vale --version
+
+      - name: Lint shell scripts
+        run: shellcheck -x plugin/bin/* plugin/hooks/scribb-hook plugin/lib/*.sh evals/rules/run.sh evals/quality/run.sh tests/hooks/run.sh
+
+      - name: Validate plugin and marketplace manifests
+        run: |
+          npm install -g @anthropic-ai/claude-code
+          claude plugin validate plugin
+          claude plugin validate .
+
+      - name: Rule tests (layer 1 evals)
+        run: evals/rules/run.sh
+
+      - name: Hook tests
+        run: tests/hooks/run.sh

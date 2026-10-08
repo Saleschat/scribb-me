@@ -33,14 +33,20 @@ Status: decided, needs implementation
 ## On by default
 scribb starts working as soon as it's installed, so the first time it acts on its own, the user should learn that and how to stop it.
 - Message (exact wording, `emit_user`):
-  > scribb.me just checked this file's writing style. It's on by default. To turn it off: `/scribb:style off` (this session), `/scribb:style off --repo` or `--everywhere`, or set `SCRIBB_DISABLE=1`.
+  > scribb.me is checking the writing in this file (Docs). It's on by default. To turn it off: `/scribb:style off` (this session), `/scribb:style off --repo` or `--everywhere`, or set `SCRIBB_DISABLE=1`.
 - It's shown even when `nudges: off` is set, because it's how users find the off switch. `SCRIBB_DISABLE`, `DO_NOT_TRACK` and `DISABLE_TELEMETRY` don't silence it: with `SCRIBB_DISABLE` scribb never acts, so the condition can't be met.
 - When the user asks how to turn scribb off (or says it's in the way), Claude answers with the levels from 011's "switched off at every level" table and offers to run the command. The SessionStart injection carries one line for this, so it works even after the nudge was shown.
 
 ## Ratings
-- Bad / Fine / Good / Dismiss → `.scribb/local/ratings.jsonl` → a learner signal (e.g. "Bad" on strict Docs suggests a rule is over-firing).
+- Bad / Fine / Good / Dismiss → `.scribb/local/ratings.jsonl` → a learner signal (for example, "Bad" on strict Docs suggests a rule is over-firing).
 - Sent only as a count, and only if the user opted into telemetry (016).
 
 ## Open questions
 - Whether `on-by-default` should repeat once per new repo, since project scope settings differ.
 - N for the telemetry offer; whether the `feedbackRate` default should drop after the first ratings.
+
+## Implemented in v0.1 (branch `v1-claude-code-plugin`, 2026-10-07)
+- `on-by-default`, `inbox-ready`, `pick-style`, `install-checker` and `rate-rewrite` are in `plugin/lib/nudge.sh`; `telemetry-optin` waits for telemetry (016).
+- The shipped wording is "scribb.me is checking the writing in this file (Docs). It's on by default. To turn it off: …", because the nudge fires on the synchronous hook, before the background checker has run.
+- The per-session marker lives in the plugin data dir, not `.scribb/local/`.
+- `inbox-ready` fires at 3 or more pending inbox files; the learner does the grouping.

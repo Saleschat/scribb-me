@@ -1,0 +1,8 @@
+extends: existence
+message: "'%s' is a stock email opener. Start with the news."
+level: warning
+ignorecase: true
+tokens:
+  - '(?:I |we )?hope (?:this|the|my|our) (?:email|e-mail|message|note|newsletter) finds you(?: well| safe| healthy)?'
+  - '(?:I |we )?trust (?:this|the|my) (?:email|e-mail|message|note) finds you(?: well)?'
+  - 'as per (?:my|our) (?:last|previous) (?:email|e-mail|message)'

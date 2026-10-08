@@ -10,11 +10,11 @@ Status: decided, needs implementation
 | Others | Copy `skills/` + the generic AGENTS.md section. Best effort |
 | Any, via npm | `npx scribb install [--tool …]`, `update`, `uninstall`, `doctor`. Node is needed **at install time only**. Keeps an ownership manifest in the user scope; detects marketplace installs to avoid running hooks twice; `doctor` checks tools, Vale and duplicate hooks |
 
-- npm name: `scribb` (also `scribb-me`, `scribbme`, `@scribb/cli` returned 404 on 2026-10-07). Reserve `scribb` and the `@scribb` org. That's the owner's account action.
+- npm name: `scribb` (also `scribb-me`, `scribbme`, `@scribb/cli` returned 404 on 2026-10-07). Reserve `scribb` and the `@scribb` org. The `@scribb` npm org was created on 2026-10-07.
 - The npm installer is the start of the future CLI (010), so the CLI language is **Node**.
 
 ## Bundled packs (ready for the median user, no download)
-- base, Docs and UI copy (with formats and the shadcn role map), 3–4 starter styles named by traits from openly licensed sources (e.g. "Direct developer docs", "Warm and plain", "Crisp product UI").
+- base, Product docs, Developer docs and UI copy (with formats and the shadcn role map), Newsletter, and starter styles named by traits from openly licensed sources (v0.1: "Direct developer docs", "Crisp product UI").
 - Checker rules are bundled inside the packs, so no `vale sync` is needed.
 - Vale itself is not bundled. It stays optional, suggested through the `install-checker` nudge and `doctor`.
 - The bundle stays small on purpose: base + content types + about 6–8 styles at most.
@@ -26,7 +26,7 @@ Status: decided, needs implementation
     plugin/        # what installs (marketplace path + npm "files")
     catalog/
       catalog.json
-      packs/<id>/
+      packs/{content-types,styles}/<id>/
     evals/
     docs/
   ```
@@ -40,7 +40,7 @@ Status: decided, needs implementation
 | Change | How it reaches users |
 |---|---|
 | New catalog pack | Merge to `main`; appears at the next catalog refresh. No plugin release |
-| Promote to bundle | Passed evals, been in the catalog a while, good ratings and installs. `git mv catalog/packs/x plugin/packs/x` in a **minor** release |
+| Promote to bundle | Passed evals, been in the catalog a while, good ratings and installs. `git mv catalog/packs/styles/x plugin/packs/styles/x` in a **minor** release |
 | Update a bundled pack | Bump the pack `version`; styles that `extends:` it see "review changes?" in `/scribb:style` |
 | Remove a bundled pack | **Major** release only, after a deprecation period of at least one minor release. `doctor` offers to copy the last version into the user scope |
 

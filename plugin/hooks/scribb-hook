@@ -1,0 +1,293 @@
+#!/usr/bin/env bash
+# scribb-hook EVENT: the Claude Code hook adapter. hooks.json calls it with
+#   session-start  SessionStart        inject the active style, memories, inbox nudge
+#   prompt         UserPromptSubmit    capture writing-style corrections into the inbox
+#   post-edit      PostToolUse (sync)  nudges, and ask for a review after big prose edits
+#   check          PostToolUse (asyncRewake)  run the checker; exit 2 wakes Claude on blocking findings
+#   stop           Stop                lint a chat-only reply while a /scribb:write session is active
+# Synchronous paths use grep, sed, awk and cat only. Every path exits 0 when scribb is off.
+set -u
+
+SELF_DIR=$(cd "$(dirname "$0")" && pwd)
+ROOT=$(cd "$SELF_DIR/.." && pwd)
+# shellcheck source=../lib/scribb.sh
+. "$ROOT/lib/scribb.sh"
+# shellcheck source=../lib/nudge.sh
+. "$ROOT/lib/nudge.sh"
+
+event="${1:-}"
+INPUT=$(mktemp "${TMPDIR:-/tmp}/scribb-hook.XXXXXX") || exit 0
+trap 'rm -f "$INPUT"' EXIT
+cat > "$INPUT"
+
+SCRIBB_SESSION=$(json_get session_id "$INPUT")
+cwd=$(json_get cwd "$INPUT")
+SCRIBB_PROJECT=$(scribb_project_dir "${cwd:-$PWD}")
+export SCRIBB_SESSION SCRIBB_PROJECT
+
+scribb_disabled && exit 0
+
+MAX_RETRIES=2
+PLUGIN_ROOT=$(scribb_plugin_root)
+
+rel_path() {
+  case "$1" in
+    "$SCRIBB_PROJECT"/*) printf '%s\n' "${1#"$SCRIBB_PROJECT"/}" ;;
+    *) printf '%s\n' "$1" ;;
+  esac
+}
+
+# --- SessionStart ------------------------------------------------------------------
+
+memories_block() {
+  local dir scope f conf stmt
+  {
+    for scope in local project user; do
+      case "$scope" in
+        local) dir="$SCRIBB_PROJECT/.scribb/local/memories" ;;
+        project) dir="$SCRIBB_PROJECT/.scribb/memories" ;;
+        user) dir="$(scribb_user_dir)/memories" ;;
+      esac
+      [ -d "$dir" ] || continue
+      for f in "$dir"/*.md; do
+        [ -f "$f" ] || continue
+        stmt=$(yaml_get "$f" statement) || continue
+        conf=$(yaml_get "$f" confidence) || conf=0.5
+        printf '%s\t- %s (%s)\n' "$conf" "$stmt" "$scope"
+      done
+    done
+  } | sort -t "$(printf '\t')" -k1,1 -r -g | cut -f2- | awk '
+    { total += length($0) + 1; if (total > 2000) { skipped++; next } print }
+    END { if (skipped) printf "- (%d more memories not shown; see /scribb:style)\n", skipped }'
+}
+
+session_start() {
+  prune_sessions
+  local ctx="" st sd ct d nudge=""
+  if nudge_pick SessionStart && [ "$NUDGE_CHANNEL" = claude ]; then
+    nudge="$NUDGE_TEXT"
+  fi
+  if ! is_off "$(cfg inject)"; then
+    st=$(cfg style)
+    local cts="" ct_line=""
+    cts=$(content_type_ids)
+    while IFS= read -r ct; do
+      [ -n "$ct" ] || continue
+      local globs
+      globs=$(ct_paths "$ct")
+      ct_line="${ct_line:+$ct_line; }$(content_type_label "$ct") (${globs:-chosen per page}; freedom $(freedom_for "$ct"))"
+    done <<EOF
+$cts
+EOF
+    ctx="scribb.me (writing style for docs, UI copy and newsletters) is active in this session.
+Content types: $ct_line. A content type with no file pattern, or a piece with no file (a newsletter drafted in chat, say), is chosen from the request.
+Markdown defaults to Product docs. Use Developer docs (developer-docs) when the page is for someone writing code against the product: API, SDK or CLI reference, integration guides. Decide from the page's content and the request, not its folder. A page can also say it in frontmatter: scribb-content-type: developer-docs."
+    if ! is_off "$st" && sd=$(pack_dir "$st"); then
+      ctx="$ctx
+Style: $st — $(pack_field "$sd" tagline)"
+    else
+      ctx="$ctx
+Style: none (neutral house style)."
+      sd=""
+    fi
+    ctx="$ctx
+When you write or substantially revise prose (docs, READMEs, guides, release notes, UI strings, newsletters, or a written piece in chat), follow the rules below. For a longer piece, first load the full guides with the scribb:scribb-style skill (it fetches them without asking for permission; don't read files in the plugin folder directly). For a careful, reviewed draft, the user can run /scribb:write."
+    if d=$(pack_dir base) && [ -f "$d/summary.md" ]; then
+      ctx="$ctx
+
+Base rules (always on):
+$(cat "$d/summary.md")"
+    fi
+    if [ -n "$sd" ] && [ -f "$sd/summary.md" ]; then
+      ctx="$ctx
+
+Style rules ($st):
+$(cat "$sd/summary.md")"
+    fi
+    local mem
+    mem=$(memories_block)
+    [ -n "$mem" ] && ctx="$ctx
+
+Approved preferences (memories); follow them:
+$mem"
+    ctx="$ctx
+
+The user can always skip scribb for a piece (\"skip review\", \"no checks\"); respect that. If they ask how to turn scribb off, tell them: /scribb:style off (this session), /scribb:style off --repo (this repo, just them), --team (this repo, everyone), --everywhere (all repos), or SCRIBB_DISABLE=1; and offer to run it."
+  fi
+  if [ -n "$nudge" ]; then
+    ctx="${ctx:+$ctx
+
+}$nudge"
+  fi
+  emit_json "" SessionStart "$ctx"
+}
+
+# --- UserPromptSubmit: correction capture --------------------------------------------
+
+# shellcheck disable=SC1111 # curly quotes are part of the pattern
+CORRECTION_RE="(don'?t|do not|never|stop) (say|saying|use|using|write|writing|call|calling)\b|(instead of|rather than) [\"'“‘]|we (call|say|write) (it|them|this)\b|(too|so|very) (formal|casual|wordy|long|verbose|stiff|robotic|salesy|chatty|corporate|fluffy)\b|(sounds|reads) (like (an? )?(ai|chatgpt|robot|bot|marketing)|robotic|stiff)|(less|more) (formal|casual|wordy|salesy|concise|direct|friendly)\b|no (more )?em[ -]?dash|(use|prefer) [\"'“‘][^\"'”’]{1,40}[\"'”’] (not|instead|over)"
+
+prompt_capture() {
+  is_off "$(cfg capture)" && return 0
+  local prompt match dir f ts
+  prompt=$(json_get prompt "$INPUT")
+  [ -n "$prompt" ] || return 0
+  match=$(printf '%s' "$prompt" | grep -Eoi "$CORRECTION_RE" | head -n 1)
+  [ -n "$match" ] || return 0
+  dir=$(scribb_ensure_local_dir "$SCRIBB_PROJECT") || return 0
+  mkdir -p "$dir/inbox"
+  ts=$(date -u +%Y-%m-%dT%H-%M-%SZ)
+  f="$dir/inbox/$ts-$(path_key "$prompt$$").md"
+  {
+    echo "---"
+    echo "captured_at: $ts"
+    echo "session: $SCRIBB_SESSION"
+    echo "matched: \"$(printf '%s' "$match" | tr -d '"')\""
+    echo "---"
+    printf '%s\n' "$prompt" | head -c 1000
+    echo
+  } > "$f"
+  emit_json "" UserPromptSubmit "scribb.me: the user's message may be a writing-style correction (it matched \"$match\"). If it is about wording or writing style, then after you handle it, ask once in one line whether to remember it (AskUserQuestion: just me / whole team / don't save) and use /scribb:remember to save it. The signal is in $(rel_path "$f"); delete that file if the user says don't save. If the message isn't about writing style, ignore this note."
+}
+
+# --- PostToolUse (sync): nudges and the auto reviewer --------------------------------
+
+ui_string_count() {
+  grep -Eo "\"[^\"]*[A-Za-z]{2,} [A-Za-z][^\"]*\"|'[^']*[A-Za-z]{2,} [A-Za-z][^']*'|>[^<>{}]*[A-Za-z]{2,}[^<>{}]*<" | wc -l | awk '{print $1}'
+}
+
+post_edit() {
+  local file ct rel sys="" ctx="" text words count mode key
+  file=$(json_get file_path "$INPUT")
+  [ -n "$file" ] || return 0
+  ct=$(content_type_for "$file")
+  [ -n "$ct" ] || return 0
+  rel=$(rel_path "$file")
+
+  NUDGE_CT="$ct" NUDGE_FILE="$file"
+  if nudge_pick PostToolUse; then
+    if [ "$NUDGE_CHANNEL" = user ]; then sys="$NUDGE_TEXT"; else ctx="$NUDGE_TEXT"; fi
+  fi
+
+  mode=$(cfg reviewer)
+  if ! is_off "$mode"; then
+    text=$(json_get new_string "$INPUT")
+    [ -n "$text" ] || text=$(json_get content "$INPUT")
+    key="reviewed-$(path_key "$file")"
+    local unit min label
+    read -r unit min <<EOF
+$(ct_review_threshold "$ct")
+EOF
+    label=$(content_type_label "$ct")
+    if [ "$unit" = strings ]; then
+      count=$(printf '%s' "$text" | ui_string_count)
+      words="about $count $label strings"
+    else
+      count=$(printf '%s' "$text" | word_count)
+      words="about $count words of $label prose"
+    fi
+    big=no
+    [ "$count" -ge "${min:-150}" ] && big=yes
+    if [ "$mode" = always ] || { [ "$big" = yes ] && [ "$(counter_get "$key")" -eq 0 ]; }; then
+      counter_incr "$key"
+      local st
+      st=$(cfg style)
+      ctx="${ctx:+$ctx
+}scribb.me: this edit wrote $words in $rel. Unless the user asked to skip review, run the scribb-reviewer agent on the passage you changed (file: $file; content type: $ct; freedom: $(freedom_for "$ct"); style: $st), then apply the findings it marks as confident and tell the user in one line what changed. Finish the user's actual request first if you're mid-task."
+    fi
+  fi
+  emit_json "$sys" PostToolUse "$ctx"
+}
+
+# --- PostToolUse (asyncRewake): the checker loop -----------------------------------------
+
+check() {
+  local file ct rel key tries out blocks warns
+  file=$(json_get file_path "$INPUT")
+  if [ -z "$file" ] || [ ! -f "$file" ]; then return 0; fi
+  ct=$(content_type_for "$file")
+  [ -n "$ct" ] || return 0
+  command -v vale >/dev/null 2>&1 || return 0
+  rel=$(rel_path "$file")
+  key="check-$(path_key "$file")"
+  tries=$(counter_get "$key")
+  [ "$tries" -gt "$MAX_RETRIES" ] && return 0
+
+  out=$(cd "$SCRIBB_PROJECT" && "$PLUGIN_ROOT/bin/scribb-check" --session "$SCRIBB_SESSION" --content-type "$ct" "$file" 2>/dev/null)
+  blocks=$(printf '%s\n' "$out" | awk -F: '$4 == "block"' | sed "s#^$file:#$rel:#" | head -n 20)
+  warns=$(printf '%s\n' "$out" | awk -F: '$4 == "warn"' | sed "s#^$file:#$rel:#" | head -n 10)
+
+  if [ -n "$blocks" ]; then
+    counter_incr "$key"
+    if [ "$tries" -lt "$MAX_RETRIES" ]; then
+      {
+        echo "scribb.me checker: $rel has writing issues to fix (file:line:col:action:severity:rule:message):"
+        printf '%s\n' "$blocks"
+        [ -n "$warns" ] && printf 'Also worth a look (not required):\n%s\n' "$warns"
+        echo "Revise those passages with minimal changes, unless the user asked to skip checks. Don't reword text you weren't asked to touch just to satisfy a rule if it's quoted, code, or a proper name; say so instead."
+      } >&2
+    else
+      {
+        echo "scribb.me checker: $rel still has these after $MAX_RETRIES revisions:"
+        printf '%s\n' "$blocks"
+        echo "Don't revise again. List them for the user in one or two lines so they can decide."
+      } >&2
+    fi
+    exit 2
+  fi
+  if [ -n "$warns" ]; then
+    emit_json "" PostToolUse "scribb.me checker: optional suggestions for $rel (no action needed unless they're clearly right):
+$warns"
+  fi
+}
+
+# --- Stop: lint chat-only pieces during /scribb:write --------------------------------------
+
+stop() {
+  local active ct msg tmpf out blocks key tries freedom
+  active=$(cfg write_session)
+  [ "$active" = on ] || return 0
+  [ "$(json_get_bool stop_hook_active "$INPUT")" = true ] && return 0
+  msg=$(json_get last_assistant_message "$INPUT")
+  key="stop-lint"
+  tries=$(counter_get "$key")
+  ct=$(cfg content_type)
+  [ -n "$ct" ] || ct=product-docs
+  freedom=$(cfg write_freedom)
+  [ -n "$freedom" ] || freedom=$(freedom_for "$ct")
+  blocks=""
+  if [ -n "$msg" ] && [ "$tries" -lt "$MAX_RETRIES" ] && command -v vale >/dev/null 2>&1; then
+    tmpf="$(session_dir)/reply.md"
+    [ "$ct" = ux-microcopy ] && tmpf="$(session_dir)/reply.jsx"
+    printf '%s\n' "$msg" > "$tmpf"
+    out=$(cd "$SCRIBB_PROJECT" && "$PLUGIN_ROOT/bin/scribb-check" --session "$SCRIBB_SESSION" --content-type "$ct" --freedom "$freedom" "$tmpf" 2>/dev/null)
+    blocks=$(printf '%s\n' "$out" | awk -F: '$4 == "block"' | sed "s#^$tmpf:#reply:#" | head -n 15)
+  fi
+  if [ -z "$blocks" ]; then
+    # The piece passed (or there's nothing more to do): end the write session
+    # here, after the check, so a skill can't switch it off too early.
+    local f
+    f=$(scribb_config_file_for_scope session)
+    yaml_unset "$f" write_session
+    yaml_unset "$f" content_type
+    yaml_unset "$f" write_freedom
+    rm -f "$(session_dir)/$key"
+    return 0
+  fi
+  counter_incr "$key"
+  local reason
+  reason="scribb.me checker found issues in the piece you just wrote (reply:line:col:action:severity:rule:message):
+$blocks
+Revise the piece and show the corrected version. If a finding is wrong (a quote, code, a name), keep the text and say why in one line."
+  printf '{"decision":"block","reason":"%s"}\n' "$(printf '%s' "$reason" | json_escape)"
+}
+
+case "$event" in
+  session-start) session_start ;;
+  prompt) prompt_capture ;;
+  post-edit) post_edit ;;
+  check) check ;;
+  stop) stop ;;
+  *) echo "scribb-hook: unknown event '$event'" >&2 ;;
+esac
+exit 0

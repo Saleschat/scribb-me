@@ -1,0 +1,7 @@
+extends: existence
+message: "Don't use exclamation marks in docs."
+level: warning
+nonword: true
+scope: sentence
+tokens:
+  - '\w!(?:\s|$)'

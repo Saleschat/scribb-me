@@ -1,0 +1,4 @@
+# Scripts source plugin/lib/*.sh; globals set there are read by the caller.
+external-sources=true
+source-path=SCRIPTDIR
+disable=SC2034

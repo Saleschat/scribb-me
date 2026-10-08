@@ -1,0 +1,11 @@
+extends: substitution
+message: "Consider '%s' instead of '%s'."
+level: suggestion
+ignorecase: true
+swap:
+  e-mail: email
+  log into: log in to
+  login to: log in to
+  sign into: sign in to
+  click on: select
+  click: select

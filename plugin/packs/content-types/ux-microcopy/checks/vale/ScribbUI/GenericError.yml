@@ -1,0 +1,7 @@
+extends: existence
+message: "'%s' tells the user nothing. Say what failed and what they can do."
+level: warning
+ignorecase: true
+tokens:
+  - an? (?:unknown |unexpected )?error (?:has )?occurred
+  - unknown error

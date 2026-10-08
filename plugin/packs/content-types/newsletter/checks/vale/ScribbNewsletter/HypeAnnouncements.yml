@@ -1,0 +1,8 @@
+extends: existence
+message: "'%s' tells the reader how to feel about the news. Say what changed instead."
+level: warning
+ignorecase: true
+tokens:
+  - '(?:thrilled|delighted|stoked|ecstatic|over the moon) to (?:announce|share|introduce|unveil|launch|reveal)'
+  - '(?:super|so|beyond|incredibly|very|really) excited to (?:announce|share|introduce|unveil|launch|reveal)'
+  - 'excited to (?:announce|unveil|reveal)'

@@ -1,0 +1,3 @@
+# scribb.me settings for this repo (dogfooding).
+# Pack guides quote the habits they warn about, so the checker skips them.
+paths_ignore: node_modules/*, .scribb/*, .claude/*, LICENSE*, NOTICE*, CLAUDE.md, AGENTS.md, SKILL.md, plugin/packs/*, plugin/agents/*, evals/*, tests/*

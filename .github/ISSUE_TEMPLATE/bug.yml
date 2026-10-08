@@ -1,0 +1,28 @@
+name: Bug
+description: A hook, skill or script did something wrong.
+title: "Bug: <short description>"
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened, and what you expected
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+    validations:
+      required: true
+  - type: textarea
+    id: output
+    attributes:
+      label: Output of /scribb:style
+      description: It shows your settings, content types and Vale version.
+      render: text
+  - type: input
+    id: env
+    attributes:
+      label: Environment
+      description: OS, Claude Code version (`claude --version`).

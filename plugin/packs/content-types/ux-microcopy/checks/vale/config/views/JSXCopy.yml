@@ -1,0 +1,9 @@
+# Lints JSX text and string literals in .jsx files.
+engine: tree-sitter
+scopes:
+  - name: jsx_text
+    expr: "(jsx_text) @text"
+    type: md
+  - name: strings
+    expr: "(string_fragment) @text"
+    type: md

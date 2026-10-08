@@ -1,0 +1,9 @@
+# Lints string literals in .tsx files when Vale runs on its own (an exported
+# config in CI or an editor). Vale 3.24 parses .tsx with the TypeScript grammar,
+# which has no jsx_text node. scribb-check itself lints a .jsx copy of each .tsx
+# file with JSXCopy instead, which also reaches JSX text.
+engine: tree-sitter
+scopes:
+  - name: strings
+    expr: "(string_fragment) @text"
+    type: md

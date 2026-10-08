@@ -1,0 +1,278 @@
+#!/usr/bin/env bash
+# scribb-check: the one entry point to the checker. Hooks, skills and CI call
+# this, never the engine directly. Vale is the only engine in v1.
+#
+# Usage: scribb-check [options] FILE...
+#        scribb-check [options] --content-type ID --text "TEXT"
+#   --content-type ID   product-docs | developer-docs | ux-microcopy | newsletter | …
+#                       (default: frontmatter, then the file path)
+#   --freedom LEVEL     strict | balanced | expressive (default: config, then the content type)
+#   --style ID          a style pack id, or none (default: config)
+#   --session ID        read session-scope config too
+#   --text TEXT         check this text instead of files (findings say "text:line");
+#                       lets skills check a draft without writing a file
+#   --export DIR        write a standalone checker config (vale.ini + styles/) to DIR
+#                       for CI and editor integrations, then exit
+#
+# Output, one finding per line:  file:line:col:action:severity:rule:message
+#   action    block | warn | suggest   (from severity and freedom)
+#   severity  hard | convention | preference
+# Exit codes: 0 nothing blocking (also when the engine is missing),
+#             1 blocking findings, 3 usage error.
+set -u
+
+SELF_DIR=$(cd "$(dirname "$0")" && pwd)
+# shellcheck source=../lib/scribb.sh
+. "$SELF_DIR/../lib/scribb.sh"
+
+ct_opt="" freedom_opt="" style_opt="" export_dir="" text_opt="" have_text=no
+SCRIBB_SESSION="${SCRIBB_SESSION:-}"
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --content-type) ct_opt="$2"; shift 2 ;;
+    --freedom) freedom_opt="$2"; shift 2 ;;
+    --style) style_opt="$2"; shift 2 ;;
+    --session) SCRIBB_SESSION="$2"; shift 2 ;;
+    --export) export_dir="$2"; shift 2 ;;
+    --text) text_opt="$2"; have_text=yes; shift 2 ;;
+    -h | --help) sed -n '2,22p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
+    --) shift; break ;;
+    -*) echo "scribb-check: unknown option $1" >&2; exit 3 ;;
+    *) break ;;
+  esac
+done
+
+SCRIBB_PROJECT=$(scribb_project_dir "$PWD")
+export SCRIBB_PROJECT SCRIBB_SESSION
+
+if [ -z "$export_dir" ] && [ $# -eq 0 ] && [ "$have_text" = no ]; then
+  echo "scribb-check: no files given (see --help)" >&2
+  exit 3
+fi
+
+checker=$(cfg checker)
+if is_off "$checker"; then
+  exit 0
+fi
+if [ "$checker" != vale ]; then
+  echo "scribb-check: checker '$checker' isn't supported; only vale is in v1." >&2
+  exit 0
+fi
+if [ -z "$export_dir" ] && ! command -v vale >/dev/null 2>&1; then
+  echo "scribb-check: Vale isn't installed, so automatic checks are skipped. Install it with 'brew install vale' (see https://vale.sh/docs/install)." >&2
+  exit 0
+fi
+
+style=${style_opt:-$(cfg style)}
+TEMPLATE="$(scribb_plugin_root)/lib/vale-line.tmpl"
+
+# add_pack_styles PACK_DIR STYLES_DIR MODE: links (or copies, for export) each
+# Vale style folder and view into STYLES_DIR; prints the style names.
+add_pack_styles() {
+  local pack="$1" styles="$2" mode="$3" d name v
+  [ -d "$pack/checks/vale" ] || return 0
+  for d in "$pack"/checks/vale/*/; do
+    [ -d "$d" ] || continue
+    name=$(basename "$d")
+    case "$name" in tests | config) continue ;; esac
+    if [ "$mode" = copy ]; then
+      rm -rf "${styles:?}/$name"
+      cp -R "${d%/}" "$styles/$name"
+    else
+      ln -sfn "${d%/}" "$styles/$name"
+    fi
+    printf '%s\n' "$name"
+  done
+  if [ -d "$pack/checks/vale/config/views" ]; then
+    mkdir -p "$styles/config/views"
+    for v in "$pack"/checks/vale/config/views/*.yml; do
+      [ -f "$v" ] && cp "$v" "$styles/config/views/"
+    done
+  fi
+  return 0
+}
+
+# pack dirs for a content type: base, the content type, the style, then the
+# project and local rules packs that hold promoted memories.
+packs_for() {
+  local ct="$1" d
+  d=$(pack_dir base) && printf '%s\n' "$d"
+  d=$(pack_dir "$ct") && printf '%s\n' "$d"
+  if ! is_off "$style"; then
+    if d=$(pack_dir "$style"); then
+      printf '%s\n' "$d"
+    else
+      echo "scribb-check: style '$style' not found; checking without it." >&2
+    fi
+  fi
+  [ -f "$SCRIBB_PROJECT/.scribb/packs/rules/pack.yaml" ] && printf '%s\n' "$SCRIBB_PROJECT/.scribb/packs/rules"
+  [ -f "$SCRIBB_PROJECT/.scribb/local/packs/rules/pack.yaml" ] && printf '%s\n' "$SCRIBB_PROJECT/.scribb/local/packs/rules"
+  return 0
+}
+
+# build_styles CT STYLES_DIR MODE: prints a comma list of style names.
+build_styles() {
+  local ct="$1" styles="$2" mode="$3" p names=""
+  mkdir -p "$styles"
+  while IFS= read -r p; do
+    [ -n "$p" ] || continue
+    while IFS= read -r n; do
+      [ -n "$n" ] && names="${names:+$names, }$n"
+    done <<EOF
+$(add_pack_styles "$p" "$styles" "$mode")
+EOF
+  done <<EOF
+$(packs_for "$ct")
+EOF
+  printf '%s\n' "$names"
+}
+
+# Accepted terms (product names and the like) from every scope. Vale adds them
+# to the exceptions of every rule, so "Connect scribb.me to Slack" passes.
+# Prints "Vocab = Scribb" when there are any.
+build_vocab() {
+  local styles="$1" f out="$1/config/vocabularies/Scribb/accept.txt"
+  for f in "$(scribb_user_dir)/vocab.txt" "$SCRIBB_PROJECT/.scribb/vocab.txt" "$SCRIBB_PROJECT/.scribb/local/vocab.txt"; do
+    [ -f "$f" ] || continue
+    mkdir -p "$(dirname "$out")"
+    grep -v '^[[:space:]]*\(#\|$\)' "$f" >> "$out"
+  done
+  [ -s "$out" ] && echo "Vocab = Scribb"
+  return 0
+}
+
+view_for_ext() {
+  local styles="$1" ext="$2" v=""
+  case "$ext" in
+    jsx) v=JSXCopy ;;
+    tsx | ts | js) v=TSXCopy ;;
+  esac
+  [ -n "$v" ] && [ -f "$styles/config/views/$v.yml" ] && printf '%s\n' "$v"
+  return 0
+}
+
+# --- Export mode: a standalone config for CI and editors --------------------------
+if [ -n "$export_dir" ]; then
+  mkdir -p "$export_dir/styles"
+  rm -rf "$export_dir/styles/config/vocabularies/Scribb"
+  vocab=$(build_vocab "$export_dir/styles")
+  {
+    echo "# Generated by scribb-check --export. Regenerate instead of editing."
+    echo "StylesPath = styles"
+    echo "MinAlertLevel = suggestion"
+    [ -n "$vocab" ] && echo "$vocab"
+    # One section per glob. Content types are written in reverse match order,
+    # because a later Vale section overrides an earlier one for the same file.
+    for ct in $(content_type_ids | sed -n '1!G;h;$p'); do
+      names=$(build_styles "$ct" "$export_dir/styles" copy)
+      old_ifs=$IFS
+      IFS=','
+      set -f
+      for g in $(ct_paths "$ct"); do
+        g=$(printf '%s' "$g" | sed -E 's/^[[:space:]]+//; s/[[:space:]]+$//; s#/\*$#/**#')
+        [ -n "$g" ] || continue
+        echo
+        echo "[$g]"
+        echo "BasedOnStyles = $names"
+        view=$(view_for_ext "$export_dir/styles" "${g##*.}")
+        [ -n "$view" ] && echo "View = $view"
+      done
+      set +f
+      IFS=$old_ifs
+    done
+  } > "$export_dir/vale.ini"
+  echo "Wrote $export_dir/vale.ini. Run: vale --config=$export_dir/vale.ini <files>"
+  exit 0
+fi
+
+# --- Check mode ---------------------------------------------------------------------
+action_for() {
+  # $1 freedom, $2 severity
+  case "$2" in
+    hard) echo block ;;
+    convention) if [ "$1" = expressive ]; then echo warn; else echo block; fi ;;
+    preference)
+      case "$1" in
+        strict) echo block ;;
+        balanced) echo warn ;;
+        *) echo suggest ;;
+      esac ;;
+  esac
+}
+
+tmp=$(mktemp -d "${TMPDIR:-/tmp}/scribb-check.XXXXXX") || exit 0
+trap 'rm -rf "$tmp"' EXIT
+
+# --text: write the text to a temp file and check that. UI copy is checked as
+# JSX so text between tags and string literals both count.
+text_file=""
+if [ "$have_text" = yes ]; then
+  ct_opt=${ct_opt:-product-docs}
+  case "$ct_opt" in ux-microcopy) text_file="$tmp/text.jsx" ;; *) text_file="$tmp/text.md" ;; esac
+  printf '%s\n' "$text_opt" > "$text_file"
+  set -- "$text_file"
+fi
+
+blocked=0
+for file in "$@"; do
+  [ -f "$file" ] || { echo "scribb-check: $file: no such file" >&2; continue; }
+  ct=${ct_opt:-$(content_type_for "$file")}
+  [ -n "$ct" ] || continue
+  freedom=${freedom_opt:-$(freedom_for "$ct")}
+  styles="$tmp/styles-$ct"
+  if [ ! -d "$styles" ]; then
+    names=$(build_styles "$ct" "$styles" link)
+    printf '%s\n' "$names" > "$tmp/names-$ct"
+    build_vocab "$styles" > "$tmp/vocab-$ct"
+  fi
+  names=$(cat "$tmp/names-$ct")
+  [ -n "$names" ] || continue
+  ext="${file##*.}"
+  lint="$file"
+  # Vale parses .tsx with the TypeScript grammar, which can't see JSX text
+  # (<h2>Like this</h2>). The JSX grammar can, and skips TypeScript-only
+  # syntax without false findings, so lint a .jsx copy. Lines don't change.
+  if [ "$ext" = tsx ]; then
+    lint="$tmp/tsx-$(path_key "$file").jsx"
+    cp "$file" "$lint"
+    ext=jsx
+  fi
+  ini="$tmp/vale-$ct-$ext.ini"
+  if [ ! -f "$ini" ]; then
+    view=$(view_for_ext "$styles" "$ext")
+    {
+      echo "StylesPath = $styles"
+      echo "MinAlertLevel = suggestion"
+      cat "$tmp/vocab-$ct"
+      [ "$ext" = mdx ] && printf '[formats]\nmdx = md\n'
+      # View is a syntax-specific option: it needs a [*.ext] section.
+      echo "[*.$ext]"
+      echo "BasedOnStyles = $names"
+      [ -n "$view" ] && echo "View = $view"
+    } > "$ini"
+  fi
+  out=$(vale --config="$ini" --output="$TEMPLATE" "$lint" 2>&1)
+  # Vale exits 1 for error-level findings and 2 for a runtime error.
+  if [ $? -ge 2 ]; then
+    echo "scribb-check: the checker failed on $file: $(printf '%s' "$out" | tr '\n' ' ' | cut -c1-300)" >&2
+    continue
+  fi
+  tab=$(printf '\t')
+  while IFS="$tab" read -r _path lno col level rule msg; do
+    [ -n "$rule" ] || continue
+    case "$level" in
+      error) sev=hard ;;
+      warning) sev=convention ;;
+      *) sev=preference ;;
+    esac
+    act=$(action_for "$freedom" "$sev")
+    [ "$act" = block ] && blocked=1
+    shown="$file"
+    [ "$file" = "$text_file" ] && shown=text
+    printf '%s:%s:%s:%s:%s:%s:%s\n' "$shown" "$lno" "$col" "$act" "$sev" "$rule" "$msg"
+  done <<EOF
+$out
+EOF
+done
+
+exit "$blocked"

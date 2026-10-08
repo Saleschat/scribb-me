@@ -1,0 +1,46 @@
+name: Quality evals
+
+# Manual only: each run calls the model and costs money (about $3–4).
+# Needs an ANTHROPIC_API_KEY repository secret.
+on:
+  workflow_dispatch:
+    inputs:
+      runs:
+        description: Runs per case per arm
+        default: "2"
+      case:
+        description: Case name glob (empty for all)
+        default: ""
+
+permissions:
+  contents: read
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    env:
+      VALE_VERSION: "3.24.0"
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Vale and the sandbox tools
+        run: |
+          curl -fsSL "https://github.com/vale-cli/vale/releases/download/v${VALE_VERSION}/vale_${VALE_VERSION}_Linux_64-bit.tar.gz" | sudo tar -xz -C /usr/local/bin vale
+          sudo apt-get install -y bubblewrap socat
+      - name: Install Claude Code
+        run: npm install -g @anthropic-ai/claude-code
+      - name: Run the suite
+        env:
+          RUNS: ${{ inputs.runs }}
+        run: |
+          args="--no-publish --json results.json --model sonnet"
+          if [ -n "${{ inputs.case }}" ]; then args="$args --case ${{ inputs.case }}"; fi
+          # shellcheck disable=SC2086
+          evals/quality/run.sh $args
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: quality-evals
+          path: |
+            results.json
+            evals/quality/results/

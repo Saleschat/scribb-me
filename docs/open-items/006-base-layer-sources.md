@@ -1,6 +1,6 @@
 # 006 — Base layer sources and licensing
 
-Status: decided, needs implementation
+Status: decided; v0.1 packs written in our own words, sources credited in plugin/NOTICE.md
 
 Rule: only sources with an open license that allows redistribution can be shipped or cited as seeds. Anything else is something a user can learn a style from in their own user or project scope. It is never committed to this repo.
 
@@ -13,7 +13,7 @@ Rule: only sources with an open license that allows redistribution can be shippe
 ## Content-type pack seeds
 - **tech-docs:**
   - Google developer docs style guide (CC BY 4.0), with errata-ai/Google Vale rules (MIT).
-  - PostHog handbook style guides (MIT; the text lives under `/contents/` in PostHog/posthog.com). Rewrite generic rules from that text yourself: avoid trivializers (simply, just, easily…), avoid hedging, address the reader as "you", sentence-case headings, Oxford comma, descriptive link text, inclusive language, a product-name glossary rule, bold rather than quotes for UI elements. Don't copy the repo's `.vale/` files; they sit outside `/contents/` and aren't openly licensed.
+  - PostHog handbook style guides (MIT; the text lives under `/contents/` in PostHog/posthog.com). Rewrite generic rules from that text yourself: avoid trivializers (`simply`, `just`, `easily`…), avoid hedging, address the reader as "you", sentence-case headings, Oxford comma, descriptive link text, inclusive language, a product-name glossary rule, bold rather than quotes for UI elements. Don't copy the repo's `.vale/` files; they sit outside `/contents/` and aren't openly licensed.
   - Red Hat and GitLab Vale rules (MIT code).
 - **ux-microcopy:**
   - Grafana Writers' Toolkit UX writing guide (grafana/writers-toolkit, Apache-2.0).
@@ -23,3 +23,11 @@ Rule: only sources with an open license that allows redistribution can be shippe
 ## Still to verify
 - Source and license of the Vale hub "ai-tells" package.
 - Text licenses for the Red Hat and GitLab guides, before quoting either of them.
+
+## Verified 2026-10-07
+- The Vale hub package "ai-tells" is **tbhb/vale-ai-tells** (MIT, 134 rules). krishnasunkam/vale-ai-tells (MIT, 17 rules) is a different package, listed as "AiTells". JMill/deslop and jdkato/voices are MIT.
+- The Red Hat supplementary style guide and GitLab's docs (including its style guide and probably its `doc/.vale/` rules) are **CC BY-SA 4.0**. Their text isn't used. The vale-at-red-hat repo is MIT.
+- PostHog: only `/contents/` is MIT; the root `STYLEGUIDE.md` is not.
+- Google developer docs style guide: CC BY 4.0, credited in `plugin/NOTICE.md`.
+- No Wikipedia text is quoted anywhere, so no CC BY-SA data file is needed yet.
+- Still open: the URL of the a16z crypto post (`plugin/packs/base/pack.yaml` has a TODO).
