@@ -44,3 +44,6 @@ CLAUDE.local.md
 evals/data/
 evals/.cache/
 evals/runs/
+
+# Obsidian vault settings (personal, machine-local)
+.obsidian/
