@@ -105,11 +105,13 @@ for jqmode in jq nojq; do
   printf -- '# Not frontmatter\n\nscribb-content-type: developer-docs\n' > docs/body.md
   assert "content type: the key only counts in frontmatter" [ "$(ct docs/body.md)" = product-docs ]
   assert "content type: *.tsx is UI copy" [ "$(ct src/A.tsx)" = ux-microcopy ]
-  assert "content type: newsletter/ beats *.md" [ "$(ct newsletter/2026/issue-12.md)" = newsletter ]
+  assert "content type: newsletters have no default folder" [ "$(ct newsletter/2026/issue-12.md)" = product-docs ]
+  printf -- '---\nscribb-content-type: newsletter\n---\n# Issue 12\n' > docs/issue.md
+  assert "content type: frontmatter picks Newsletter" [ "$(ct docs/issue.md)" = newsletter ]
   assert "content type: other files have none" [ -z "$(ct src/a.py)" ]
   mkdir -p .scribb && echo "paths_newsletter: emails/*" > .scribb/config.yaml && mkdir -p emails
-  assert "content type: paths_<id> overrides pack paths" [ "$(ct emails/welcome.md)" = newsletter ]
-  assert "content type: and replaces the defaults" [ "$(ct newsletter/2026/issue-12.md)" = product-docs ]
+  assert "content type: paths_newsletter maps a folder" [ "$(ct emails/welcome.md)" = newsletter ]
+  assert "content type: a mapped newsletter folder beats *.md" [ "$(ct emails/welcome.md)" != product-docs ]
   echo "paths_developer_docs: reference/*" >> .scribb/config.yaml && mkdir -p reference
   assert "content type: setup can map developer docs folders" [ "$(ct reference/cli.md)" = developer-docs ]
   out=$(run_hook session-start '{"session_id":"s1","cwd":"'"$T/proj"'","source":"startup"}')
@@ -270,7 +272,8 @@ for jqmode in jq nojq; do
     printf '# Use Foo with the Bar Service\n\nText.\n' > docs/name.md
     out=$("$PLUGIN/scripts/scribb-check" docs/name.md)
     refute "vocab: accepted names pass HeadingCase" contains "$out" "HeadingCase"
-    mkdir -p newsletter
+    mkdir -p newsletter .scribb
+    echo "paths_newsletter: newsletter/*" > .scribb/config.yaml
     printf '# Issue 12\n\nI hope this email finds you well. We are thrilled to announce reports!!\n' > newsletter/i12.md
     out=$("$PLUGIN/scripts/scribb-check" newsletter/i12.md)
     assert "newsletter: its rules run on newsletter/ files" contains "$out" "ScribbNewsletter.EmailCliches"

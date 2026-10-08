@@ -110,9 +110,9 @@ Content types and styles are **independent**. Neither is built from the other. A
 | Product docs | People using or evaluating the product: getting started, how-tos, help articles, READMEs and other repo files, release notes | Any Markdown file (`*.md`, `*.mdx`) |
 | Developer docs | People writing code against the product: API, SDK and CLI reference, integration guides | The page is about that, or its frontmatter says `scribb-content-type: developer-docs`, or `/scribb:setup` mapped those folders |
 | UI copy | Product designers and engineers writing interface strings | `*.tsx`, `*.jsx` |
-| Newsletter | Founders and creators: issues, product updates, welcome emails | `newsletter/*`, `newsletters/*`, or a newsletter you ask for in chat |
+| Newsletter | Founders and creators: issues, product updates, welcome emails | The request says it's a newsletter, or its frontmatter says `scribb-content-type: newsletter`, or `/scribb:setup` mapped those folders |
 
-Developer docs have no default folder, because every docs repo is laid out differently (a GitBook repo looks nothing like a Docusaurus one). `/scribb:setup` reads your real layout, including GitBook's `SUMMARY.md`, and asks which sections are developer docs.
+Developer docs and newsletters have no default folder, because every repo is laid out differently (a GitBook repo looks nothing like a Docusaurus one, and newsletters live in `emails/`, `issues/` or anywhere else). `/scribb:setup` reads your real layout, including GitBook's `SUMMARY.md`, and asks which folders hold developer docs or newsletters. Until then, a Markdown file counts as product docs unless its frontmatter says otherwise.
 
 **Freedom** (`strict`, `balanced` or `expressive`) sets how far a piece may stray from conventions and style preferences. Each content type has a default: strict for docs and UI copy, balanced for newsletters.
 

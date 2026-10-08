@@ -336,7 +336,7 @@ match_globs() {
 
 # Content types are data: any pack with "kind: content-type", in any scope.
 # Each pack.yaml sets label, paths and match_order (lower is matched first, so
-# "newsletter/*" wins over the Docs pattern "*.md").
+# a newsletter folder mapped with paths_newsletter wins over the Docs pattern "*.md").
 
 # content_type_ids: one id per line, in match order.
 content_type_ids() {

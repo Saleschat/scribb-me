@@ -53,7 +53,7 @@ traits:                       # see docs/open-items/002
 freedom: strict               # content types only: the default freedom
 paths: ["*.md", "*.mdx"]      # content types only: default file patterns
 label: Product docs           # content types only: the user-facing name
-match_order: 90               # content types only: lower is matched first ("newsletter/*" at 10 beats "*.md" at 90)
+match_order: 90               # content types only: lower is matched first (a mapped newsletter folder at 10 beats "*.md" at 90)
 review_threshold: words 150   # content types only: when the auto reviewer runs ("words N" or "strings N")
 extends: null                 # styles: another style id@version, or null
 sources:                      # what the pack drew on; text is always our own words
