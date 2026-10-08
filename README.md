@@ -10,14 +10,22 @@ scribb works in Claude Code, Cowork and claude.ai chat. Not sure which to use? S
 
 ### Claude Code
 
+In a Claude Code session, run:
+
+```
+/plugin install scribb --marketplace Saleschat/scribb-me
+```
+
+This adds scribb's marketplace (this GitHub repository) and installs the plugin in one step; Claude Code asks you to confirm the source first. It needs Claude Code 2.1.275 or later (`claude --version`). On an older version, run the two steps yourself:
+
 ```
 /plugin marketplace add Saleschat/scribb-me
 /plugin install scribb@scribb-me
 ```
 
-`/plugin install` asks where to install it:
+Either way, Claude Code then asks where to install it:
 - **Just you, in this repository** (local scope): good for trying it.
-- **Everyone in this repository** (project scope): writes `.claude/settings.json`, which you commit. Each teammate also runs `/plugin install scribb@scribb-me` once.
+- **Everyone in this repository** (project scope): writes `.claude/settings.json`, which you commit. Each teammate also runs the install command once.
 - **You, in every repository** (user scope).
 
 Then run `/reload-plugins` (or start a new session) and just write. There's no setup step; run `/scribb:setup` when you want team defaults.
@@ -42,7 +50,7 @@ Chat runs skills only, so these stay in Claude Code and Cowork: checks after eve
 
 ### Updates
 
-- **Claude Code:** `/plugin marketplace update scribb-me`, then `/reload-plugins`.
+- **Claude Code:** `/plugin marketplace update scribb-me` pulls the latest from this repository's `main` branch; then run `/reload-plugins`.
 - **Cowork and chat:** scribb updates from the repository on its own. To get the latest right away, select **Check for updates** in **Customize > Plugins**, or turn on **Sync automatically** for the marketplace.
 
 ## What it does
