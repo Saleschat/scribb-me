@@ -67,8 +67,8 @@ if [ -z "$export_dir" ] && [ -z "$engine" ]; then
 fi
 
 # --- The built-in checker: Python, no Vale needed --------------------------------
-# Same rules and findings as Vale (tests/chat/parity.py), but it doesn't load
-# rules promoted from memories into .scribb/packs/rules/.
+# Same rules and findings as Vale (tests/chat/parity.py), including rules
+# promoted from memories in the user, project and local rules packs.
 if [ -z "$export_dir" ] && [ "$engine" = builtin ]; then
   tmpb=$(mktemp -d "${TMPDIR:-/tmp}/scribb-check.XXXXXX") || exit 0
   trap 'rm -rf "$tmpb"' EXIT
@@ -87,13 +87,34 @@ if [ -z "$export_dir" ] && [ "$engine" = builtin ]; then
     printf '%s\n' "$text_opt" > "$text_file"
     set -- "$text_file"
   fi
+  set -- "$@" --
+  for d in "$(scribb_user_dir)/packs/rules" "$SCRIBB_PROJECT/.scribb/packs/rules" "$SCRIBB_PROJECT/.scribb/local/packs/rules"; do
+    [ -f "$d/pack.yaml" ] && set -- "$@" --rules-dir "$d"
+  done
+  # Split "$@" back into files and --rules-dir options.
+  files="" rulesargs=""
+  seen_sep=no
+  for a in "$@"; do
+    if [ "$seen_sep" = no ]; then
+      if [ "$a" = -- ]; then seen_sep=yes; else files="$files$a
+"; fi
+    else
+      rulesargs="$rulesargs$a
+"
+    fi
+  done
   blocked=0
-  for file in "$@"; do
+  while IFS= read -r file; do
+    [ -n "$file" ] || continue
     [ -f "$file" ] || { echo "scribb-check: $file: no such file" >&2; continue; }
     ct=${ct_opt:-$(content_type_for "$file")}
     [ -n "$ct" ] || continue
     freedom=${freedom_opt:-$(freedom_for "$ct")}
-    out=$(python3 "$(builtin_checker)" --content-type "$ct" --freedom "$freedom" --style "${style:-none}" --vocab "$vocab" "$file" 2>/dev/null)
+    set --
+    while IFS= read -r a; do [ -n "$a" ] && set -- "$@" "$a"; done <<RULES
+$rulesargs
+RULES
+    out=$(python3 "$(builtin_checker)" --content-type "$ct" --freedom "$freedom" --style "${style:-none}" --vocab "$vocab" "$@" "$file" 2>/dev/null)
     rc=$?
     [ "$rc" -eq 1 ] && blocked=1
     [ -n "$out" ] || continue
@@ -102,7 +123,9 @@ if [ -z "$export_dir" ] && [ "$engine" = builtin ]; then
     else
       printf '%s\n' "$out"
     fi
-  done
+  done <<FILES
+$files
+FILES
   exit "$blocked"
 fi
 
@@ -147,6 +170,7 @@ packs_for() {
       echo "scribb-check: style '$style' not found; checking without it." >&2
     fi
   fi
+  [ -f "$(scribb_user_dir)/packs/rules/pack.yaml" ] && printf '%s\n' "$(scribb_user_dir)/packs/rules"
   [ -f "$SCRIBB_PROJECT/.scribb/packs/rules/pack.yaml" ] && printf '%s\n' "$SCRIBB_PROJECT/.scribb/packs/rules"
   [ -f "$SCRIBB_PROJECT/.scribb/local/packs/rules/pack.yaml" ] && printf '%s\n' "$SCRIBB_PROJECT/.scribb/local/packs/rules"
   return 0

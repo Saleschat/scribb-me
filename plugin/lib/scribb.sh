@@ -264,7 +264,7 @@ scribb_disabled() {
 #   packs/base/               the base layer (built-in only)
 #   packs/content-types/<id>/ exactly one per piece
 #   packs/styles/<id>/        zero or one per piece
-#   packs/rules/              memories promoted to checker rules (project, local)
+#   packs/rules/              memories promoted to checker rules (user, project, local)
 
 # The packs/ folder of each scope, highest precedence first ("scope<TAB>dir").
 pack_roots() {

@@ -275,6 +275,23 @@ for jqmode in jq nojq; do
     assert "builtin: good doc passes" [ $? -eq 0 ]
     assert "builtin: JSX text in .tsx" contains "$("$PLUGIN/scripts/scribb-check" B.tsx)" "B.tsx:3:14:block:convention:ScribbUI.Oops"
     assert "builtin: --text" contains "$("$PLUGIN/scripts/scribb-check" --content-type newsletter --text "We are thrilled to announce it.")" "text:1:"
+    # Rules promoted from memories: user scope applies in every repo, for both checkers.
+    rp="$HOME/.config/scribb/packs/rules"
+    mkdir -p "$rp/checks/vale/ScribbUser"
+    printf 'id: rules\nkind: memory-rules\nversion: 0.1.0\ntagline: Rules promoted from memories\nlicense: MIT\n' > "$rp/pack.yaml"
+    printf 'extends: substitution\nmessage: "Use %%s, not %%s."\nlevel: warning\nignorecase: true\nswap:\n  dashboard: board\n' > "$rp/checks/vale/ScribbUser/Board.yml"
+    printf '# Boards\n\nOpen your dashboard.\n' > docs/term.md
+    for engine in vale builtin; do
+      echo "checker: $engine" > .scribb/config.yaml
+      assert "rules ($engine): a user-scope rule applies" contains "$("$PLUGIN/scripts/scribb-check" docs/term.md)" "ScribbUser.Board"
+    done
+    pr=".scribb/packs/rules"
+    mkdir -p "$pr/checks/vale/ScribbProject"
+    cp "$rp/pack.yaml" "$pr/pack.yaml"
+    printf 'extends: existence\nmessage: "Say studio, not %%s."\nlevel: warning\nignorecase: true\ntokens:\n  - workspace\n' > "$pr/checks/vale/ScribbProject/Studio.yml"
+    printf '# Studios\n\nOpen your workspace.\n' > docs/term2.md
+    assert "rules (builtin): a project rule applies" contains "$("$PLUGIN/scripts/scribb-check" docs/term2.md)" "ScribbProject.Studio"
+    rm -rf "$rp" "$pr"
     rm -f .scribb/config.yaml
     # Fall back when Vale isn't on PATH (as in an environment without it).
     shim="$T/shim"
