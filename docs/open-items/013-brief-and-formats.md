@@ -23,3 +23,8 @@ Status: decided, needs implementation
 ## Changed in v0.1: newsletter content type, no persona concept (2026-10-08)
 - Newsletter formats: regular-issue, product-update, welcome-email, with the same schema.
 - Subject lines, one main point per issue and closings that repeat the issue need judgement, so the reviewer checks them, not the checker.
+
+## Your own formats (2026-10-08)
+- Users and teams add formats without copying a content-type pack: `.scribb/formats/<content type>/<id>.md` (team), `~/.config/scribb/formats/<content type>/<id>.md` (just them) or `.scribb/local/formats/<content type>/<id>.md`. `scribb-guide` lists and loads them with the built-in formats; the same id replaces a built-in format. This is the location 013 planned (`.scribb/formats/`), with a folder per content type.
+- The README's "Make your own content type, format or style" section explains when to make which, and where each goes.
+

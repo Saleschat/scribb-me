@@ -231,6 +231,19 @@ for jqmode in jq nojq; do
   refute "scribb-guide: rejects unknown content types" "$PLUGIN/scripts/scribb-guide" --content-type poetry 2>/dev/null
   assert "scribb-config versions: lists packs" contains "$("$PLUGIN/scripts/scribb-config" versions)" "pack product-docs"
   assert "scribb-config inbox: empty inbox" contains "$("$PLUGIN/scripts/scribb-config" inbox)" "The inbox is empty"
+  # Your own format and content type, no code changes
+  mkdir -p .scribb/formats/newsletter
+  printf -- '---\nid: changelog-digest\ncontent_type: newsletter\nsummary: A monthly digest.\n---\n\nExample\n' > .scribb/formats/newsletter/changelog-digest.md
+  assert "formats: a team format is listed" contains "$("$PLUGIN/scripts/scribb-guide" --content-type newsletter --format list)" "changelog-digest	project"
+  assert "formats: and loads like a built-in one" contains "$("$PLUGIN/scripts/scribb-guide" --content-type newsletter --format changelog-digest)" "===== Format: changelog-digest"
+  mkdir -p .scribb/packs/content-types/website
+  printf 'id: website\nkind: content-type\nversion: 0.1.0\ntagline: Marketing pages.\nlicense: MIT\nfreedom: expressive\npaths: ["site/*"]\nlabel: Website\nmatch_order: 20\n' > .scribb/packs/content-types/website/pack.yaml
+  printf '# Website\n\nWrite for visitors.\n' > .scribb/packs/content-types/website/guide.md
+  mkdir -p site
+  assert "content types: a team content type is listed" contains "$("$PLUGIN/scripts/scribb-config" status)" "Website"
+  assert "content types: and claims its files" [ "$(bash -c '. "$1/lib/scribb.sh"; SCRIBB_PROJECT=$(scribb_project_dir); content_type_for site/home.md' _ "$PLUGIN")" = website ]
+  assert "content types: with its own default freedom" [ "$(bash -c '. "$1/lib/scribb.sh"; SCRIBB_PROJECT=$(scribb_project_dir); freedom_for website' _ "$PLUGIN")" = expressive ]
+  rm -rf .scribb/formats .scribb/packs site
   assert "config: lists styles" contains "$("$PLUGIN/scripts/scribb-config" packs --kind style)" "direct-developer-docs"
   teardown
 
