@@ -1,0 +1,44 @@
+name: Missed pattern
+description: An AI writing habit or a convention that scribb didn't catch.
+title: "Missed pattern: <short description>"
+labels: [missed-pattern]
+body:
+  - type: textarea
+    id: example
+    attributes:
+      label: Example of the problem
+      description: Invented or trimmed text, not private content.
+      render: markdown
+    validations:
+      required: true
+  - type: textarea
+    id: better
+    attributes:
+      label: What it should be instead
+      render: markdown
+  - type: dropdown
+    id: scope
+    attributes:
+      label: Where does it apply?
+      description: "Would two excellent writers both avoid this? Then it's base or a content type. If it's taste, it's a style."
+      options:
+        - Everywhere (base)
+        - One kind of writing (content type)
+        - It's taste (style)
+        - Not sure
+    validations:
+      required: true
+  - type: input
+    id: content-type
+    attributes:
+      label: Content type
+      description: Product docs, Developer docs, UI copy, Newsletter, or other.
+  - type: dropdown
+    id: mechanical
+    attributes:
+      label: Could a fixed rule catch it?
+      description: "A word, a phrase or a pattern a regex can match, or does it need judgement?"
+      options:
+        - Yes, a word or phrase
+        - Maybe, a pattern
+        - No, it needs judgement

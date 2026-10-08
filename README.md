@@ -77,6 +77,7 @@ The built-in packs in `plugin/packs/` double as worked examples of each layer. T
 | `/scribb:learn` | Learns a style from sources, or reviews captured corrections |
 | `/scribb:setup` | Optional team setup: shared defaults in `.scribb/`, a checker config for CI |
 | `/scribb:report` | Drafts a GitHub issue, for example a checker false positive |
+| `/scribb:contribute` | Turns a preference your team keeps fixing into a pull request for the built-in packs |
 
 ## Styles
 
@@ -120,10 +121,11 @@ Product names that keep their own casing go in `vocab.txt`, one per line, so the
 ```
 evals/rules/run.sh     # every checker rule fires on bad text and stays quiet on good text
 tests/hooks/run.sh     # hook and helper tests
+evals/quality/run.sh   # with/without-scribb quality evals; uses your Claude credentials and costs money
 claude --plugin-dir plugin   # try the plugin locally
 ```
 
-The design and its open questions are in [docs/open-items](docs/open-items/); the pack format is in [docs/pack-format.md](docs/pack-format.md).
+To improve the built-in packs, see [CONTRIBUTING.md](CONTRIBUTING.md). The design and its open questions are in [docs/open-items](docs/open-items/); the pack format is in [docs/pack-format.md](docs/pack-format.md).
 
 ## Licence
 

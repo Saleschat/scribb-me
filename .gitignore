@@ -47,3 +47,6 @@ evals/runs/
 
 # Obsidian vault settings (personal, machine-local)
 .obsidian/
+
+# Quality evals (claude plugin eval) write results here
+evals/quality/results/

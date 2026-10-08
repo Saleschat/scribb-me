@@ -1,0 +1,36 @@
+name: New content type
+description: Propose a kind of writing scribb should cover, such as website content or blog posts.
+title: "Content type: <name>"
+labels: [content-type]
+body:
+  - type: input
+    id: who
+    attributes:
+      label: Who writes it
+      description: For example "marketers and founders writing landing pages".
+    validations:
+      required: true
+  - type: textarea
+    id: tasks
+    attributes:
+      label: The tasks (formats)
+      description: The pieces they write most, for example landing page, feature page, pricing page.
+    validations:
+      required: true
+  - type: textarea
+    id: conventions
+    attributes:
+      label: Conventions every good writer of this kind follows
+      description: These become the content type's rules. Leave out taste; that's a style.
+    validations:
+      required: true
+  - type: input
+    id: files
+    attributes:
+      label: Where the files usually live
+      description: File patterns, or "anywhere" if there's no reliable location.
+  - type: textarea
+    id: sources
+    attributes:
+      label: Openly licensed guides to draw on
+      description: Links and licences. Packs are written in our own words; sources are credited as inspiration.

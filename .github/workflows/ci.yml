@@ -22,7 +22,7 @@ jobs:
           vale --version
 
       - name: Lint shell scripts
-        run: shellcheck -x plugin/bin/* plugin/hooks/scribb-hook plugin/lib/*.sh evals/rules/run.sh tests/hooks/run.sh
+        run: shellcheck -x plugin/bin/* plugin/hooks/scribb-hook plugin/lib/*.sh evals/rules/run.sh evals/quality/run.sh tests/hooks/run.sh
 
       - name: Validate plugin and marketplace manifests
         run: |
