@@ -27,6 +27,9 @@ traits:                       # see docs/open-items/002
   # styles: formality, density, person, source_type, good_for: [docs, ui]
 freedom: strict               # content types only: the default freedom
 paths: ["*.md", "*.mdx"]      # content types only: default file patterns
+label: Docs                   # content types only: the user-facing name
+match_order: 90               # content types only: lower is matched first ("newsletter/*" at 10 beats "*.md" at 90)
+review_threshold: words 150   # content types only: when the auto reviewer runs ("words N" or "strings N")
 extends: null                 # styles: another style id@version, or null
 sources:                      # what the pack drew on; text is always our own words
   - name: Google developer documentation style guide
@@ -36,7 +39,9 @@ sources:                      # what the pack drew on; text is always our own wo
 tags: []
 ```
 
-The bash hooks read only flat `key: value` lines and simple `[a, b]` lists from `pack.yaml`, so keep `id`, `kind`, `version`, `tagline`, `license`, `freedom` and `paths` on one line each.
+The bash hooks read only flat `key: value` lines and simple `[a, b]` lists from `pack.yaml`, so keep `id`, `kind`, `version`, `tagline`, `license`, `freedom`, `paths`, `label`, `match_order` and `review_threshold` on one line each.
+
+Content types are data. Adding a pack with `kind: content-type` (built in, or in the user or project scope) adds a content type; no code changes. scribb picks a file's content type from the first pack, in `match_order`, whose `paths` match. A piece with no file (a newsletter drafted in chat) gets its content type from the request.
 
 ## Severity
 Checker rules set Vale's `level`, which maps to scribb's severity:
@@ -74,6 +79,7 @@ Each scope can have a `config.yaml` with flat `key: value` lines. Precedence: se
 | `capture` | `on` · `off` (memory capture from corrections) | `on` |
 | `inject` | `on` · `off` (session-start style summary) | `on` |
 | `nudges` | `on` · `off` | `on` |
-| `paths_docs` | comma-separated globs | `*.md, *.mdx` |
-| `paths_ui` | comma-separated globs | `*.tsx, *.jsx` |
+| `paths_docs` | comma-separated globs (Docs) | `*.md, *.mdx` |
+| `paths_ui` | comma-separated globs (UI copy) | `*.tsx, *.jsx` |
+| `paths_<id>` | comma-separated globs for any other content type, dashes as underscores (`paths_newsletter`) | the pack's `paths` |
 | `paths_ignore` | comma-separated globs | see `plugin/lib/scribb.sh` |

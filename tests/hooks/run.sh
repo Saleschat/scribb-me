@@ -89,6 +89,21 @@ for jqmode in jq nojq; do
   assert "session-start: inbox-ready nudge at 3 signals" contains "$out" "/scribb:learn inbox"
   teardown
 
+  # --- content types from packs ---
+  setup
+  ct() { bash -c '. "$1/lib/scribb.sh"; SCRIBB_PROJECT=$(scribb_project_dir); content_type_for "$2"' _ "$PLUGIN" "$1"; }
+  mkdir -p newsletter/2026 docs src
+  assert "content type: docs/*.md is Docs" [ "$(ct docs/a.md)" = tech-docs ]
+  assert "content type: *.tsx is UI copy" [ "$(ct src/A.tsx)" = ux-microcopy ]
+  assert "content type: newsletter/ beats *.md" [ "$(ct newsletter/2026/issue-12.md)" = newsletter ]
+  assert "content type: other files have none" [ -z "$(ct src/a.py)" ]
+  mkdir -p .scribb && echo "paths_newsletter: emails/*" > .scribb/config.yaml && mkdir -p emails
+  assert "content type: paths_<id> overrides pack paths" [ "$(ct emails/welcome.md)" = newsletter ]
+  assert "content type: and replaces the defaults" [ "$(ct newsletter/2026/issue-12.md)" = tech-docs ]
+  out=$(run_hook session-start '{"session_id":"s1","cwd":"'"$T/proj"'","source":"startup"}')
+  assert "session-start: lists the newsletter content type" contains "$out" "Newsletter (emails/*"
+  teardown
+
   # --- post-edit: nudges and the reviewer trigger ---
   setup
   # A root-level Markdown file must not turn the "*.md" pattern into a file name.
@@ -163,7 +178,9 @@ for jqmode in jq nojq; do
   assert "config: local beats user" [ "$("$PLUGIN/bin/scribb-config" get freedom)" = expressive ]
   refute "config: rejects bad values" "$PLUGIN/bin/scribb-config" set freedom wild --scope user 2>/dev/null
   refute "config: rejects unknown styles" "$PLUGIN/bin/scribb-config" set style nope --scope user 2>/dev/null
-  assert "config: accepts built-in styles" "$PLUGIN/bin/scribb-config" set style warm-and-plain --scope project
+  assert "config: accepts built-in styles" "$PLUGIN/bin/scribb-config" set style crisp-product-ui --scope project >/dev/null
+  assert "config: accepts content types from packs" "$PLUGIN/bin/scribb-config" set content_type newsletter --scope user >/dev/null
+  refute "config: rejects unknown content types" "$PLUGIN/bin/scribb-config" set content_type poetry --scope user 2>/dev/null
   assert "config: lists styles" contains "$("$PLUGIN/bin/scribb-config" packs --kind style)" "direct-developer-docs"
   teardown
 
@@ -201,8 +218,16 @@ for jqmode in jq nojq; do
     printf '# Use Foo with the Bar Service\n\nText.\n' > docs/name.md
     out=$("$PLUGIN/bin/scribb-check" docs/name.md)
     refute "vocab: accepted names pass HeadingCase" contains "$out" "HeadingCase"
+    mkdir -p newsletter
+    printf '# Issue 12\n\nI hope this email finds you well. We are thrilled to announce reports!!\n' > newsletter/i12.md
+    out=$("$PLUGIN/bin/scribb-check" newsletter/i12.md)
+    assert "newsletter: its rules run on newsletter/ files" contains "$out" "ScribbNewsletter.EmailCliches"
+    refute "newsletter: Docs rules don't" contains "$out" "ScribbDocs."
     "$PLUGIN/bin/scribb-check" --export .scribb/checker >/dev/null
     assert "export: writes vale.ini" [ -f .scribb/checker/vale.ini ]
+    out=$(vale --config=.scribb/checker/vale.ini --output=line newsletter/i12.md 2>&1)
+    assert "export: newsletter section wins over *.md" contains "$out" "ScribbNewsletter."
+    refute "export: and Docs rules stay out of it" contains "$out" "ScribbDocs."
     vale --config=.scribb/checker/vale.ini docs/good.md >/dev/null 2>&1
     assert "export: config runs in plain Vale" [ $? -eq 0 ]
 

@@ -1,0 +1,9 @@
+extends: existence
+message: "Use one exclamation mark at most, not '%s'."
+level: warning
+nonword: true
+scope: sentence
+tokens:
+  - '!{2,}'
+  - '\?+!+[!?]*'
+  - '!+\?+[!?]*'

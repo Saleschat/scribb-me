@@ -1,6 +1,6 @@
 ---
 name: setup
-description: Optional team setup for scribb.me in this repo. Writes the committed .scribb/ folder (default style, which files are Docs and UI copy, freedom, glossary), adds .scribb/local/ to .gitignore, and can export a checker config for CI and editors. Use when the user wants to configure scribb for a team or repo, not for first use; scribb works without setup.
+description: Optional team setup for scribb.me in this repo. Writes the committed .scribb/ folder (default style, which files are Docs, UI copy and newsletters, freedom, glossary), adds .scribb/local/ to .gitignore, and can export a checker config for CI and editors. Use when the user wants to configure scribb for a team or repo, not for first use; scribb works without setup.
 disable-model-invocation: true
 argument-hint: "[--ci]"
 allowed-tools: Bash(${CLAUDE_PLUGIN_ROOT}/bin/scribb-config *) Bash(${CLAUDE_PLUGIN_ROOT}/bin/scribb-check *)
@@ -16,12 +16,12 @@ Current state:
 Helper: `"${CLAUDE_PLUGIN_ROOT}/bin/scribb-config"`.
 
 ## Steps
-1. **Look first.** Check which kinds of files the repo has (`*.md`, `*.mdx`, `docs/`, `*.tsx`, `*.jsx`, `locales/` or `i18n/` JSON) so the defaults fit. If the repo has no UI code, don't ask about UI copy.
+1. **Look first.** Check which kinds of files the repo has (`*.md`, `*.mdx`, `docs/`, `*.tsx`, `*.jsx`, `locales/` or `i18n/` JSON, a `newsletter/` or `emails/` folder) so the defaults fit. If the repo has no UI code, don't ask about UI copy.
 2. **Ask** (one AskUserQuestion call, up to three questions):
    - Default style for the team: list styles from `scribb-config packs --kind style` by tagline, plus "None (neutral house style)" first and recommended.
    - Which files are docs: the detected default (e.g. `docs/*.md, *.mdx, README.md`) or "all Markdown".
    - Lock freedom for compliance docs? Default no. If yes, set `freedom: strict` in the project scope.
-3. **Write** with `scribb-config set <key> <value> --scope project`: `style`, `paths_docs`, `paths_ui`, and `freedom` only if they chose to lock it.
+3. **Write** with `scribb-config set <key> <value> --scope project`: `style`, the paths for each content type the repo has (`paths_docs`, `paths_ui`, `paths_newsletter`), and `freedom` only if they chose to lock it.
 4. **Glossary** (optional): if they name product terms, save each as a project memory with the `remember` steps (kind `term`).
 5. **.gitignore**: make sure `.scribb/local/` is listed; add it if not.
 6. **CI and editors** (if `--ci` was passed, or they ask): run `"${CLAUDE_PLUGIN_ROOT}/bin/scribb-check" --export .scribb/checker`. That writes `.scribb/checker/vale.ini` and the rules, so CI or an editor extension can run `vale --config=.scribb/checker/vale.ini <files>`. Offer a minimal GitHub Actions step that installs Vale and runs that command on changed docs.

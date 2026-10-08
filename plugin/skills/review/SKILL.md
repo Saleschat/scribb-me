@@ -1,6 +1,6 @@
 ---
 name: review
-description: Review existing prose with scribb.me (pasted text, a file, a folder or a git diff) against the base anti-AI-writing rules, the content type, the active style and memories. Reports findings; rewrites only if asked. Use when the user asks to review, check, lint or proofread docs, a README, release notes or UI copy.
+description: Review existing prose with scribb.me (pasted text, a file, a folder or a git diff) against the base anti-AI-writing rules, the content type, the active style and memories. Reports findings; rewrites only if asked. Use when the user asks to review, check, lint or proofread docs, a README, release notes, UI copy or a newsletter.
 argument-hint: "<file | folder | diff | text> [--fix] [--freedom <level>]"
 allowed-tools: Bash(${CLAUDE_PLUGIN_ROOT}/bin/scribb-config *) Bash(${CLAUDE_PLUGIN_ROOT}/bin/scribb-check *) Bash(git diff *)
 ---
@@ -13,7 +13,7 @@ Helpers: `"${CLAUDE_PLUGIN_ROOT}/bin/scribb-check"`, `"${CLAUDE_PLUGIN_ROOT}/bin
 
 ## Steps
 1. **Work out the target.**
-   - A file or folder: the matching files (Docs: `*.md`, `*.mdx`; UI copy: `*.tsx`, `*.jsx`; or the configured `paths_docs` / `paths_ui`). For more than about 10 files, check them all but review the 5 with the most checker findings, and say so.
+   - A file or folder: the matching files (each content type's paths, as `scribb-config status` lists them: Docs `*.md`, `*.mdx`; UI copy `*.tsx`, `*.jsx`; Newsletter `newsletter/*`, `newsletters/*`). For more than about 10 files, check them all but review the 5 with the most checker findings, and say so.
    - "my changes", "the diff", a branch or PR: `git diff` for the changed files; review only the changed lines and their paragraphs.
    - Pasted text: write it to a temp `.md` file (UI strings: `.jsx`).
    - No target: ask what to review.

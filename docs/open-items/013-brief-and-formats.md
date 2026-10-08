@@ -19,3 +19,7 @@ Status: decided, needs implementation
 ## Implemented in v0.1 (branch `v1-claude-code-plugin`, 2026-10-07)
 - Format files are markdown with frontmatter: `id`, `content_type`, `summary`, `sections: [{name, required, length}]`, then an example. Docs and UI formats are in each content type's `formats/`, written in our own words with Diátaxis cited as inspiration.
 - Formats are checked by the reviewer only in v0.1.
+
+## Changed in v0.1: newsletter content type, no persona concept (2026-10-08)
+- Newsletter formats: regular-issue, product-update, welcome-email, with the same schema.
+- Subject lines, one main point per issue and closings that repeat the issue need judgement, so the reviewer checks them, not the checker.

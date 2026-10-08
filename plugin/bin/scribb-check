@@ -3,7 +3,7 @@
 # this, never the engine directly. Vale is the only engine in v1.
 #
 # Usage: scribb-check [options] FILE...
-#   --content-type ID   tech-docs | ux-microcopy (default: from the file path)
+#   --content-type ID   tech-docs | ux-microcopy | newsletter | … (default: from the file path)
 #   --freedom LEVEL     strict | balanced | expressive (default: config, then the content type)
 #   --style ID          a style pack id, or none (default: config)
 #   --session ID        read session-scope config too
@@ -149,8 +149,6 @@ view_for_ext() {
 # --- Export mode: a standalone config for CI and editors --------------------------
 if [ -n "$export_dir" ]; then
   mkdir -p "$export_dir/styles"
-  docs_styles=$(build_styles tech-docs "$export_dir/styles" copy)
-  ui_styles=$(build_styles ux-microcopy "$export_dir/styles" copy)
   rm -rf "$export_dir/styles/config/vocabularies/Scribb"
   vocab=$(build_vocab "$export_dir/styles")
   {
@@ -158,17 +156,25 @@ if [ -n "$export_dir" ]; then
     echo "StylesPath = styles"
     echo "MinAlertLevel = suggestion"
     [ -n "$vocab" ] && echo "$vocab"
-    echo
-    echo "[*.{md,mdx}]"
-    echo "BasedOnStyles = $docs_styles"
-    echo
-    echo "[*.jsx]"
-    echo "BasedOnStyles = $ui_styles"
-    [ -f "$export_dir/styles/config/views/JSXCopy.yml" ] && echo "View = JSXCopy"
-    echo
-    echo "[*.tsx]"
-    echo "BasedOnStyles = $ui_styles"
-    [ -f "$export_dir/styles/config/views/TSXCopy.yml" ] && echo "View = TSXCopy"
+    # One section per glob. Content types are written in reverse match order,
+    # because a later Vale section overrides an earlier one for the same file.
+    for ct in $(content_type_ids | sed -n '1!G;h;$p'); do
+      names=$(build_styles "$ct" "$export_dir/styles" copy)
+      old_ifs=$IFS
+      IFS=','
+      set -f
+      for g in $(ct_paths "$ct"); do
+        g=$(printf '%s' "$g" | sed -E 's/^[[:space:]]+//; s/[[:space:]]+$//; s#/\*$#/**#')
+        [ -n "$g" ] || continue
+        echo
+        echo "[$g]"
+        echo "BasedOnStyles = $names"
+        view=$(view_for_ext "$export_dir/styles" "${g##*.}")
+        [ -n "$view" ] && echo "View = $view"
+      done
+      set +f
+      IFS=$old_ifs
+    done
   } > "$export_dir/vale.ini"
   echo "Wrote $export_dir/vale.ini. Run: vale --config=$export_dir/vale.ini <files>"
   exit 0

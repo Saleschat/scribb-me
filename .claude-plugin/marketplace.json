@@ -5,13 +5,13 @@
     "url": "https://github.com/Saleschat"
   },
   "metadata": {
-    "description": "scribb.me: a writing-style plugin for docs and UI copy."
+    "description": "scribb.me: a writing-style plugin for docs, UI copy and newsletters."
   },
   "plugins": [
     {
       "name": "scribb",
       "source": "./plugin",
-      "description": "Writing style for docs and UI copy: anti-AI-writing rules, content-type conventions, optional styles, a checker loop and learned preferences.",
+      "description": "Writing style for docs, UI copy and newsletters: anti-AI-writing rules, content-type conventions, optional styles, a checker loop and learned preferences.",
       "category": "writing"
     }
   ]

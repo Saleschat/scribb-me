@@ -14,7 +14,7 @@ Status: decided, needs implementation
 - The npm installer is the start of the future CLI (010), so the CLI language is **Node**.
 
 ## Bundled packs (ready for the median user, no download)
-- base, Docs and UI copy (with formats and the shadcn role map), 3–4 starter styles named by traits from openly licensed sources (for example, "Direct developer docs", "Warm and plain", "Crisp product UI").
+- base, Docs and UI copy (with formats and the shadcn role map), Newsletter, and starter styles named by traits from openly licensed sources (v0.1: "Direct developer docs", "Crisp product UI").
 - Checker rules are bundled inside the packs, so no `vale sync` is needed.
 - Vale itself is not bundled. It stays optional, suggested through the `install-checker` nudge and `doctor`.
 - The bundle stays small on purpose: base + content types + about 6–8 styles at most.

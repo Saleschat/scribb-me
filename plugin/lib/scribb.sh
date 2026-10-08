@@ -312,9 +312,50 @@ match_globs() {
   return 1
 }
 
-# content_type_for FILE: prints tech-docs, ux-microcopy or nothing.
+# Content types are data: any pack with "kind: content-type", in any scope.
+# Each pack.yaml sets label, paths and match_order (lower is matched first, so
+# "newsletter/*" wins over the Docs pattern "*.md").
+
+# content_type_ids: one id per line, in match order.
+content_type_ids() {
+  local s d id order seen=" " tab
+  tab=$(printf '\t')
+  while IFS="$tab" read -r s d; do
+    [ -n "$d" ] || continue
+    [ "$(pack_field "$d" kind)" = content-type ] || continue
+    id=$(pack_field "$d" id)
+    case "$seen" in *" $id "*) continue ;; esac
+    seen="$seen$id "
+    order=$(pack_field "$d" match_order) || order=100
+    printf '%s\t%s\n' "$order" "$id"
+  done <<EOF | sort -n -k1,1 | cut -f2
+$(list_pack_dirs)
+EOF
+}
+
+# The config key that overrides a content type's paths. Docs and UI copy keep
+# the short keys; others use paths_<id> with dashes as underscores.
+ct_paths_key() {
+  case "$1" in
+    tech-docs) echo paths_docs ;;
+    ux-microcopy) echo paths_ui ;;
+    *) printf 'paths_%s\n' "$1" | tr '-' '_' ;;
+  esac
+}
+
+# ct_paths ID: comma-separated globs (config override, else pack.yaml paths).
+ct_paths() {
+  local v d
+  v=$(cfg "$(ct_paths_key "$1")")
+  if [ -z "$v" ] && d=$(pack_dir "$1"); then
+    v=$(pack_field "$d" paths | sed -E 's/^\[//; s/\]$//; s/"//g')
+  fi
+  printf '%s\n' "$v"
+}
+
+# content_type_for FILE: the first content type whose paths match, or nothing.
 content_type_for() {
-  local file rel
+  local file rel ct
   file=$(abs_path "$1")
   case "$file" in
     "$SCRIBB_PROJECT"/*) rel="${file#"$SCRIBB_PROJECT"/}" ;;
@@ -322,24 +363,35 @@ content_type_for() {
     *) rel="$file" ;;
   esac
   match_globs "$rel" "$(cfg paths_ignore)" && return 0
-  local docs ui
-  docs=$(cfg paths_docs)
-  [ -n "$docs" ] || docs="*.md, *.mdx"
-  ui=$(cfg paths_ui)
-  [ -n "$ui" ] || ui="*.tsx, *.jsx"
-  if match_globs "$rel" "$docs"; then
-    echo tech-docs
-  elif match_globs "$rel" "$ui"; then
-    echo ux-microcopy
-  fi
+  while IFS= read -r ct; do
+    [ -n "$ct" ] || continue
+    if match_globs "$rel" "$(ct_paths "$ct")"; then
+      echo "$ct"
+      return 0
+    fi
+  done <<EOF
+$(content_type_ids)
+EOF
 }
 
 content_type_label() {
-  case "$1" in
-    tech-docs) echo Docs ;;
-    ux-microcopy) echo "UI copy" ;;
-    *) echo "$1" ;;
-  esac
+  local d l
+  if d=$(pack_dir "$1") && l=$(pack_field "$d" label); then
+    echo "$l"
+  else
+    echo "$1"
+  fi
+}
+
+# ct_review_threshold ID: when the auto reviewer kicks in, as "words N" or
+# "strings N" (UI copy counts strings, not words).
+ct_review_threshold() {
+  local d t
+  if d=$(pack_dir "$1") && t=$(pack_field "$d" review_threshold); then
+    echo "$t"
+  else
+    echo "words 150"
+  fi
 }
 
 # freedom_for CONTENT_TYPE: the effective freedom.

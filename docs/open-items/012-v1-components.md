@@ -28,12 +28,12 @@ Status: implemented in v0.1 (Claude Code); Codex and generic adapters not starte
 
 ## Built-in packs
 - `base` (anti-AI habits)
-- `tech-docs` and `ux-microcopy` content types
+- `tech-docs`, `ux-microcopy` and `newsletter` content types
 - 1–2 sample styles from openly licensed sources (TBD)
 
 ## Implemented in v0.1 (branch `v1-claude-code-plugin`, 2026-10-07)
 - Everything above is in `plugin/`, plus:
   - a `report` skill (from 016),
   - `bin/scribb-config` (settings, status, off/on, packs) and `bin/scribb-nudge` (nudge checks for skills),
-  - three starter styles: `direct-developer-docs`, `crisp-product-ui` and `warm-and-plain`.
+  - a `newsletter` content type (issues, product updates, welcome emails), and two starter styles: `direct-developer-docs` and `crisp-product-ui`. `warm-and-plain` was dropped (002).
 - `setup`, `report` set `disable-model-invocation`; `scribb-style` is model-only (`user-invocable: false`).

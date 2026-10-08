@@ -56,9 +56,9 @@ valid_value() {
       d=$(pack_dir "$2") && [ "$(pack_field "$d" kind)" = style ] && return 0
       echo "scribb-config: no style pack called '$2'. See: scribb-config packs --kind style" >&2
       return 1 ;;
-    content_type) case "$2" in tech-docs | ux-microcopy) return 0 ;; esac ;;
+    content_type) content_type_ids | grep -qx "$2" && return 0 ;;
     feedbackRate) printf '%s' "$2" | grep -Eq '^(0(\.[0-9]+)?|1(\.0+)?)$' && return 0 ;;
-    paths_docs | paths_ui | paths_ignore) return 0 ;;
+    paths_*) return 0 ;;
     *) echo "scribb-config: unknown setting '$1'" >&2; return 1 ;;
   esac
   echo "scribb-config: '$2' isn't a valid value for $1" >&2
@@ -82,13 +82,13 @@ case "$cmd" in
     fi
     echo "Project: $SCRIBB_PROJECT"
     echo "Settings (value, and the scope that set it):"
-    for k in style freedom reviewer checker capture inject nudges paths_docs paths_ui; do
+    for k in style freedom reviewer checker capture inject nudges; do
       show_setting "$k"
     done
-    echo "Content types:"
-    for ct in tech-docs ux-microcopy; do
+    echo "Content types (files; default freedom; now):"
+    for ct in $(content_type_ids); do
       if d=$(pack_dir "$ct"); then
-        printf '  %-13s %s; default freedom %s; now %s\n' "$(content_type_label "$ct")" "$(pack_field "$d" tagline)" "$(pack_field "$d" freedom)" "$(freedom_for "$ct")"
+        printf '  %-13s %s\n                (%s; %s; now %s)\n' "$(content_type_label "$ct")" "$(pack_field "$d" tagline)" "$(ct_paths "$ct")" "$(pack_field "$d" freedom)" "$(freedom_for "$ct")"
       fi
     done
     st=$(cfg style)

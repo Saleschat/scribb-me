@@ -16,15 +16,15 @@ Helpers (full paths): `"${CLAUDE_PLUGIN_ROOT}/bin/scribb-config"`, `"${CLAUDE_PL
 
 ## 1. Brief
 Infer the brief from the request and the target file. The user never writes YAML.
-- `content_type`: `tech-docs` (Docs) or `ux-microcopy` (UI copy). From the request or the file extension; ask only if it's truly ambiguous.
-- `format`: one of the content type's `formats/` (Docs: how-to, concept, reference, troubleshooting, release-note; UI: error-message, empty-state, confirmation-dialog, toast, onboarding-step, tooltip), or none.
+- `content_type`: `tech-docs` (Docs), `ux-microcopy` (UI copy) or `newsletter` (Newsletter), or another content type listed in the setup above. From the request or the file path; a newsletter drafted in chat comes from the request. Ask only if it's truly ambiguous.
+- `format`: one of the content type's `formats/` (Docs: how-to, concept, reference, troubleshooting, release-note; UI: error-message, empty-state, confirmation-dialog, toast, onboarding-step, tooltip; Newsletter: regular-issue, product-update, welcome-email), or none.
 - `audience`, `length`, `locale` (default: the repo's language), `output` (a file path, or chat).
 - `freedom`: `--freedom`, else the setting, else the content type's default.
 - `style`: `--style`, else the setting.
 
 Precedence for this piece: what the user says now > format > content-type defaults > style. "Make this one casual" beats a formal style, for this piece only.
 
-Show the brief as one line before drafting, for example `Docs · how-to · admins · ≤400w · strict · style: none`, and go on unless the user corrects it.
+Show the brief as one line before drafting, for example `Docs · how-to · admins · ≤400w · strict · style: none` or `Newsletter · product-update · customers · ≤250w · balanced`, and go on unless the user corrects it.
 
 If the output is chat (no file), turn on the write session so the Stop hook checks the reply:
 `scribb-config set write_session on --scope session --session ${CLAUDE_SESSION_ID}` and `scribb-config set content_type <ct> --scope session --session ${CLAUDE_SESSION_ID}`. For a non-default freedom, also set `freedom` in the session scope, and unset it at the end.

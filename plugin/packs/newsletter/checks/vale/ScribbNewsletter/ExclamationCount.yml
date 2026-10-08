@@ -1,0 +1,6 @@
+extends: occurrence
+message: "More than two exclamation marks in one paragraph. Keep one, at most."
+level: warning
+scope: paragraph
+max: 2
+token: '\w!'

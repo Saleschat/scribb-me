@@ -37,7 +37,7 @@ Pick the case from the arguments, or from what the user asked:
 
 **`reviewer <off|auto|always>`**: set `reviewer`. `auto` reviews after big prose edits (about 150+ words of docs, 5+ UI strings); `always` after every matching edit.
 
-**`content-type`**: show which files map to Docs and UI copy (`paths_docs`, `paths_ui`) and change them with `scribb-config set paths_docs "<globs>" --scope project` if asked.
+**`content-type`**: show which files map to each content type (from the status above) and change them with `scribb-config set paths_<id> "<globs>" --scope project` if asked: `paths_docs`, `paths_ui`, `paths_newsletter`.
 
 **`add <git-url | path>`**: install a style pack.
 1. Clone (shallow) or copy it into a temp folder.

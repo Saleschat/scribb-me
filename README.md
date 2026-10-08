@@ -1,6 +1,6 @@
 # scribb.me
 
-scribb.me is a writing-style plugin for coding agents. It makes the docs and UI copy your agent writes read like a careful human wrote them: no AI writing habits, your team's conventions, and optionally a style you pick or teach it.
+scribb.me is a writing-style plugin for coding agents. It makes the docs, UI copy and newsletters your agent writes read like a careful human wrote them: no AI writing habits, your team's conventions, and optionally a style you pick or teach it.
 
 v0.1 supports Claude Code. Codex and other tools are planned (see [docs/open-items](docs/open-items/)).
 
@@ -18,16 +18,17 @@ For the automatic checks after each edit, also install [Vale](https://vale.sh/do
 ## What it does
 
 - **At session start**, it gives Claude a short summary of the rules, the active style and your approved preferences.
-- **After Claude edits a Markdown or TSX/JSX file**, the checker (Vale with scribb's rules) runs in the background. If it finds a blocking issue, Claude gets the findings and revises, at most twice per file.
+- **After Claude edits a file of a known content type** (below), the checker (Vale with scribb's rules) runs in the background. If it finds a blocking issue, Claude gets the findings and revises, at most twice per file.
 - **After a big prose edit** (about 150+ words of docs, or 5+ UI strings), Claude asks a reviewer agent with fresh context to check the passage.
 - **When you correct Claude's wording** ("don't say account, we call it a workspace"), scribb offers to remember it for you or your team.
 
 What gets checked depends on the **content type**, which scribb works out from the file:
 
-| Content type | Files | Default freedom |
-|---|---|---|
-| Docs | `*.md`, `*.mdx` | strict |
-| UI copy | `*.tsx`, `*.jsx` | strict |
+| Content type | For | Files | Default freedom |
+|---|---|---|---|
+| Docs | Developers and technical writers | `*.md`, `*.mdx` | strict |
+| UI copy | Product designers and engineers | `*.tsx`, `*.jsx` | strict |
+| Newsletter | Founders and creators: issues, product updates, welcome emails | `newsletter/*`, `newsletters/*`, or a newsletter you ask for in chat | balanced |
 
 **Freedom** (`strict`, `balanced` or `expressive`) sets how far a piece may stray from conventions and style preferences. The base anti-AI rules always apply.
 
@@ -45,13 +46,12 @@ What gets checked depends on the **content type**, which scribb works out from t
 
 ## Styles
 
-With no style set, scribb uses a neutral house style. Three starter styles ship with the plugin:
+With no style set, scribb uses a neutral house style. Two starter styles ship with the plugin:
 
 | Style | Tagline |
 |---|---|
 | `direct-developer-docs` | Short sentences, the imperative, and nothing the reader has to skip. |
 | `crisp-product-ui` | Plain, compact interface copy that never makes people read twice. |
-| `warm-and-plain` | Friendly, everyday language, like a helpful colleague explaining it. |
 
 Pick one with `/scribb:style list`, or teach scribb your own with `/scribb:learn`.
 

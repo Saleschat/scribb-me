@@ -1,6 +1,6 @@
 ---
 name: scribb-style
-description: Background writing guidance from scribb.me. Use whenever you write or substantially revise prose for people to read, such as documentation, READMEs, guides, how-tos, release notes, changelogs, error messages, empty states, dialogs, toasts, button labels and other UI copy, or a written piece in chat. Applies the base anti-AI-writing rules, the content type's conventions, the active style and approved memories.
+description: Background writing guidance from scribb.me. Use whenever you write or substantially revise prose for people to read, such as documentation, READMEs, guides, how-tos, release notes, changelogs, error messages, empty states, dialogs, toasts, button labels and other UI copy, newsletters and product-update emails, or a written piece in chat. Applies the base anti-AI-writing rules, the content type's conventions, the active style and approved memories.
 user-invocable: false
 allowed-tools: Bash(${CLAUDE_PLUGIN_ROOT}/bin/scribb-config *)
 ---
@@ -12,7 +12,7 @@ Active setup:
 
 If the setup above says scribb is off, stop here and write normally.
 
-1. **Pick the content type.** Docs (`tech-docs`) for documentation and long-form technical prose; UI copy (`ux-microcopy`) for strings in an interface. The file type usually settles it.
+1. **Pick the content type.** Docs (`tech-docs`) for documentation and long-form technical prose; UI copy (`ux-microcopy`) for strings in an interface; Newsletter (`newsletter`) for newsletter issues, product updates and welcome emails. The file path usually settles it; for a piece drafted in chat, the request does.
 2. **Read the guides** before a piece longer than a few sentences:
    - `${CLAUDE_PLUGIN_ROOT}/packs/base/guide.md` (always)
    - `${CLAUDE_PLUGIN_ROOT}/packs/<content type>/guide.md`, and a matching file in its `formats/` if one fits (how-to, release note, error message, …)

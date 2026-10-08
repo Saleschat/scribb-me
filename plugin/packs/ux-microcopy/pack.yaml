@@ -7,6 +7,9 @@ traits:
   medium: ui
 freedom: strict
 paths: ["*.tsx", "*.jsx"]
+label: UI copy
+match_order: 50
+review_threshold: strings 5
 extends: null
 sources:
   - name: Grafana Writers' Toolkit, UX writing (docs/sources/write/style-guide/ux-writing/)

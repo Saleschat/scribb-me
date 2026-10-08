@@ -1,6 +1,0 @@
-- Write the way you'd explain it to a colleague at the next desk.
-- Use contractions: "don't", "can't", "you'll", "it's".
-- "We" for the team, "you" for the reader.
-- Everyday words over product jargon: "feature", not "functionality"; "help", not "facilitate".
-- A short reason is welcome when it helps someone decide ("so you don't lose work").
-- Friendly, not cute. No exclamation marks, no forced jokes.

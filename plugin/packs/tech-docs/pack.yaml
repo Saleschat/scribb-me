@@ -7,6 +7,9 @@ traits:
   medium: docs
 freedom: strict
 paths: ["*.md", "*.mdx"]
+label: Docs
+match_order: 90
+review_threshold: words 150
 extends: null
 sources:
   - name: Google developer documentation style guide

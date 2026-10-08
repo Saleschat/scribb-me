@@ -69,8 +69,16 @@ session_start() {
   fi
   if ! is_off "$(cfg inject)"; then
     st=$(cfg style)
-    ctx="scribb.me (writing style for docs and UI copy) is active in this session.
-Content types: Docs ($(cfg paths_docs | sed 's/^$/*.md, *.mdx/'); freedom $(freedom_for tech-docs)) and UI copy ($(cfg paths_ui | sed 's/^$/*.tsx, *.jsx/'); freedom $(freedom_for ux-microcopy))."
+    local cts="" ct_line=""
+    cts=$(content_type_ids)
+    while IFS= read -r ct; do
+      [ -n "$ct" ] || continue
+      ct_line="${ct_line:+$ct_line; }$(content_type_label "$ct") ($(ct_paths "$ct"); freedom $(freedom_for "$ct"))"
+    done <<EOF
+$cts
+EOF
+    ctx="scribb.me (writing style for docs, UI copy and newsletters) is active in this session.
+Content types: $ct_line. A content type with no matching file (a newsletter drafted in chat, say) is chosen from the request."
     if ! is_off "$st" && sd=$(pack_dir "$st"); then
       ctx="$ctx
 Style: $st — $(pack_field "$sd" tagline)"
@@ -80,11 +88,14 @@ Style: none (neutral house style)."
       sd=""
     fi
     ctx="$ctx
-When you write or substantially revise prose (docs, READMEs, guides, release notes, UI strings, or a written piece in chat), follow the rules below. For a longer piece, first read the full guide for its content type:"
-    for ct in tech-docs ux-microcopy; do
+When you write or substantially revise prose (docs, READMEs, guides, release notes, UI strings, newsletters, or a written piece in chat), follow the rules below. For a longer piece, first read the full guide for its content type:"
+    while IFS= read -r ct; do
+      [ -n "$ct" ] || continue
       d=$(pack_dir "$ct") && ctx="$ctx
 - $(content_type_label "$ct"): $d/guide.md"
-    done
+    done <<EOF
+$cts
+EOF
     [ -n "$sd" ] && ctx="$ctx
 - Style: $sd/guide.md"
     if d=$(pack_dir base) && [ -f "$d/summary.md" ]; then
@@ -169,17 +180,20 @@ post_edit() {
     text=$(json_get new_string "$INPUT")
     [ -n "$text" ] || text=$(json_get content "$INPUT")
     key="reviewed-$(path_key "$file")"
-    if [ "$ct" = tech-docs ]; then
-      count=$(printf '%s' "$text" | word_count)
-      words="about $count words of Docs prose"
-      big=no
-      [ "$count" -ge 150 ] && big=yes
-    else
+    local unit min label
+    read -r unit min <<EOF
+$(ct_review_threshold "$ct")
+EOF
+    label=$(content_type_label "$ct")
+    if [ "$unit" = strings ]; then
       count=$(printf '%s' "$text" | ui_string_count)
-      words="about $count UI strings"
-      big=no
-      [ "$count" -ge 5 ] && big=yes
+      words="about $count $label strings"
+    else
+      count=$(printf '%s' "$text" | word_count)
+      words="about $count words of $label prose"
     fi
+    big=no
+    [ "$count" -ge "${min:-150}" ] && big=yes
     if [ "$mode" = always ] || { [ "$big" = yes ] && [ "$(counter_get "$key")" -eq 0 ]; }; then
       counter_incr "$key"
       local st

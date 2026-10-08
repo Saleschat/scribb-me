@@ -2,7 +2,7 @@
   "name": "scribb",
   "displayName": "scribb.me",
   "version": "0.1.0",
-  "description": "Writing style for docs and UI copy: anti-AI-writing rules, content-type conventions, optional styles, a checker loop and learned preferences.",
+  "description": "Writing style for docs, UI copy and newsletters: anti-AI-writing rules, content-type conventions, optional styles, a checker loop and learned preferences.",
   "author": { "name": "Saleschat", "url": "https://github.com/Saleschat" },
   "homepage": "https://github.com/Saleschat/scribb-me",
   "repository": "https://github.com/Saleschat/scribb-me",

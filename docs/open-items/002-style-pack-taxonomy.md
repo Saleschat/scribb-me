@@ -27,3 +27,8 @@ Status: decided, needs implementation
 ## Implemented in v0.1 (branch `v1-claude-code-plugin`, 2026-10-07)
 - The shared reference texts are one per content type: `plugin/packs/tech-docs/sample.md` (rotating an API key) and `plugin/packs/ux-microcopy/sample.md` (the strings for deleting a project). Each style's `sample.md` rewrites both where its `good_for` includes them.
 - `pack.yaml` fields are in `docs/pack-format.md`.
+
+## Changed in v0.1: newsletter content type, no persona concept (2026-10-08)
+- New content type `newsletter` (`medium: email`), for founders and creators sending issues, product updates and welcome emails. Its shared reference text is `plugin/packs/newsletter/sample.md` (a product-update issue).
+- The `warm-and-plain` style was removed: a vague voice nobody would pick on purpose. New packs start from a persona and their tasks, and a persona's writing task is a **content type**, not a style.
+- Content types are data: `pack.yaml` gained `label`, `match_order` and `review_threshold` (see `docs/pack-format.md`).

@@ -16,7 +16,7 @@ The caller gives you the plugin root (the folder that holds `packs/` and `bin/`)
    - `pack.yaml`: id (kebab-case, named by traits for anything shared, e.g. `plain-technical-explainer`; a private style may use a person's name), `kind: style`, `version: 0.1.0`, tagline, `license` (the user's own writing: whatever they choose; built-in packs need an open licence), traits (formality, density, person, source_type, good_for), `confidence`, sources (name, url, fetched date; no raw text).
    - `summary.md`: 5–10 bullets.
    - `guide.md`: the style in our own words, with a few short original example sentences.
-   - `sample.md`: the shared reference text(s) from `<plugin>/packs/tech-docs/sample.md` and/or `<plugin>/packs/ux-microcopy/sample.md`, rewritten in this style.
+   - `sample.md`: the shared reference text(s) from the `sample.md` of each content type in `good_for` (`<plugin>/packs/tech-docs/`, `ux-microcopy/`, `newsletter/`), rewritten in this style.
    - Optionally `checks/vale/<StyleName>/*.yml` rules at `level: suggestion`, only for habits that are mechanical (word choices, contractions).
    - `examples/`: at most 10 excerpts of about 50 words each, and only for private styles. Shared styles get original rewrites instead.
 5. **Validate.** Write one paragraph in the new style on the topic of a held-out piece, and compare it with that piece: what matches, what doesn't, a 1–5 score. Report the score.

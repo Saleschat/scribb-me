@@ -24,3 +24,6 @@ Status: decided, flow details open
 
 ## Implemented in v0.1 (branch `v1-claude-code-plugin`, 2026-10-07)
 - `nudges: off` turns off every nudge except the one that says scribb is on by default and how to turn it off (017).
+
+## Changed in v0.1: newsletter content type, no persona concept (2026-10-08)
+- No "What do you write?" question. The content type is still inferred per task: from the file path, or from the request for pieces drafted in chat (a newsletter usually is).
