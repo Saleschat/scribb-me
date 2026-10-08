@@ -60,7 +60,7 @@ cond_install_checker() {
 # --- Texts ---
 
 text_on_by_default() {
-  printf '%s' "scribb.me is checking the writing in this file ($(content_type_label "$NUDGE_CT")). It's on by default. To turn it off: /scribb:style off (this session), /scribb:style off --repo or --everywhere, or set SCRIBB_DISABLE=1."
+  printf '%s' "scribb.me is checking the writing in this file ($(content_type_label "$NUDGE_CT")). It's on by default. To turn it off: /scribb:style off (this session), /scribb:style off --repo or --everywhere, or set SCRIBB_DISABLE=1. Type /scribb to see everything it can do."
 }
 
 text_inbox_ready() {

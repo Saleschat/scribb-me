@@ -47,6 +47,6 @@ scribb starts working as soon as it's installed, so the first time it acts on it
 
 ## Implemented in v0.1 (branch `v1-claude-code-plugin`, 2026-10-07)
 - `on-by-default`, `inbox-ready`, `pick-style`, `install-checker` and `rate-rewrite` are in `plugin/lib/nudge.sh`; `telemetry-optin` waits for telemetry (016).
-- The shipped wording is "scribb.me is checking the writing in this file (Docs). It's on by default. To turn it off: …", because the nudge fires on the synchronous hook, before the background checker has run.
+- The shipped wording is "scribb.me is checking the writing in this file (Docs). It's on by default. To turn it off: … Type /scribb to see everything it can do.", because the nudge fires on the synchronous hook, before the background checker has run.
 - The per-session marker lives in the plugin data dir, not `.scribb/local/`.
 - `inbox-ready` fires at 3 or more pending inbox files; the learner does the grouping.

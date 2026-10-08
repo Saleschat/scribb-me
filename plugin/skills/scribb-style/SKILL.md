@@ -34,3 +34,5 @@ The references, all relative to this skill's folder:
 - `references/styles/<id>/guide.md`, `summary.md`, `sample.md`. Styles: `direct-developer-docs`, `crisp-product-ui`.
 
 Before a piece longer than a few sentences, read `references/base/guide.md`, the content type's `guide.md`, a matching format, and the style's guide if the user named a style. For short pieces, the `summary.md` files are enough. Then write as described in steps 3–5 above. For a checked and reviewed draft, suggest asking for `/scribb:write` (or "write this with scribb").
+
+When the user corrects your wording or tone ("don't say X", "we call it Y", "too formal"), fix it, then offer once, in one line, to save it with the `remember` skill so it applies in future chats. Don't offer again for the same correction.

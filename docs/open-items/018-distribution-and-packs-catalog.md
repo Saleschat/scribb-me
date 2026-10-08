@@ -54,5 +54,7 @@ Status: decided, needs implementation
 - Each skill checks whether `${CLAUDE_PLUGIN_ROOT}` became a real path: if so it's in Claude Code and uses the helpers, otherwise it uses its bundled files. A plugin synced from claude.ai into Claude Code still has a real plugin root, but its `!` lines arrive as text, so the skill runs the status command itself.
 - Chat-only behaviour: a self-review pass instead of the reviewer agent; `remember` gives a line for Project instructions; `learn` hands back a claude.ai skill zip and a scribb pack; `setup` and `contribute` say they need Claude Code.
 - Claude Code loads a marketplace install over a synced copy with the same name, so adding scribb on claude.ai doesn't load it twice.
-- Not verified yet on claude.ai itself: install from the marketplace, skills appearing under `/`, and `check.py` running in the sandbox (whether code execution must be turned on).
+- Skill names stay as they are (write, review, learn…). A separate chat plugin with `scribb-*` names was tried and dropped: it duplicates the plugin and isn't how other plugins handle it. Instead, the README and the on-by-default notice teach `/scribb`, which lists every scribb skill in both apps (chat's `/` menu filters by plugin name). Wordplay names (scribble, inscribb, transcribb…) were considered and set aside.
+- Chat sections use a stricter self-review (read cold, one habit at a time, quote passages) and offer to save a wording correction with `remember`, in place of the reviewer agent and the capture hook.
+- Verified on claude.ai (upload of this branch): install, skills in chat, `check.py` running in the sandbox. Still to confirm: that typing `/scribb` lists the skills.
 
