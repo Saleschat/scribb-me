@@ -1,0 +1,10 @@
+- Write for a developer at work: they know code, and they want the exact name, type and value.
+- Every option, parameter and field gets the same entry shape: name, type, required or default, description, example.
+- Show a working example for every endpoint, command and method. Make it copy-paste ready, and show the output in its own block.
+- Name errors exactly: the code, the message as the reader sees it, the cause and the fix.
+- Say which version a behaviour applies to, and mark anything deprecated with what to use instead.
+- Use sentence case for headings, and the imperative for steps.
+- Don't call things simple, easy or obvious. Remove "just" and "simply".
+- Use descriptive link text, never "here" or "click here".
+- Put code, commands, paths, parameters and values in code font.
+- Spell out "for example" and "that is" instead of e.g. and i.e. Keep exclamation marks out.

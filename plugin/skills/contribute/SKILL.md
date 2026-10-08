@@ -3,16 +3,24 @@ name: contribute
 description: Turn something learned locally with scribb.me (a memory, a vocab entry, a rule promoted from a memory, or a fix the user keeps making) into a pull request against the built-in packs in Saleschat/scribb-me, so every user gets it. Checks whether it's general enough, strips anything private, writes the rule or guide change with its tests, and opens the pull request only after the user approves. Use when the user wants to share or upstream a scribb preference or rule.
 disable-model-invocation: true
 argument-hint: "[memory id | rule | what to share]"
-allowed-tools: Bash(${CLAUDE_PLUGIN_ROOT}/bin/scribb-config *) Bash(${CLAUDE_PLUGIN_ROOT}/bin/scribb-guide *) Bash(${CLAUDE_PLUGIN_ROOT}/bin/scribb-check *) Bash(${CLAUDE_PLUGIN_ROOT}/bin/scribb-nudge *) Read(/${CLAUDE_PLUGIN_ROOT}/**) Bash(git switch -c contrib/*) Bash(git checkout -b contrib/*) Bash(git add *) Bash(git commit *) Bash(git diff *) Bash(git status *) Bash(evals/rules/run.sh*)
+allowed-tools: Bash(${CLAUDE_PLUGIN_ROOT}/scripts/scribb-config *) Bash(${CLAUDE_PLUGIN_ROOT}/scripts/scribb-guide *) Bash(${CLAUDE_PLUGIN_ROOT}/scripts/scribb-check *) Bash(${CLAUDE_PLUGIN_ROOT}/scripts/scribb-nudge *) Read(/${CLAUDE_PLUGIN_ROOT}/**) Bash(git switch -c contrib/*) Bash(git checkout -b contrib/*) Bash(git add *) Bash(git commit *) Bash(git diff *) Bash(git status *) Bash(evals/rules/run.sh*)
 ---
 
 # /scribb:contribute
+
+Current setup:
+!`"${CLAUDE_PLUGIN_ROOT}/scripts/scribb-config" status`
+
+## Where you're running
+Look at this path: `${CLAUDE_PLUGIN_ROOT}/scripts`.
+- **Claude Code:** it's a real folder path. Use the helpers and follow the numbered steps; the "In chat" section doesn't apply. If the setup above is still a literal `!` command (that happens when the plugin is synced from claude.ai), run that command yourself first, on its own.
+- **claude.ai chat, or another app without scribb's helpers:** it still reads `${CLAUDE_PLUGIN_ROOT}`. Don't run any `${CLAUDE_PLUGIN_ROOT}` command; skip to **In chat** at the end.
 
 **Running the helpers:** run each helper as its own command, with nothing chained before or after it (no `;`, `&&`, `|`, `2>&1` or `echo`). A chained command doesn't match this skill's allowed tools, so it would stop and ask the user for permission. Use the helpers instead of `cat` or `ls` on plugin files.
 
 What to share: `$ARGUMENTS`
 
-Helper: `"${CLAUDE_PLUGIN_ROOT}/bin/scribb-config"`. Plugin root: `${CLAUDE_PLUGIN_ROOT}`. Upstream repo: `Saleschat/scribb-me` (public).
+Helper: `"${CLAUDE_PLUGIN_ROOT}/scripts/scribb-config"`. Plugin root: `${CLAUDE_PLUGIN_ROOT}`. Upstream repo: `Saleschat/scribb-me` (public).
 
 Everything this skill sends ends up public. Show the user every file and the pull request text before anything leaves their machine.
 
@@ -58,3 +66,6 @@ Say plainly: "This will be posted publicly to github.com/Saleschat/scribb-me." A
 - With approval and `gh`: commit, push the branch (to the fork, if you forked), and run `gh pr create --repo Saleschat/scribb-me`. Give the user the pull request link.
 - Without `gh`: give the user the files and the pull request text, and the link https://github.com/Saleschat/scribb-me/compare to open it themselves.
 - Then add `contributed: <PR link>` to each local memory that was shared, so it isn't suggested again.
+
+## In chat
+This command clones the scribb.me repository and runs its tests, so it needs Claude Code. In chat, draft the change instead (steps 1–3, then the rule and its bad/good examples from step 4) and give the user the text, with a link to https://github.com/Saleschat/scribb-me/blob/main/CONTRIBUTING.md.

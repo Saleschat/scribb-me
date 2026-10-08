@@ -1,0 +1,6 @@
+- Fewest words that still say exactly what happens. Then cut one more if you can.
+- Device-neutral verbs: "select", not "click" or "tap".
+- Standard spellings: "email", "sign in", "log in to", "set up" (verb) and "setup" (noun).
+- Front-load the key word: "Project deleted", "Invite expired".
+- No articles in buttons and badges when the meaning stays clear.
+- Neutral and calm, even for errors. No personality jokes.

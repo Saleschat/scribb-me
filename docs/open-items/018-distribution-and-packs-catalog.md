@@ -45,3 +45,16 @@ Status: decided, needs implementation
 | Remove a bundled pack | **Major** release only, after a deprecation period of at least one minor release. `doctor` offers to copy the last version into the user scope |
 
 - Versioning: the plugin uses semver; each pack has its own `version`; `extends:` records the version it extended.
+
+## claude.ai chat (added 2026-10-08)
+- One plugin for every app, the pattern Anthropic's plugin docs recommend ("design for the narrowest app you care about"); each app loads what it supports and skips the rest.
+- `plugin/bin/` was renamed to `plugin/scripts/`, because a top-level `bin/` stops claude.ai and Cowork from installing a plugin at all.
+- In chat only a skill's own folder reaches the code-execution sandbox, so `write`, `review`, `scribb-style`, `style` and `learn` carry `references/` (the packs' guides, summaries, samples, formats and role maps) and `scripts/check.py` + `rules.json`. `tools/build-chat.py` generates them; CI fails if they're stale.
+- `check.py` reimplements the Vale features the packs use (existence, substitution, occurrence, `$sentence` capitalization; text, raw, sentence, paragraph and heading scopes) with the Python standard library. `tests/chat/parity.py` requires the same findings as Vale on every rule test and all pack text (160/160 on 2026-10-08).
+- Each skill checks whether `${CLAUDE_PLUGIN_ROOT}` became a real path: if so it's in Claude Code and uses the helpers, otherwise it uses its bundled files. A plugin synced from claude.ai into Claude Code still has a real plugin root, but its `!` lines arrive as text, so the skill runs the status command itself.
+- Chat-only behaviour: a self-review pass instead of the reviewer agent; `remember` gives a line for Project instructions; `learn` hands back a claude.ai skill zip and a scribb pack; `setup` and `contribute` say they need Claude Code.
+- Claude Code loads a marketplace install over a synced copy with the same name, so adding scribb on claude.ai doesn't load it twice.
+- Skill names stay as they are (write, review, learn…). A separate chat plugin with `scribb-*` names was tried and dropped: it duplicates the plugin and isn't how other plugins handle it. Instead, the README and the on-by-default notice teach `/scribb`, which lists every scribb skill in both apps (chat's `/` menu filters by plugin name). Wordplay names (scribble, inscribb, transcribb…) were considered and set aside.
+- Chat sections use a stricter self-review (read cold, one habit at a time, quote passages) and offer to save a wording correction with `remember`, in place of the reviewer agent and the capture hook.
+- Verified on claude.ai (upload of this branch, 2026-10-08): install, skills in chat, `check.py` running in the sandbox, `/scribb` listing every skill, and the offer to remember a correction.
+

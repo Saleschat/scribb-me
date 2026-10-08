@@ -17,3 +17,7 @@ Install it.
 ## npm scripts
 
 Run them.
+
+## AI writing habits
+
+Cut them.

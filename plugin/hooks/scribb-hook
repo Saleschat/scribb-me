@@ -213,7 +213,7 @@ check() {
   tries=$(counter_get "$key")
   [ "$tries" -gt "$MAX_RETRIES" ] && return 0
 
-  out=$(cd "$SCRIBB_PROJECT" && "$PLUGIN_ROOT/bin/scribb-check" --session "$SCRIBB_SESSION" --content-type "$ct" "$file" 2>/dev/null)
+  out=$(cd "$SCRIBB_PROJECT" && "$PLUGIN_ROOT/scripts/scribb-check" --session "$SCRIBB_SESSION" --content-type "$ct" "$file" 2>/dev/null)
   blocks=$(printf '%s\n' "$out" | awk -F: '$4 == "block"' | sed "s#^$file:#$rel:#" | head -n 20)
   warns=$(printf '%s\n' "$out" | awk -F: '$4 == "warn"' | sed "s#^$file:#$rel:#" | head -n 10)
 
@@ -260,7 +260,7 @@ stop() {
     tmpf="$(session_dir)/reply.md"
     [ "$ct" = ux-microcopy ] && tmpf="$(session_dir)/reply.jsx"
     printf '%s\n' "$msg" > "$tmpf"
-    out=$(cd "$SCRIBB_PROJECT" && "$PLUGIN_ROOT/bin/scribb-check" --session "$SCRIBB_SESSION" --content-type "$ct" --freedom "$freedom" "$tmpf" 2>/dev/null)
+    out=$(cd "$SCRIBB_PROJECT" && "$PLUGIN_ROOT/scripts/scribb-check" --session "$SCRIBB_SESSION" --content-type "$ct" --freedom "$freedom" "$tmpf" 2>/dev/null)
     blocks=$(printf '%s\n' "$out" | awk -F: '$4 == "block"' | sed "s#^$tmpf:#reply:#" | head -n 15)
   fi
   if [ -z "$blocks" ]; then

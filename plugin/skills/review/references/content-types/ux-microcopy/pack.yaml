@@ -1,0 +1,30 @@
+# Example CONTENT TYPE: what kind of writing. It holds the conventions every good
+# writer of this kind follows, whatever their voice. Exactly one per piece.
+# UI copy is its own content type because each string has a role in the interface.
+id: ux-microcopy
+kind: content-type
+version: 0.1.0
+tagline: Short, specific interface copy that tells people what happened and what to do.
+license: MIT
+traits:
+  medium: ui
+freedom: strict
+paths: ["*.tsx", "*.jsx"]
+label: UI copy
+match_order: 50
+review_threshold: strings 5
+extends: null
+sources:
+  - name: Grafana Writers' Toolkit, UX writing (docs/sources/write/style-guide/ux-writing/)
+    url: https://github.com/grafana/writers-toolkit
+    license: Apache-2.0
+    use: inspiration; rules rewritten in our own words
+  - name: PatternFly content design guidelines (packages/documentation-site/patternfly-docs/content/content-design/)
+    url: https://github.com/patternfly/patternfly-org
+    license: MIT
+    use: inspiration; rules rewritten in our own words
+  - name: shadcn/ui examples and blocks
+    url: https://github.com/shadcn-ui/ui
+    license: MIT
+    use: component names for the role map
+tags: [ui, microcopy, shadcn]

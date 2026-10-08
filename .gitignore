@@ -50,3 +50,7 @@ evals/runs/
 
 # Quality evals (claude plugin eval) write results here
 evals/quality/results/
+
+# Python bytecode
+__pycache__/
+*.pyc

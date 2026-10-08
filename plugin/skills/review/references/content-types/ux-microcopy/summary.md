@@ -1,0 +1,10 @@
+- Every string has a role (button, dialog title, toast, field error…). Follow the role's rules in guide.md.
+- Use sentence case everywhere: buttons, titles, labels, menus.
+- Buttons are verbs that name the result: "Delete project", not "OK" or "Yes".
+- Errors say what happened and what to do next. No blame, no "Oops", no bare "An error occurred".
+- No "please", "sorry" or exclamation marks.
+- Cut "successfully": "Project deleted" says it worked.
+- Destructive confirmations name the thing and the consequence, and the confirm button repeats the verb.
+- Keep it short: about 2–4 words for buttons, one sentence for toasts and field errors.
+- Use the same word for the same thing on every screen.
+- Address the user as "you". Avoid "my" in labels ("Your projects", not "My projects").

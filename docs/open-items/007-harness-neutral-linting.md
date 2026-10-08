@@ -5,7 +5,7 @@ Status: decided, needs implementation
 ## Decision
 - **No custom CLI or runtime in v1** (see 010).
 - **The deterministic rule engine is called "the checker"** everywhere in skills, hooks, docs and config. **Vale** is the only engine in v1, and it's optional. Swapping it for another engine should only touch the checker wrapper and the engine's rule folders.
-- **One entry point:** the plugin ships `bin/scribb-check` (bash). Hooks, skills and CI only call `scribb-check <files>`, never the engine directly. It:
+- **One entry point:** the plugin ships `scripts/scribb-check` (bash). Hooks, skills and CI only call `scribb-check <files>`, never the engine directly. It:
   - reads `checker:` from scribb config (default `vale`),
   - resolves the config by scope (local > project),
   - runs the engine and normalises its output to `file:line:severity:rule:message`,

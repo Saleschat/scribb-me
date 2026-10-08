@@ -33,9 +33,11 @@ Checker rules are [Vale](https://vale.sh) YAML files in a pack's `checks/vale/<V
 
 1. Write or edit the rule. Use the `level` that matches its layer: `error` for base, `warning` for content types, `suggestion` for styles.
 2. Add or update its test pair in `checks/vale/tests/`: `<Rule>.bad.md` must trigger it and `<Rule>.good.md` must not. Put the text that was wrongly flagged (for a false positive) in the good file.
-3. Run the tests:
+3. Rebuild the chat bundles and run the tests:
    ```
+   python3 tools/build-chat.py    # copies the packs into the chat skills
    evals/rules/run.sh
+   python3 tests/chat/parity.py   # the chat checker must match Vale
    ```
    This also runs every base rule over all pack text and good examples, and fails if any fire.
 
@@ -78,12 +80,14 @@ The repository is MIT. Everything in the packs must be our own writing.
 ```
 brew install vale shellcheck      # or see vale.sh for other systems
 claude --plugin-dir plugin        # try your changes in a session
+python3 tools/build-chat.py       # rebuild the chat bundles after editing packs
 evals/rules/run.sh                # rule tests
+python3 tests/chat/parity.py      # chat checker vs. Vale
 tests/hooks/run.sh                # hook and script tests
-shellcheck -x plugin/bin/* plugin/hooks/scribb-hook plugin/lib/*.sh
+shellcheck -x plugin/scripts/* plugin/hooks/scribb-hook plugin/lib/*.sh
 ```
 
-Scripts must run on bash 3.2 (the macOS default) and must not depend on `jq`.
+Scripts must run on bash 3.2 (the macOS default) and must not depend on `jq`. The chat checker (`tools/chat/check.py`) uses only the Python standard library, because that's what claude.ai's sandbox has. Don't edit anything under `plugin/skills/*/references/` or `plugin/skills/*/scripts/`; it's generated from the packs.
 
 ## Pull requests
 

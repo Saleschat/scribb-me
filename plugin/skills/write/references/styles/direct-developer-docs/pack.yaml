@@ -1,0 +1,25 @@
+# Example STYLE: who it sounds like. It holds taste that good writers disagree on.
+# Optional, at most one per piece, layered on any content type in good_for.
+# On a conflict, the content type wins.
+id: direct-developer-docs
+kind: style
+version: 0.1.0
+tagline: Short sentences, the imperative, and nothing the reader has to skip.
+license: MIT
+traits:
+  formality: neutral
+  density: terse
+  person: you
+  source_type: original
+  good_for: [docs]
+extends: null
+sources:
+  - name: Google developer documentation style guide
+    url: https://developers.google.com/style
+    license: CC-BY-4.0
+    use: inspiration; written in our own words
+  - name: PostHog handbook style guides
+    url: https://github.com/PostHog/posthog.com/tree/master/contents/handbook
+    license: MIT
+    use: inspiration; written in our own words
+tags: [developer, terse]

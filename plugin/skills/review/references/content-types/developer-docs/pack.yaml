@@ -1,0 +1,30 @@
+# Example CONTENT TYPE: what kind of writing. It holds the conventions every good
+# writer of this kind follows, whatever their voice. Exactly one per piece.
+# Developer docs differ from product docs in the reader: someone writing code.
+id: developer-docs
+kind: content-type
+version: 0.1.0
+tagline: Exact reference and guides for developers writing code against the product, from API, SDK and CLI reference to integration guides.
+license: MIT
+traits:
+  medium: docs
+freedom: strict
+paths: []
+label: Developer docs
+match_order: 80
+review_threshold: words 150
+extends: null
+sources:
+  - name: Google developer documentation style guide
+    url: https://developers.google.com/style
+    license: CC-BY-4.0
+    use: inspiration; rules rewritten in our own words
+  - name: PostHog handbook style guides (contents/handbook/content/posthog-style-guide.md, contents/handbook/wizard-and-docs/docs-style-guide.mdx)
+    url: https://github.com/PostHog/posthog.com/tree/master/contents/handbook
+    license: MIT
+    use: inspiration; rules rewritten in our own words
+  - name: Diátaxis
+    url: https://diataxis.fr/
+    license: CC-BY-SA-4.0
+    use: inspiration for the format split; no text is quoted
+tags: [docs, developer, api]

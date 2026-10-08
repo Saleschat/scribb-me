@@ -22,7 +22,7 @@ jobs:
           vale --version
 
       - name: Lint shell scripts
-        run: shellcheck -x plugin/bin/* plugin/hooks/scribb-hook plugin/lib/*.sh evals/rules/run.sh evals/quality/run.sh tests/hooks/run.sh
+        run: shellcheck -x plugin/scripts/* plugin/hooks/scribb-hook plugin/lib/*.sh evals/rules/run.sh evals/quality/run.sh tests/hooks/run.sh
 
       - name: Validate plugin and marketplace manifests
         run: |
@@ -32,6 +32,12 @@ jobs:
 
       - name: Rule tests (layer 1 evals)
         run: evals/rules/run.sh
+
+      - name: Chat bundles are up to date
+        run: python3 tools/build-chat.py --check
+
+      - name: Chat checker matches Vale
+        run: python3 tests/chat/parity.py
 
       - name: Hook tests
         run: tests/hooks/run.sh

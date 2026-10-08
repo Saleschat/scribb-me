@@ -2,7 +2,7 @@
 name: style
 description: Show or change scribb.me's writing setup. Shows the active style, content types, freedom and where each setting comes from; lists and switches styles; sets freedom or the reviewer; turns scribb off or on for this session, this repo or everywhere; adds a style pack from a git URL or path. Use when the user asks what style is active, wants a different style, or wants scribb off or on.
 argument-hint: "[off|on [--repo|--team|--everywhere] | list | use <style> | freedom <level> | reviewer <off|auto|always> | add <git-url|path>]"
-allowed-tools: Bash(${CLAUDE_PLUGIN_ROOT}/bin/scribb-config *) Bash(${CLAUDE_PLUGIN_ROOT}/bin/scribb-guide *) Bash(${CLAUDE_PLUGIN_ROOT}/bin/scribb-check *) Bash(${CLAUDE_PLUGIN_ROOT}/bin/scribb-nudge *) Read(/${CLAUDE_PLUGIN_ROOT}/**) Read(~/.config/scribb/**) Write(~/.config/scribb/**) Edit(~/.config/scribb/**)
+allowed-tools: Bash(${CLAUDE_PLUGIN_ROOT}/scripts/scribb-config *) Bash(${CLAUDE_PLUGIN_ROOT}/scripts/scribb-guide *) Bash(${CLAUDE_PLUGIN_ROOT}/scripts/scribb-check *) Bash(${CLAUDE_PLUGIN_ROOT}/scripts/scribb-nudge *) Read(/${CLAUDE_PLUGIN_ROOT}/**) Read(~/.config/scribb/**) Write(~/.config/scribb/**) Edit(~/.config/scribb/**)
 ---
 
 # /scribb:style
@@ -12,9 +12,14 @@ allowed-tools: Bash(${CLAUDE_PLUGIN_ROOT}/bin/scribb-config *) Bash(${CLAUDE_PLU
 Arguments: `$ARGUMENTS`
 
 Current state:
-!`"${CLAUDE_PLUGIN_ROOT}/bin/scribb-config" status --session "${CLAUDE_SESSION_ID}"`
+!`"${CLAUDE_PLUGIN_ROOT}/scripts/scribb-config" status --session "${CLAUDE_SESSION_ID}"`
 
-The helper is `"${CLAUDE_PLUGIN_ROOT}/bin/scribb-config"` (call it `scribb-config` below). Always pass `--session ${CLAUDE_SESSION_ID}` so session settings are read and written.
+## Where you're running
+Look at this path: `${CLAUDE_PLUGIN_ROOT}/scripts`.
+- **Claude Code:** it's a real folder path. Use the helpers and follow the numbered steps; the "In chat" section doesn't apply. If the setup above is still a literal `!` command (that happens when the plugin is synced from claude.ai), run that command yourself first, on its own.
+- **claude.ai chat, or another app without scribb's helpers:** it still reads `${CLAUDE_PLUGIN_ROOT}`. Don't run any `${CLAUDE_PLUGIN_ROOT}` command; skip to **In chat** at the end. Everything you need is in this skill's own folder: `references/` (the guides) and `scripts/check.py` (the checker). Paths are relative to this file, and `${CLAUDE_SKILL_DIR}` points at the folder where an app fills it in.
+
+The helper is `"${CLAUDE_PLUGIN_ROOT}/scripts/scribb-config"` (call it `scribb-config` below). Always pass `--session ${CLAUDE_SESSION_ID}` so session settings are read and written.
 
 Scopes, in the user's words:
 | User says | Scope | Flag |
@@ -49,3 +54,10 @@ Pick the case from the arguments, or from what the user asked:
 5. Copy it to `<scope>/packs/styles/<id>/` (paths from `scribb-config paths`) and add to its `pack.yaml`: `installed_from: <url>@<commit>`, `approved_by: <scribb-config approver>`, `approved_at: <UTC time>`.
 
 The catalog of shared styles isn't published yet; for now `add` takes a git URL or a path.
+
+## In chat
+Chat has no scribb settings. Styles and content types are chosen per request.
+- **list:** show the styles in `references/styles/` by their tagline (from `pack.yaml`), with each one's `sample.md` side by side, next to the neutral sample in `references/content-types/<id>/sample.md`.
+- **use <style>:** tell the user to name the style in their request ("write this in the direct-developer-docs style"), or to add a line to their Project instructions, such as: `Write with scribb.me in the direct-developer-docs style.`
+- **off:** scribb is off in chat unless a request asks for it or the background skill decides it applies. To stop that, turn the plugin off in **Customize > Plugins**.
+- **freedom, reviewer, paths, add:** these are Claude Code settings. Say so in one line.

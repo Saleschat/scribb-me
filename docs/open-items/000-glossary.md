@@ -13,7 +13,7 @@ User-facing words come first. Contributors also use the file terms.
 | **Tagline** | `tagline` | One-line description; the median user chooses by it. |
 | **Sample** | `sample` | The shared reference paragraph rewritten in this style, for side-by-side comparison. |
 | **Memory** | memory file | One learned preference with confidence, scope and approver. |
-| **Checker** | `bin/scribb-check` | The deterministic rule engine wrapper (Vale in v1). |
+| **Checker** | `scripts/scribb-check` | The deterministic rule engine wrapper (Vale in v1). |
 | *(hidden)* | **pack** | The folder that holds a base, content type or style. |
 | *(hidden)* | **persona** | Contributor term only: who a content type is for ("founders and creators"), used to decide which content types to build and in taglines. Never a setting. |
 | *(hidden)* | **scope** | built-in · user · project · local. Precedence: piece > local > project > user > built-in. |

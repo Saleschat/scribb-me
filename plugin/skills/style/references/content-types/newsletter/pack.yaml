@@ -1,0 +1,18 @@
+# Example CONTENT TYPE: what kind of writing. It holds the conventions every good
+# writer of this kind follows, whatever their voice. Exactly one per piece.
+# A newsletter's conventions (subject line, one main point) hold for any voice.
+id: newsletter
+kind: content-type
+version: 0.1.0
+tagline: Newsletters people open and read, for founders and creators sending issues, updates and welcome emails.
+license: MIT
+label: Newsletter
+match_order: 10
+traits:
+  medium: email
+  source_type: original
+freedom: balanced
+paths: ["newsletter/*", "newsletters/*"]
+extends: null
+sources: []
+tags: [newsletter, email, founders, creators]

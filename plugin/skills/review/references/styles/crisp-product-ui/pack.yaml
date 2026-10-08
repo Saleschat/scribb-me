@@ -1,0 +1,25 @@
+# Example STYLE: who it sounds like. It holds taste that good writers disagree on.
+# Optional, at most one per piece, layered on any content type in good_for.
+# On a conflict, the content type wins.
+id: crisp-product-ui
+kind: style
+version: 0.1.0
+tagline: Plain, compact interface copy that never makes people read twice.
+license: MIT
+traits:
+  formality: neutral
+  density: terse
+  person: you
+  source_type: original
+  good_for: [ui]
+extends: null
+sources:
+  - name: Grafana Writers' Toolkit, UX writing
+    url: https://github.com/grafana/writers-toolkit
+    license: Apache-2.0
+    use: inspiration; written in our own words
+  - name: PatternFly content design guidelines
+    url: https://github.com/patternfly/patternfly-org
+    license: MIT
+    use: inspiration; written in our own words
+tags: [ui, terse]
