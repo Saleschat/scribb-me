@@ -1,7 +1,7 @@
 ---
 name: style
 description: Show or change scribb.me's writing setup. Shows the active style, content types, freedom and where each setting comes from; lists and switches styles; sets freedom or the reviewer; turns scribb off or on for this session, this repo or everywhere; adds a style pack from a git URL or path. Use when the user asks what style is active, wants a different style, or wants scribb off or on.
-argument-hint: "[off|on [--repo|--team|--everywhere] | list | use <style> | freedom <level> | reviewer <off|auto|always> | add <git-url|path>]"
+argument-hint: "[off|on [--repo|--team|--everywhere] | list | use <style> | freedom <level> | reviewer <off|auto|always> | add <git-url|path> | doctor]"
 allowed-tools: Bash(${CLAUDE_PLUGIN_ROOT}/scripts/scribb-config *) Bash(${CLAUDE_PLUGIN_ROOT}/scripts/scribb-guide *) Bash(${CLAUDE_PLUGIN_ROOT}/scripts/scribb-check *) Bash(${CLAUDE_PLUGIN_ROOT}/scripts/scribb-nudge *) Read(/${CLAUDE_PLUGIN_ROOT}/**) Read(~/.config/scribb/**) Write(~/.config/scribb/**) Edit(~/.config/scribb/**)
 ---
 
@@ -43,6 +43,8 @@ Pick the case from the arguments, or from what the user asked:
 **`freedom <strict|balanced|expressive>`**: set `freedom` in the scope they named (default: session). Explain in one line what it changes: strict blocks on every rule; balanced lets style preferences through as warnings; expressive only blocks hard rules and offers 2–3 freer options.
 
 **`reviewer <off|auto|always>`**: set `reviewer`. `auto` reviews after big prose edits (about 150+ words of docs, 5+ UI strings); `always` after every matching edit.
+
+**`doctor`**: run `scribb-config doctor` and show its output. Explain the last hook runs in one or two lines: whether hooks ran at all, and why a file was skipped if it was.
 
 **`content-type`**: show which files map to each content type (from the status above) and change them with `scribb-config set paths_<id> "<globs>" --scope project` if asked: `paths_docs`, `paths_ui`, `paths_newsletter`.
 
