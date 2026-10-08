@@ -15,23 +15,15 @@ Then just write. There's no setup step.
 
 ### claude.ai chat
 
-scribb has a separate plugin for chat, **scribb-chat**, with names you can find in the `/` menu. In claude.ai (or the desktop app's chat), go to **Customize > Plugins > Add > Add marketplace**, enter `Saleschat/scribb-me`, and add **scribb-chat**.
+In claude.ai (or the desktop app's chat), go to **Customize > Plugins > Add > Add marketplace**, enter `Saleschat/scribb-me`, and add **scribb**.
 
-| Skill | Does |
-|---|---|
-| `scribb-write` | Drafts a piece, checks it, reviews it in a separate pass and revises |
-| `scribb-review` | Reviews pasted or uploaded text and reports findings |
-| `scribb-learn` | Learns a style from your samples and gives it back as a skill to upload |
-| `scribb-remember` | Gives you a `scribb memory:` line for your Project instructions |
-| `scribb-styles` | Compares the built-in styles side by side |
-| `scribb-report` | Drafts a GitHub issue |
-| `scribb-guidance` | Applies on its own when you ask for docs, UI copy or a newsletter |
+In chat, scribb works from the files inside each skill: the guides and a built-in checker. Ask it to write or review ("write this with scribb", or type `/` and pick a scribb skill), or just ask for docs, UI copy or a newsletter and the background skill applies. The checker needs code execution, which may need to be turned on in your claude.ai settings; without it, scribb still writes from the guides and reviews its own draft.
 
-The checker needs code execution, which may need to be turned on in your claude.ai settings; without it, scribb still writes from its guides and reviews its own draft. When you correct scribb's wording, it offers to save the correction with `scribb-remember`.
+Chat has no hooks, agents or repo files, so these are Claude Code only: checks after every edit, correction capture, the reviewer agent, `/scribb:setup` and `/scribb:contribute`. To keep a preference in chat, `/scribb:remember` gives you a line for your Project instructions.
 
-Chat runs skills only, so these stay in Claude Code: checks after every edit, the fresh-context reviewer agent, automatic correction capture, team settings and memory files, `/scribb:setup` and `/scribb:contribute`.
+Plugins you add on claude.ai also appear in Claude Code. If you've installed scribb there from the marketplace too, Claude Code keeps using that copy and skips the synced one.
 
-Plugins you add on claude.ai also sync into Claude Code. scribb-chat starts turned off there, so it doesn't overlap with the scribb plugin.
+For the automatic checks after each edit, also install [Vale](https://vale.sh/docs/install) (`brew install vale` on macOS). Without Vale, everything else still works.
 
 ## What it does
 

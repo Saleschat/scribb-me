@@ -7,6 +7,14 @@ allowed-tools: Bash(${CLAUDE_PLUGIN_ROOT}/scripts/scribb-config *) Bash(${CLAUDE
 
 # /scribb:learn
 
+Current setup:
+!`"${CLAUDE_PLUGIN_ROOT}/scripts/scribb-config" status`
+
+## Where you're running
+Look at this path: `${CLAUDE_PLUGIN_ROOT}/scripts`.
+- **Claude Code:** it's a real folder path. Use the helpers and follow the numbered steps; the "In chat" section doesn't apply. If the setup above is still a literal `!` command (that happens when the plugin is synced from claude.ai), run that command yourself first, on its own.
+- **claude.ai chat, or another app without scribb's helpers:** it still reads `${CLAUDE_PLUGIN_ROOT}`. Don't run any `${CLAUDE_PLUGIN_ROOT}` command; skip to **In chat** at the end. Everything you need is in this skill's own folder: `references/` (the guides) and `scripts/check.py` (the checker). Paths are relative to this file, and `${CLAUDE_SKILL_DIR}` points at the folder where an app fills it in.
+
 **Running the helpers:** run each helper as its own command, with nothing chained before or after it (no `;`, `&&`, `|`, `2>&1` or `echo`). A chained command doesn't match this skill's allowed tools, so it would stop and ask the user for permission. Use the helpers instead of `cat` or `ls` on plugin files.
 
 Arguments: `$ARGUMENTS`
@@ -28,3 +36,20 @@ Helper: `"${CLAUDE_PLUGIN_ROOT}/scripts/scribb-config"`. Plugin root: `${CLAUDE_
 6. Offer to switch to it now (`scribb-config set style <id> --scope local`).
 
 Re-learning an existing style: run the same steps, then show a diff against the current pack and ask before replacing anything.
+
+## In chat
+The references, all relative to this skill's folder:
+- `references/base/guide.md` (always), `references/base/summary.md`
+- `references/content-types/<id>/guide.md`, `summary.md`, `sample.md`, `formats/<format>.md`, and for UI copy `roles/shadcn.yaml`. Content types: `product-docs`, `developer-docs`, `ux-microcopy`, `newsletter`; each `pack.yaml` has its tagline and default freedom.
+- `references/styles/<id>/guide.md`, `summary.md`, `sample.md`. Styles: `direct-developer-docs`, `crisp-product-ui`.
+
+- **inbox:** there's no inbox in chat. Corrections are captured only in Claude Code. Say so in one line.
+- **Sources:** use the files the user uploads or pastes (and pages, only if you can fetch them in this chat). Then, without the learner agent:
+  1. **Check the sample:** aim for 5–20 pieces and about 3,000 words; below that, say so and mark the style `confidence: low`. Hold back one piece for validation.
+  2. **Extract style, not content:** rhythm, sentence and paragraph length, density, person, openings and closings, habits, favoured and avoided words. Don't carry over topics or phrases.
+  3. **Write it up:** a tagline, traits, a 5–10 bullet summary, a guide in your own words with a few original example sentences, and the content type's `sample.md` rewritten in the style. Use `references/styles/direct-developer-docs/` as the model.
+  4. **Validate:** write one paragraph on the held-back piece's topic in the new style, compare, and give a 1–5 score.
+  5. **Hand it over** in two forms, after the user approves:
+     - **A skill for claude.ai:** a folder `<style-id>/` with one `SKILL.md`, whose frontmatter `name` is the style id and whose `description` says when to use it ("Write in the <name> style. Use when the user asks for <name>'s voice or writes for <audience>."), and whose body is the summary, the guide and the sample. If you can run code, zip the folder (the zip must contain the folder itself) and give it to the user to upload in **Customize > Skills**. Otherwise give them the `SKILL.md` text.
+     - **A scribb style pack** for Claude Code: `pack.yaml`, `summary.md`, `guide.md` and `sample.md`, for `~/.config/scribb/packs/styles/<style-id>/` or a repo's `.scribb/packs/styles/<style-id>/`.
+  Private styles can be named after anyone; a style meant to be shared is named by its traits.

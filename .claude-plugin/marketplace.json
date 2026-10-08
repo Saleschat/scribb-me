@@ -5,19 +5,13 @@
     "url": "https://github.com/Saleschat"
   },
   "metadata": {
-    "description": "scribb.me: a writing-style plugin for docs, UI copy and newsletters. Use scribb in Claude Code and scribb-chat in claude.ai chat."
+    "description": "scribb.me: a writing-style plugin for docs, UI copy and newsletters."
   },
   "plugins": [
     {
       "name": "scribb",
       "source": "./plugin",
-      "description": "For Claude Code. Writing style for docs, UI copy and newsletters: anti-AI-writing rules, content-type conventions, optional styles, a checker loop and learned preferences.",
-      "category": "writing"
-    },
-    {
-      "name": "scribb-chat",
-      "source": "./plugin-chat",
-      "description": "For claude.ai chat. Write and review docs, UI copy and newsletters without AI writing habits, with a built-in checker. Skills: scribb-write, scribb-review, scribb-learn, scribb-remember, scribb-styles, scribb-report.",
+      "description": "Writing style for docs, UI copy and newsletters: anti-AI-writing rules, content-type conventions, optional styles, a checker loop and learned preferences.",
       "category": "writing"
     }
   ]

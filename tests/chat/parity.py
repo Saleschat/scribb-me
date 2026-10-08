@@ -21,7 +21,7 @@ sys.path.insert(0, os.path.join(ROOT, "tools", "chat"))
 import check  # noqa: E402
 
 PACKS = os.path.join(ROOT, "plugin", "packs")
-RULES = json.load(open(os.path.join(ROOT, "plugin-chat", "skills", "scribb-write", "scripts", "rules.json"), encoding="utf-8"))
+RULES = json.load(open(os.path.join(ROOT, "plugin", "skills", "write", "scripts", "rules.json"), encoding="utf-8"))
 fails = []
 passed = 0
 

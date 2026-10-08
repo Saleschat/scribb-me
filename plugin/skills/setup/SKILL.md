@@ -15,6 +15,11 @@ scribb works without setup. This writes shared settings for everyone in the repo
 Current state:
 !`"${CLAUDE_PLUGIN_ROOT}/scripts/scribb-config" status`
 
+## Where you're running
+Look at this path: `${CLAUDE_PLUGIN_ROOT}/scripts`.
+- **Claude Code:** it's a real folder path. Use the helpers and follow the numbered steps; the "In chat" section doesn't apply. If the setup above is still a literal `!` command (that happens when the plugin is synced from claude.ai), run that command yourself first, on its own.
+- **claude.ai chat, or another app without scribb's helpers:** it still reads `${CLAUDE_PLUGIN_ROOT}`. Don't run any `${CLAUDE_PLUGIN_ROOT}` command; skip to **In chat** at the end.
+
 Helper: `"${CLAUDE_PLUGIN_ROOT}/scripts/scribb-config"`.
 
 ## Steps
@@ -28,3 +33,6 @@ Helper: `"${CLAUDE_PLUGIN_ROOT}/scripts/scribb-config"`.
 5. **.gitignore**: make sure `.scribb/local/` is listed; add it if not.
 6. **CI and editors** (if `--ci` was passed, or they ask): run `"${CLAUDE_PLUGIN_ROOT}/scripts/scribb-check" --export .scribb/checker`. That writes `.scribb/checker/vale.ini` and the rules, so CI or an editor extension can run `vale --config=.scribb/checker/vale.ini <files>`. Offer a minimal GitHub Actions step that installs Vale and runs that command on changed docs.
 7. **Finish** with the files written and a one-line reminder to commit `.scribb/` (but not `.scribb/local/`).
+
+## In chat
+This command configures a code repository, so it only works in Claude Code. Say so in one line. In chat, the user can put team defaults in their Project instructions instead, for example: `Write with scribb.me. Our docs are product docs; use the crisp-product-ui style for UI copy.`
