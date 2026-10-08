@@ -12,7 +12,7 @@ traits:
   medium: email
   source_type: original
 freedom: balanced
-paths: ["newsletter/*", "newsletters/*"]
+paths: []
 extends: null
 sources: []
 tags: [newsletter, email, founders, creators]

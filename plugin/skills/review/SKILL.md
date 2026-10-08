@@ -23,7 +23,7 @@ Helpers: `"${CLAUDE_PLUGIN_ROOT}/scripts/scribb-check"`, `"${CLAUDE_PLUGIN_ROOT}
 
 ## Steps
 1. **Work out the target.**
-   - A file or folder: the matching files (each content type's paths, as `scribb-config status` lists them: Docs `*.md`, `*.mdx`; UI copy `*.tsx`, `*.jsx`; Newsletter `newsletter/*`, `newsletters/*`). For more than about 10 files, check them all but review the 5 with the most checker findings, and say so.
+   - A file or folder: the matching files (each content type's paths, as `scribb-config status` lists them: Docs `*.md`, `*.mdx`; UI copy `*.tsx`, `*.jsx`; Newsletter and Developer docs only where `/scribb:setup` mapped folders, or by frontmatter). For more than about 10 files, check them all but review the 5 with the most checker findings, and say so.
    - "my changes", "the diff", a branch or PR: `git diff` for the changed files; review only the changed lines and their paragraphs.
    - Pasted text: don't write a file. Check it with `scribb-check --session ${CLAUDE_SESSION_ID} --content-type <ct> --text "<the text>"` and give the reviewer the text itself.
    - No target: ask what to review.

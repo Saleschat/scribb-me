@@ -43,3 +43,8 @@ Status: decided, needs implementation
   - `developer-docs`: people writing code against the product. API, SDK and CLI reference, integration guides.
 - Developer docs have **no default paths**, because docs layouts vary too much (a GitBook repo, a Docusaurus site, a `docs/` folder). A file gets `developer-docs` from its frontmatter (`scribb-content-type: developer-docs`), from `paths_developer_docs` (which `/scribb:setup` proposes after reading the real layout, including GitBook `SUMMARY.md`), or from the request when Claude writes the page. If the checker hook picks product docs for a developer page, little is lost: the two share nearly all checker rules; the differences are in the guides and formats Claude applies.
 - The built-in packs are marked as worked examples of each layer (base, content type, format, style), for people building their own. The explanation of the layers is in the README.
+
+## Changed: no default folder for newsletters (2026-10-08)
+- `newsletter` no longer defaults to `newsletter/*` and `newsletters/*`. Like developer docs, newsletters live in folders with any name (`emails/`, `issues/`, `content/newsletter/`), so a guessed default only helped repos that happened to use it. A newsletter is chosen from the request, from `scribb-content-type: newsletter` frontmatter, or from `paths_newsletter`, which `/scribb:setup` proposes after reading the repo.
+- Trade-off, as for developer docs: until setup runs or a file has the frontmatter, a newsletter written as Markdown gets the product-docs rules from the after-edit check.
+

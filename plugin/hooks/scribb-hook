@@ -95,7 +95,7 @@ session_start() {
       [ -n "$ct" ] || continue
       local globs
       globs=$(ct_paths "$ct")
-      ct_line="${ct_line:+$ct_line; }$(content_type_label "$ct") (${globs:-chosen per page}; freedom $(freedom_for "$ct"))"
+      ct_line="${ct_line:+$ct_line; }$(content_type_label "$ct") (${globs:-chosen per piece}; freedom $(freedom_for "$ct"))"
     done <<EOF
 $cts
 EOF
