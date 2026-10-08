@@ -70,7 +70,7 @@ Chat runs skills only, so these stay in Claude Code and Cowork: checks after eve
 ## What it does
 
 - **At session start**, it gives Claude a short summary of the rules, the active style and your approved preferences.
-- **After Claude edits a file of a known content type** (below), the checker (Vale, or scribb's built-in checker when Vale isn't installed) runs in the background. If it finds a blocking issue, Claude gets the findings and revises, at most twice per file.
+- **After Claude edits a file of a known content type** (below), the checker (Vale, or scribb's built-in checker when Vale isn't installed) runs in the background. That includes files Claude writes with a shell command instead of its editing tools. If it finds a blocking issue, Claude gets the findings and revises, at most twice per file.
 - **After a big prose edit** (about 150+ words of docs or newsletter prose, or 5+ UI strings), Claude asks a reviewer agent with fresh context to check the passage.
 - **When you correct Claude's wording** ("don't say account, we call it a workspace"), scribb offers to remember it for you or your team.
 

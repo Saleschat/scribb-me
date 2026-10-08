@@ -88,3 +88,10 @@ Applies to the reviewer, the checker loop, memory capture, nudges and the sessio
 - The Stop hook reads `last_assistant_message`, and only runs while `write_session: on` is set in the session scope by `/scribb:write`.
 - The auto reviewer triggers once per file per session (`reviewer: always` every time).
 - The reviewer agent inherits the session's model for now; a cheaper default is still open.
+
+## Files written by shell commands (2026-10-08)
+- A Cowork test showed Claude sometimes writes files with a shell command (`printf … > docs/a.md`) instead of the Write or Edit tool, so the PostToolUse `Write|Edit` checker never saw them.
+- A second background hook on PostToolUse `Bash` (`scribb-hook check-bash`, `asyncRewake`) finds prose files changed since the last check (`git ls-files -m -o` newer than a per-session marker in a repository, `find -newer` otherwise; at most 10 files), and checks them the same way. The marker starts at session start, so files changed before the session don't count.
+- `FileChanged` doesn't fit: it watches only exact file names, can't see new files it wasn't told about, and can't send findings to Claude.
+- Not covered for shell-written files: the auto reviewer trigger and nudges, which still come from the Write/Edit hook.
+

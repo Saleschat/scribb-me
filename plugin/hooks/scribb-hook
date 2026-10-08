@@ -3,7 +3,8 @@
 #   session-start  SessionStart        inject the active style, memories, inbox nudge
 #   prompt         UserPromptSubmit    capture writing-style corrections into the inbox
 #   post-edit      PostToolUse (sync)  nudges, and ask for a review after big prose edits
-#   check          PostToolUse (asyncRewake)  run the checker; exit 2 wakes Claude on blocking findings
+#   check          PostToolUse on Write|Edit (asyncRewake)  run the checker; exit 2 wakes Claude on blocking findings
+#   check-bash     PostToolUse on Bash (asyncRewake)  the same, for prose files a shell command wrote
 #   stop           Stop                lint a chat-only reply while a /scribb:write session is active
 # Synchronous paths use grep, sed, awk and cat only. Every path exits 0 when scribb is off.
 set -u
@@ -81,6 +82,7 @@ memories_block() {
 
 session_start() {
   prune_sessions
+  touch "$(session_dir)/files-marker" 2>/dev/null
   local ctx="" st sd ct d nudge=""
   if nudge_pick SessionStart && [ "$NUDGE_CHANNEL" = claude ]; then
     nudge="$NUDGE_TEXT"
@@ -220,9 +222,10 @@ EOF
 
 # --- PostToolUse (asyncRewake): the checker loop -----------------------------------------
 
-check() {
-  local file ct rel key tries out blocks warns
-  file=$(json_get file_path "$INPUT")
+# check_file FILE: checks one file. Appends blocking findings to $REPORT and
+# optional ones to $WARNINGS (both files), and logs the outcome.
+check_file() {
+  local file="$1" ct rel key tries out blocks warns
   if [ -z "$file" ] || [ ! -f "$file" ]; then hook_log "skip: no file ($file)"; return 0; fi
   ct=$(content_type_for "$file")
   if [ -z "$ct" ]; then
@@ -232,17 +235,16 @@ check() {
     esac
     return 0
   fi
-  if [ -z "$(scribb_engine)" ]; then hook_log "skip: no checker (no Vale, no python3)"; return 0; fi
   rel=$(rel_path "$file")
-  key="check-$(path_key "$file")"
+  key="check-$(path_key "$(abs_path "$file")")"
   tries=$(counter_get "$key")
   if [ "$tries" -gt "$MAX_RETRIES" ]; then hook_log "skip: $rel retry limit reached"; return 0; fi
 
   out=$(cd "$SCRIBB_PROJECT" && "$PLUGIN_ROOT/scripts/scribb-check" --session "$SCRIBB_SESSION" --content-type "$ct" "$file" 2>/dev/null)
   blocks=$(printf '%s\n' "$out" | awk -F: '$4 == "block"' | sed "s#^$file:#$rel:#" | head -n 20)
   warns=$(printf '%s\n' "$out" | awk -F: '$4 == "warn"' | sed "s#^$file:#$rel:#" | head -n 10)
-
   hook_log "checked $rel ($ct, $(scribb_engine)): $(printf '%s\n' "$blocks" | grep -c . | tr -d ' ') blocking, $(printf '%s\n' "$warns" | grep -c . | tr -d ' ') warnings"
+
   if [ -n "$blocks" ]; then
     counter_incr "$key"
     if [ "$tries" -lt "$MAX_RETRIES" ]; then
@@ -250,21 +252,81 @@ check() {
         echo "scribb.me checker: $rel has writing issues to fix (file:line:col:action:severity:rule:message):"
         printf '%s\n' "$blocks"
         [ -n "$warns" ] && printf 'Also worth a look (not required):\n%s\n' "$warns"
-        echo "Revise those passages with minimal changes, unless the user asked to skip checks. Don't reword text you weren't asked to touch just to satisfy a rule if it's quoted, code, or a proper name; say so instead."
-      } >&2
+      } >> "$REPORT"
     else
       {
-        echo "scribb.me checker: $rel still has these after $MAX_RETRIES revisions:"
+        echo "scribb.me checker: $rel still has these after $MAX_RETRIES revisions. Don't revise again. List them for the user in one or two lines so they can decide:"
         printf '%s\n' "$blocks"
-        echo "Don't revise again. List them for the user in one or two lines so they can decide."
-      } >&2
+      } >> "$REPORT"
     fi
+  elif [ -n "$warns" ]; then
+    printf 'Optional suggestions for %s:\n%s\n' "$rel" "$warns" >> "$WARNINGS"
+  fi
+}
+
+# finish_check: wake Claude with blocking findings (exit 2), or pass optional
+# ones along as context.
+finish_check() {
+  if [ -s "$REPORT" ]; then
+    cat "$REPORT" >&2
+    grep -q "has writing issues to fix" "$REPORT" && echo "Revise those passages with minimal changes, unless the user asked to skip checks. Don't reword text you weren't asked to touch just to satisfy a rule if it's quoted, code, or a proper name; say so instead." >&2
     exit 2
   fi
-  if [ -n "$warns" ]; then
-    emit_json "" PostToolUse "scribb.me checker: optional suggestions for $rel (no action needed unless they're clearly right):
-$warns"
+  if [ -s "$WARNINGS" ]; then
+    emit_json "" PostToolUse "scribb.me checker (no action needed unless they're clearly right):
+$(cat "$WARNINGS")"
   fi
+}
+
+new_report() {
+  REPORT="$(mktemp "${TMPDIR:-/tmp}/scribb-report.XXXXXX")"
+  WARNINGS="$(mktemp "${TMPDIR:-/tmp}/scribb-warn.XXXXXX")"
+  trap 'rm -f "$INPUT" "$REPORT" "$WARNINGS"' EXIT
+}
+
+# PostToolUse on Write and Edit: the file the tool wrote.
+check() {
+  if [ -z "$(scribb_engine)" ]; then hook_log "skip: no checker (no Vale, no python3)"; return 0; fi
+  new_report
+  check_file "$(json_get file_path "$INPUT")"
+  touch "$(session_dir)/files-marker" 2>/dev/null
+  finish_check
+}
+
+# PostToolUse on Bash: files a shell command wrote ("echo … > docs/a.md"),
+# which the Write/Edit hook never sees. Finds prose files changed since the
+# last check (through git in a repository, by modification time otherwise).
+check_bash() {
+  local marker next f n=0 list
+  if [ -z "$(scribb_engine)" ]; then return 0; fi
+  marker="$(session_dir)/files-marker"
+  next="$marker.next"
+  touch "$next"
+  if [ ! -f "$marker" ]; then
+    mv "$next" "$marker"
+    return 0
+  fi
+  if git -C "$SCRIBB_PROJECT" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+    list=$(cd "$SCRIBB_PROJECT" && git ls-files -m -o --exclude-standard 2>/dev/null | while IFS= read -r f; do
+      [ -f "$f" ] && [ "$f" -nt "$marker" ] && printf '%s/%s\n' "$SCRIBB_PROJECT" "$f"
+    done)
+  else
+    list=$(find "$SCRIBB_PROJECT" \( -name node_modules -o -name .git -o -name .scribb -o -name dist -o -name build -o -name vendor \) -prune -o \
+      -type f \( -name '*.md' -o -name '*.mdx' -o -name '*.tsx' -o -name '*.jsx' \) -newer "$marker" -print 2>/dev/null | head -n 50)
+  fi
+  mv "$next" "$marker"
+  [ -n "$list" ] || return 0
+  new_report
+  while IFS= read -r f; do
+    [ -n "$f" ] || continue
+    [ -n "$(content_type_for "$f")" ] || continue
+    n=$((n + 1))
+    [ "$n" -gt 10 ] && break
+    check_file "$f"
+  done <<EOF
+$list
+EOF
+  finish_check
 }
 
 # --- Stop: lint chat-only pieces during /scribb:write --------------------------------------
@@ -313,6 +375,7 @@ case "$event" in
   prompt) prompt_capture ;;
   post-edit) post_edit ;;
   check) check ;;
+  check-bash) check_bash ;;
   stop) stop ;;
   *) echo "scribb-hook: unknown event '$event'" >&2 ;;
 esac

@@ -278,6 +278,34 @@ for jqmode in jq nojq; do
     vale --config=.scribb/checker/vale.ini docs/good.md >/dev/null 2>&1
     assert "export: config runs in plain Vale" [ $? -eq 0 ]
 
+    # --- files written by shell commands (PostToolUse on Bash) ---
+    bash_input() { printf '{"session_id":"%s","cwd":"%s","hook_event_name":"PostToolUse","tool_name":"Bash","tool_input":{"command":"x"}}' "$1" "$T/proj"; }
+    run_hook session-start '{"session_id":"s40","cwd":"'"$T/proj"'","source":"startup"}' >/dev/null
+    sleep 1
+    printf '%s\n' "$BAD_DOC" > docs/by-shell.md
+    err=$(run_hook check-bash "$(bash_input s40)" 2>&1 >/dev/null)
+    rc=$?
+    assert "bash: a prose file written by a shell command is checked" [ $rc -eq 2 ]
+    assert "bash: the findings name the file" contains "$err" "docs/by-shell.md:"
+    run_hook check-bash "$(bash_input s40)" >/dev/null 2>&1
+    assert "bash: nothing new, nothing to report" [ $? -eq 0 ]
+    printf 'print("hi")\n' > tool.py
+    run_hook check-bash "$(bash_input s40)" >/dev/null 2>&1
+    assert "bash: non-prose files are ignored" [ $? -eq 0 ]
+    # Outside a git repository (a Cowork session folder, for example)
+    plain="$T/plain"
+    mkdir -p "$plain/notes"
+    (
+      export CLAUDE_PROJECT_DIR="$plain"
+      cd "$plain" || exit 1
+      printf '{"session_id":"s41","cwd":"%s","source":"startup"}' "$plain" | "$HOOK" session-start >/dev/null
+      sleep 1
+      printf '%s\n' "$BAD_DOC" > notes/draft.md
+      printf '{"session_id":"s41","cwd":"%s","tool_name":"Bash","tool_input":{"command":"x"}}' "$plain" | "$HOOK" check-bash >/dev/null 2>&1
+      echo "rc=$?"
+    ) > "$T/plain.out"
+    assert "bash: works outside a git repository" contains "$(cat "$T/plain.out")" "rc=2"
+
     # --- the built-in checker (no Vale) ---
     mkdir -p .scribb && echo "checker: builtin" > .scribb/config.yaml
     out=$("$PLUGIN/scripts/scribb-check" docs/bad.md)
