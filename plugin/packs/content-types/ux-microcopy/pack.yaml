@@ -1,3 +1,6 @@
+# Example CONTENT TYPE: what kind of writing. It holds the conventions every good
+# writer of this kind follows, whatever their voice. Exactly one per piece.
+# UI copy is its own content type because each string has a role in the interface.
 id: ux-microcopy
 kind: content-type
 version: 0.1.0

@@ -1,6 +1,6 @@
 ---
 id: concept
-content_type: tech-docs
+content_type: developer-docs
 summary: Explains how something works and why, so the reader can make decisions. No steps.
 sections:
   - name: Title
@@ -19,6 +19,7 @@ sections:
     required: false
     length: "links to the how-tos and reference pages that use this concept"
 ---
+<!-- Example FORMAT: a task template inside a content type. It fixes the structure of one kind of page; the content type's rules still apply. -->
 # How API keys work
 
 An API key identifies the project that sends a request. Keys don't expire, so the risk grows the longer a key is in use.

@@ -93,13 +93,23 @@ for jqmode in jq nojq; do
   setup
   ct() { bash -c '. "$1/lib/scribb.sh"; SCRIBB_PROJECT=$(scribb_project_dir); content_type_for "$2"' _ "$PLUGIN" "$1"; }
   mkdir -p newsletter/2026 docs src
-  assert "content type: docs/*.md is Docs" [ "$(ct docs/a.md)" = tech-docs ]
+  assert "content type: docs/*.md is Product docs" [ "$(ct docs/a.md)" = product-docs ]
+  assert "content type: README.md is Product docs" [ "$(ct README.md)" = product-docs ]
+  assert "content type: developer docs have no default folder" [ "$(ct docs/api/keys.md)" = product-docs ]
+  printf -- '---\ndescription: Revoke a key\nscribb-content-type: developer-docs\n---\n# Revoke a key\n' > docs/revoke.md
+  assert "content type: frontmatter picks Developer docs" [ "$(ct docs/revoke.md)" = developer-docs ]
+  printf -- '---\nscribb-content-type: poetry\n---\n# Hi\n' > docs/odd.md
+  assert "content type: unknown frontmatter value is ignored" [ "$(ct docs/odd.md)" = product-docs ]
+  printf -- '# Not frontmatter\n\nscribb-content-type: developer-docs\n' > docs/body.md
+  assert "content type: the key only counts in frontmatter" [ "$(ct docs/body.md)" = product-docs ]
   assert "content type: *.tsx is UI copy" [ "$(ct src/A.tsx)" = ux-microcopy ]
   assert "content type: newsletter/ beats *.md" [ "$(ct newsletter/2026/issue-12.md)" = newsletter ]
   assert "content type: other files have none" [ -z "$(ct src/a.py)" ]
   mkdir -p .scribb && echo "paths_newsletter: emails/*" > .scribb/config.yaml && mkdir -p emails
   assert "content type: paths_<id> overrides pack paths" [ "$(ct emails/welcome.md)" = newsletter ]
-  assert "content type: and replaces the defaults" [ "$(ct newsletter/2026/issue-12.md)" = tech-docs ]
+  assert "content type: and replaces the defaults" [ "$(ct newsletter/2026/issue-12.md)" = product-docs ]
+  echo "paths_developer_docs: reference/*" >> .scribb/config.yaml && mkdir -p reference
+  assert "content type: setup can map developer docs folders" [ "$(ct reference/cli.md)" = developer-docs ]
   out=$(run_hook session-start '{"session_id":"s1","cwd":"'"$T/proj"'","source":"startup"}')
   assert "session-start: lists the newsletter content type" contains "$out" "Newsletter (emails/*"
   teardown

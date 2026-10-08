@@ -19,6 +19,7 @@ sections:
     required: true
     length: "one line with a real name and role"
 ---
+<!-- Example FORMAT: a task template inside a content type. It fixes the structure of one kind of page; the content type's rules still apply. -->
 **Subject:** You can now export to CSV
 
 **Preview:** Any table, any filter, one select.

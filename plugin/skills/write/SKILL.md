@@ -16,8 +16,8 @@ Helpers (full paths): `"${CLAUDE_PLUGIN_ROOT}/bin/scribb-config"`, `"${CLAUDE_PL
 
 ## 1. Brief
 Infer the brief from the request and the target file. The user never writes YAML.
-- `content_type`: `tech-docs` (Docs), `ux-microcopy` (UI copy) or `newsletter` (Newsletter), or another content type listed in the setup above. From the request or the file path; a newsletter drafted in chat comes from the request. Ask only if it's truly ambiguous.
-- `format`: one of the content type's `formats/` (Docs: how-to, concept, reference, troubleshooting, release-note; UI: error-message, empty-state, confirmation-dialog, toast, onboarding-step, tooltip; Newsletter: regular-issue, product-update, welcome-email), or none.
+- `content_type`: `product-docs` (Product docs: getting started, how-tos, help articles, READMEs and other repo files, release notes), `developer-docs` (Developer docs: API, SDK and CLI reference, integration guides), `ux-microcopy` (UI copy) or `newsletter` (Newsletter), or another content type listed in the setup above. Take it from the file's `scribb-content-type:` frontmatter, then the request and what the page is about, then the file path. Docs folders are laid out differently in every repo, so don't decide developer vs product docs from the folder name alone. Ask only if it's truly ambiguous.
+- `format`: one of the content type's `formats/` (Product docs: readme, contributing, getting-started, how-to, help-article, release-note; Developer docs: api-reference, cli-reference, integration-guide, concept, troubleshooting; UI: error-message, empty-state, confirmation-dialog, toast, onboarding-step, tooltip; Newsletter: regular-issue, product-update, welcome-email), or none.
 - `audience`, `length`, `locale` (default: the repo's language), `output` (a file path, or chat).
 - `freedom`: `--freedom`, else the setting, else the content type's default.
 - `style`: `--style`, else the setting.

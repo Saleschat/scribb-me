@@ -3,7 +3,8 @@
 # this, never the engine directly. Vale is the only engine in v1.
 #
 # Usage: scribb-check [options] FILE...
-#   --content-type ID   tech-docs | ux-microcopy | newsletter | … (default: from the file path)
+#   --content-type ID   product-docs | developer-docs | ux-microcopy | newsletter | …
+#                       (default: frontmatter, then the file path)
 #   --freedom LEVEL     strict | balanced | expressive (default: config, then the content type)
 #   --style ID          a style pack id, or none (default: config)
 #   --session ID        read session-scope config too

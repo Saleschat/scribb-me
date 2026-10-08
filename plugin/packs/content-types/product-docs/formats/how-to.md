@@ -1,6 +1,6 @@
 ---
 id: how-to
-content_type: tech-docs
+content_type: product-docs
 summary: Steps for one task, for a reader who already knows what they want to do.
 sections:
   - name: Title
@@ -22,6 +22,7 @@ sections:
     required: false
     length: "≤ 3 links"
 ---
+<!-- Example FORMAT: a task template inside a content type. It fixes the structure of one kind of page; the content type's rules still apply. -->
 # Rotate an API key
 
 Replace an API key without downtime by running the old and new keys side by side.

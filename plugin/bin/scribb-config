@@ -88,7 +88,7 @@ case "$cmd" in
     echo "Content types (files; default freedom; now):"
     for ct in $(content_type_ids); do
       if d=$(pack_dir "$ct"); then
-        printf '  %-13s %s\n                (%s; %s; now %s)\n' "$(content_type_label "$ct")" "$(pack_field "$d" tagline)" "$(ct_paths "$ct")" "$(pack_field "$d" freedom)" "$(freedom_for "$ct")"
+        printf '  %-13s %s\n                (%s; %s; now %s)\n' "$(content_type_label "$ct")" "$(pack_field "$d" tagline)" "$(ct_paths "$ct" | sed 's/^$/no default files: chosen per page/')" "$(pack_field "$d" freedom)" "$(freedom_for "$ct")"
       fi
     done
     st=$(cfg style)

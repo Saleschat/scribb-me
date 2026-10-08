@@ -51,11 +51,16 @@ scribb_project_dir() {
 # abs_path FILE: absolute physical path of a file (the file need not exist,
 # its directory must).
 abs_path() {
-  local dir base
+  local dir rest=""
   case "$1" in /*) dir=$(dirname "$1") ;; *) dir="$PWD/$(dirname "$1")" ;; esac
-  base=$(basename "$1")
-  [ -d "$dir" ] && dir=$(cd "$dir" && pwd -P)
-  printf '%s/%s\n' "$dir" "$base"
+  rest=$(basename "$1")
+  # Resolve the nearest folder that exists; keep the missing part as written.
+  while [ ! -d "$dir" ] && [ "$dir" != / ]; do
+    rest="$(basename "$dir")/$rest"
+    dir=$(dirname "$dir")
+  done
+  dir=$(cd "$dir" && pwd -P)
+  printf '%s/%s\n' "${dir%/}" "$rest"
 }
 
 # Creates .scribb/local/ with a self-ignoring .gitignore, so local state never
@@ -353,7 +358,7 @@ EOF
 # the short keys; others use paths_<id> with dashes as underscores.
 ct_paths_key() {
   case "$1" in
-    tech-docs) echo paths_docs ;;
+    product-docs) echo paths_docs ;;
     ux-microcopy) echo paths_ui ;;
     *) printf 'paths_%s\n' "$1" | tr '-' '_' ;;
   esac
@@ -369,7 +374,22 @@ ct_paths() {
   printf '%s\n' "$v"
 }
 
-# content_type_for FILE: the first content type whose paths match, or nothing.
+# frontmatter_content_type FILE: the "scribb-content-type:" key from a
+# Markdown file's frontmatter, if any. Docs tools such as GitBook ignore keys
+# they don't know, so a page can say what it is wherever it lives.
+frontmatter_content_type() {
+  [ -f "$1" ] || return 0
+  awk '
+    NR == 1 { if ($0 !~ /^---[[:space:]]*$/) exit; next }
+    /^---[[:space:]]*$/ || NR > 60 { exit }
+    /^scribb-content-type:/ {
+      sub(/^scribb-content-type:[[:space:]]*/, ""); gsub(/["'\''[:space:]]/, ""); print; exit
+    }' "$1"
+}
+
+# content_type_for FILE: the content type a file belongs to, or nothing.
+# Order: the ignore list, then the file's frontmatter, then the first content
+# type (in match_order) whose paths match.
 content_type_for() {
   local file rel ct
   file=$(abs_path "$1")
@@ -379,6 +399,11 @@ content_type_for() {
     *) rel="$file" ;;
   esac
   match_globs "$rel" "$(cfg paths_ignore)" && return 0
+  ct=$(frontmatter_content_type "$file")
+  if [ -n "$ct" ] && pack_dir "$ct" >/dev/null && [ "$(pack_field "$(pack_dir "$ct")" kind)" = content-type ]; then
+    echo "$ct"
+    return 0
+  fi
   while IFS= read -r ct; do
     [ -n "$ct" ] || continue
     if match_globs "$rel" "$(ct_paths "$ct")"; then

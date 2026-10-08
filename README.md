@@ -19,18 +19,52 @@ For the automatic checks after each edit, also install [Vale](https://vale.sh/do
 
 - **At session start**, it gives Claude a short summary of the rules, the active style and your approved preferences.
 - **After Claude edits a file of a known content type** (below), the checker (Vale with scribb's rules) runs in the background. If it finds a blocking issue, Claude gets the findings and revises, at most twice per file.
-- **After a big prose edit** (about 150+ words of docs, or 5+ UI strings), Claude asks a reviewer agent with fresh context to check the passage.
+- **After a big prose edit** (about 150+ words of docs or newsletter prose, or 5+ UI strings), Claude asks a reviewer agent with fresh context to check the passage.
 - **When you correct Claude's wording** ("don't say account, we call it a workspace"), scribb offers to remember it for you or your team.
 
-What gets checked depends on the **content type**, which scribb works out from the file:
 
-| Content type | For | Files | Default freedom |
+## How scribb thinks about writing
+
+Every piece of writing gets the same few layers. Two of them are easy to mix up, so they're kept apart on purpose.
+
+| Layer | Answers | Holds | Per piece |
 |---|---|---|---|
-| Docs | Developers and technical writers | `*.md`, `*.mdx` | strict |
-| UI copy | Product designers and engineers | `*.tsx`, `*.jsx` | strict |
-| Newsletter | Founders and creators: issues, product updates, welcome emails | `newsletter/*`, `newsletters/*`, or a newsletter you ask for in chat | balanced |
+| **Base** | What does machine-written text look like? | Rules against AI writing habits | Always on |
+| **Content type** | What kind of writing is this? | The conventions every good writer of that kind follows | Exactly one |
+| **Format** | What is this particular piece? | A task template inside a content type: sections, length, an example | Zero or one |
+| **Style** | Whose voice is it in? | Taste that good writers disagree on: tone, rhythm, word choice | Zero or one |
 
-**Freedom** (`strict`, `balanced` or `expressive`) sets how far a piece may stray from conventions and style preferences. The base anti-AI rules always apply.
+**Content type or style?** Ask whether two excellent writers would disagree about a rule. If both would follow it ("a how-to has numbered steps", "an error message says what to do next"), it belongs to the content type. If it's a matter of taste ("short punchy sentences", "use contractions"), it belongs to a style.
+
+Content types and styles are **independent**. Neither is built from the other. Any content type works with no style, and one style can apply to several content types (its `good_for` lists them). A style can build on another style with `extends:`.
+
+**When layers disagree**, the higher one wins:
+
+```
+  what you say now           "make this one casual" wins, for this piece only
+  memories                   preferences you or your team approved
+  format                     for example a how-to or a release note
+  content type
+  style                      fills in the voice; loses on conflict
+  base                       hard rules: never relaxed, whatever the order
+```
+
+**Example.** Two founders write a product-update newsletter. The content type is the same: one clear subject line, one main point, a link and a short sign-off. The style differs: one writes warm first-person stories, the other terse numbers-first bullets. Both are good newsletters.
+
+### Content types
+
+| Content type | For | Picked when |
+|---|---|---|
+| Product docs | People using or evaluating the product: getting started, how-tos, help articles, READMEs and other repo files, release notes | Any Markdown file (`*.md`, `*.mdx`) |
+| Developer docs | People writing code against the product: API, SDK and CLI reference, integration guides | The page is about that, or its frontmatter says `scribb-content-type: developer-docs`, or `/scribb:setup` mapped those folders |
+| UI copy | Product designers and engineers writing interface strings | `*.tsx`, `*.jsx` |
+| Newsletter | Founders and creators: issues, product updates, welcome emails | `newsletter/*`, `newsletters/*`, or a newsletter you ask for in chat |
+
+Developer docs have no default folder, because every docs repo is laid out differently (a GitBook repo looks nothing like a Docusaurus one). `/scribb:setup` reads your real layout, including GitBook's `SUMMARY.md`, and asks which sections are developer docs.
+
+**Freedom** (`strict`, `balanced` or `expressive`) sets how far a piece may stray from conventions and style preferences. Each content type has a default: strict for docs and UI copy, balanced for newsletters.
+
+The built-in packs in `plugin/packs/` double as worked examples of each layer. To build your own, see [docs/pack-format.md](docs/pack-format.md).
 
 ## Commands
 
@@ -46,7 +80,7 @@ What gets checked depends on the **content type**, which scribb works out from t
 
 ## Styles
 
-With no style set, scribb uses a neutral house style. Two starter styles ship with the plugin:
+With no style set, scribb uses a neutral house style. Two starter styles ship with the plugin, mainly as examples of what a style is:
 
 | Style | Tagline |
 |---|---|

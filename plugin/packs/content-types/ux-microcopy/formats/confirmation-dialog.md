@@ -16,6 +16,7 @@ sections:
     required: true
     length: "Cancel"
 ---
+<!-- Example FORMAT: a task template inside a content type. It fixes the structure of one kind of page; the content type's rules still apply. -->
 **Delete this project?**
 
 This deletes the project and its 12 dashboards. You can't undo this.

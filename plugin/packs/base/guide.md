@@ -1,5 +1,7 @@
 # AI writing habits
 
+*Example base: applies to every piece. Only universal habits belong here.*
+
 The base pack applies to every piece, whatever the content type or style. It lists habits that make text read as machine-written. Most of them are fine once. The problem is the pile-up: the same moves, in the same places, piece after piece.
 
 Freedom never relaxes these rules. A playful piece can still be plain.

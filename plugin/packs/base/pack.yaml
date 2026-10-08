@@ -1,3 +1,5 @@
+# Example BASE: rules for every piece, whatever the content type or style.
+# Only universal habits go here (anti-AI-writing tells); they never relax.
 id: base
 kind: base
 version: 0.1.0

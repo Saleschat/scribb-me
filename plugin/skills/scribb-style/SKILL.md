@@ -12,7 +12,7 @@ Active setup:
 
 If the setup above says scribb is off, stop here and write normally.
 
-1. **Pick the content type.** Docs (`tech-docs`) for documentation and long-form technical prose; UI copy (`ux-microcopy`) for strings in an interface; Newsletter (`newsletter`) for newsletter issues, product updates and welcome emails. The file path usually settles it; for a piece drafted in chat, the request does.
+1. **Pick the content type.** Product docs (`product-docs`) for getting started, how-tos, help articles, READMEs and release notes: technical enough to be exact, no more. Developer docs (`developer-docs`) for API, SDK and CLI reference and integration guides, for a reader who writes code. Decide by what the page is for, not its folder; a `scribb-content-type:` frontmatter key settles it. UI copy (`ux-microcopy`) for strings in an interface; Newsletter (`newsletter`) for newsletter issues, product updates and welcome emails. The file path usually settles it; for a piece drafted in chat, the request does.
 2. **Read the guides** before a piece longer than a few sentences:
    - `${CLAUDE_PLUGIN_ROOT}/packs/base/guide.md` (always)
    - `${CLAUDE_PLUGIN_ROOT}/packs/content-types/<content type>/guide.md`, and a matching file in its `formats/` if one fits (how-to, release note, error message, …)

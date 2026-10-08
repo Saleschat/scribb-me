@@ -1,3 +1,6 @@
+# Example STYLE: who it sounds like. It holds taste that good writers disagree on.
+# Optional, at most one per piece, layered on any content type in good_for.
+# On a conflict, the content type wins.
 id: direct-developer-docs
 kind: style
 version: 0.1.0

@@ -19,6 +19,7 @@ sections:
     required: false
     length: "Step 2 of 4"
 ---
+<!-- Example FORMAT: a task template inside a content type. It fixes the structure of one kind of page; the content type's rules still apply. -->
 Step 2 of 4
 
 **Invite your team**

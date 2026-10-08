@@ -1,5 +1,7 @@
 # Crisp product UI
 
+*Example style: who it sounds like. Taste layered on top of a content type; the content type wins on a conflict.*
+
 A style for interface copy in busy, task-heavy products: dashboards, admin tools, developer consoles. It's calm and compact. The user should never have to read a string twice.
 
 Good for: UI copy.

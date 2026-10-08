@@ -1,6 +1,6 @@
 ---
 id: troubleshooting
-content_type: tech-docs
+content_type: developer-docs
 summary: Helps a reader who has a specific symptom find the cause and the fix.
 sections:
   - name: Title
@@ -19,6 +19,7 @@ sections:
     required: false
     length: "where to get help, and what to include"
 ---
+<!-- Example FORMAT: a task template inside a content type. It fixes the structure of one kind of page; the content type's rules still apply. -->
 # Requests fail with 401 Unauthorized
 
 ## Symptom

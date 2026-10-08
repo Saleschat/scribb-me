@@ -1,6 +1,6 @@
 ---
 id: release-note
-content_type: tech-docs
+content_type: product-docs
 summary: Tells users what changed in a release and what they need to do.
 sections:
   - name: Version and date
@@ -19,6 +19,7 @@ sections:
     required: false
     length: "what, when it's removed, what to use instead"
 ---
+<!-- Example FORMAT: a task template inside a content type. It fixes the structure of one kind of page; the content type's rules still apply. -->
 ## 2.4.0 (2026-10-07)
 
 ### Breaking changes

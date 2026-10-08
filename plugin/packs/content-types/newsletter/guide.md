@@ -1,5 +1,7 @@
 # Newsletter
 
+*Example content type: what kind of writing. Conventions here apply whatever the style.*
+
 For people who send email to an audience that signed up: founders writing product updates, creators sending a weekly issue, teams welcoming new subscribers. The reader chose to get this email, and can stop at any time. Every line has to earn the next one.
 
 Default freedom: balanced. A newsletter can have more personality than docs, but the conventions below still apply.

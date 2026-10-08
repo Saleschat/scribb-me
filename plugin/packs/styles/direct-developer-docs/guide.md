@@ -1,5 +1,7 @@
 # Direct developer docs
 
+*Example style: who it sounds like. Taste layered on top of a content type; the content type wins on a conflict.*
+
 A style for developer documentation where the reader wants to get something done and leave. It sounds like a senior engineer writing for a peer: neutral, exact and brief. It assumes the reader is competent and busy.
 
 Good for: Docs.

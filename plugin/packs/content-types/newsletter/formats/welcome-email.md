@@ -16,6 +16,7 @@ sections:
     required: true
     length: "a real name; optionally invite a reply"
 ---
+<!-- Example FORMAT: a task template inside a content type. It fixes the structure of one kind of page; the content type's rules still apply. -->
 **Subject:** You're subscribed to Foo Notes
 
 **Preview:** One email every other Tuesday about building analytics teams.

@@ -13,6 +13,7 @@ sections:
     required: false
     length: "1 button, 1–3 words (Retry, Reconnect)"
 ---
+<!-- Example FORMAT: a task template inside a content type. It fixes the structure of one kind of page; the content type's rules still apply. -->
 Couldn't save the project. Check your connection and try again.
 
 Action: **Retry**

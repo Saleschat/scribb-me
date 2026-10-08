@@ -1,5 +1,7 @@
 # Interface copy
 
+*Example content type: what kind of writing. Conventions here apply whatever the style.*
+
 This content type covers strings in a product's interface: buttons, dialogs, toasts, form errors, empty states, tooltips and badges. People read UI copy while doing something else. Every word competes with the task.
 
 Default freedom: **strict**.

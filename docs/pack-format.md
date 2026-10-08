@@ -12,7 +12,20 @@ packs/
 
 Built-in packs live in `plugin/packs/`. Users add their own in the user scope (`~/.config/scribb/packs/styles/<id>/`), and teams in the project scope (`.scribb/packs/styles/<id>/`). A pack's folder must match its `kind`; `evals/rules/run.sh` checks this.
 
-**Content type or style?** Ask whether two excellent writers would disagree about a rule. If both would follow it, it belongs in the content type. If it's a matter of taste, it belongs in a style. Packs contain markdown, YAML and plain text only. scribb refuses to install a pack that contains executable files.
+**Content type or style?** Ask whether two excellent writers would disagree about a rule. If both would follow it, it belongs in the content type. If it's a matter of taste, it belongs in a style. The README's [How scribb thinks about writing](../README.md#how-scribb-thinks-about-writing) explains the layers and how they combine.
+
+## Worked examples
+Every built-in pack is marked as an example of its layer (a comment at the top of `pack.yaml`). Copy the closest one:
+
+| To build | Start from | Why it's that layer |
+|---|---|---|
+| A content type | `content-types/product-docs/` | Conventions any good docs writer follows: task-first, sentence-case headings, descriptive links |
+| A content type with code-aware checks | `content-types/ux-microcopy/` | Adds Vale views to reach strings in JSX and TSX, and a component → role map |
+| A format | `content-types/product-docs/formats/readme.md` | One task inside a content type: its sections, their length, an example |
+| A style | `styles/direct-developer-docs/` | Taste on top of a content type: terse, imperative, `good_for: [docs]` |
+| A style learned from writing | `/scribb:learn` | Proposes a pack in the same shape, from your sources |
+
+Content types and styles never refer to each other. A style lists the content types it suits in `good_for`; a content type doesn't know which styles exist. Packs contain markdown, YAML and plain text only. scribb refuses to install a pack that contains executable files.
 
 ```
 <kind folder>/<id>/
@@ -29,17 +42,17 @@ Built-in packs live in `plugin/packs/`. Users add their own in the user scope (`
 
 ## `pack.yaml`
 ```yaml
-id: tech-docs                 # matches the folder name
+id: product-docs              # matches the folder name
 kind: content-type            # base | content-type | style
 version: 0.1.0                # semver, per pack
-tagline: Clear, task-first developer documentation.
+tagline: Docs for people using or evaluating the product.
 license: MIT                  # SPDX id; required for built-in packs
 traits:                       # see docs/open-items/002
   medium: docs                # content types: the medium they cover
   # styles: formality, density, person, source_type, good_for: [docs, ui]
 freedom: strict               # content types only: the default freedom
 paths: ["*.md", "*.mdx"]      # content types only: default file patterns
-label: Docs                   # content types only: the user-facing name
+label: Product docs           # content types only: the user-facing name
 match_order: 90               # content types only: lower is matched first ("newsletter/*" at 10 beats "*.md" at 90)
 review_threshold: words 150   # content types only: when the auto reviewer runs ("words N" or "strings N")
 extends: null                 # styles: another style id@version, or null

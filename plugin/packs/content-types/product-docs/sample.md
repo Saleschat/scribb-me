@@ -1,2 +1,2 @@
-<!-- Shared Docs reference text. Every Docs style rewrites this paragraph in its sample.md, so users can compare styles side by side. -->
+<!-- Shared product-docs reference text. Every style with docs in good_for rewrites this paragraph in its sample.md, so users can compare styles side by side. -->
 API keys don't expire, so rotate them on a schedule and whenever someone who had access leaves the team. To rotate a key, create a new key in **Settings** > **API keys**, update every service that uses the old key, and then revoke the old key. Requests that use a revoked key fail with a `401` error, so check your logs for those errors after you revoke it.

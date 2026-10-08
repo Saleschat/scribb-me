@@ -73,12 +73,15 @@ session_start() {
     cts=$(content_type_ids)
     while IFS= read -r ct; do
       [ -n "$ct" ] || continue
-      ct_line="${ct_line:+$ct_line; }$(content_type_label "$ct") ($(ct_paths "$ct"); freedom $(freedom_for "$ct"))"
+      local globs
+      globs=$(ct_paths "$ct")
+      ct_line="${ct_line:+$ct_line; }$(content_type_label "$ct") (${globs:-chosen per page}; freedom $(freedom_for "$ct"))"
     done <<EOF
 $cts
 EOF
     ctx="scribb.me (writing style for docs, UI copy and newsletters) is active in this session.
-Content types: $ct_line. A content type with no matching file (a newsletter drafted in chat, say) is chosen from the request."
+Content types: $ct_line. A content type with no file pattern, or a piece with no file (a newsletter drafted in chat, say), is chosen from the request.
+Markdown defaults to Product docs. Use Developer docs (developer-docs) when the page is for someone writing code against the product: API, SDK or CLI reference, integration guides. Decide from the page's content and the request, not its folder. A page can also say it in frontmatter: scribb-content-type: developer-docs."
     if ! is_off "$st" && sd=$(pack_dir "$st"); then
       ctx="$ctx
 Style: $st — $(pack_field "$sd" tagline)"
@@ -261,7 +264,7 @@ stop() {
   tries=$(counter_get "$key")
   [ "$tries" -ge "$MAX_RETRIES" ] && return 0
   ct=$(cfg content_type)
-  [ -n "$ct" ] || ct=tech-docs
+  [ -n "$ct" ] || ct=product-docs
   tmpf="$(session_dir)/reply.md"
   printf '%s\n' "$msg" > "$tmpf"
   out=$(cd "$SCRIBB_PROJECT" && "$PLUGIN_ROOT/bin/scribb-check" --session "$SCRIBB_SESSION" --content-type "$ct" "$tmpf" 2>/dev/null)

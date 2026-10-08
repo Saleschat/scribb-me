@@ -13,6 +13,7 @@ sections:
     required: true
     length: "1 button: verb + object"
 ---
+<!-- Example FORMAT: a task template inside a content type. It fixes the structure of one kind of page; the content type's rules still apply. -->
 **No dashboards yet**
 
 Dashboards collect the charts you check every day. Create one from any chart, or start from a template.

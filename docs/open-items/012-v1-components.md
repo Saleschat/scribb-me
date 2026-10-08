@@ -28,7 +28,7 @@ Status: implemented in v0.1 (Claude Code); Codex and generic adapters not starte
 
 ## Built-in packs
 - `base` (anti-AI habits)
-- `tech-docs`, `ux-microcopy` and `newsletter` content types
+- `product-docs`, `developer-docs`, `ux-microcopy` and `newsletter` content types (002)
 - 1–2 sample styles from openly licensed sources (TBD)
 
 ## Implemented in v0.1 (branch `v1-claude-code-plugin`, 2026-10-07)

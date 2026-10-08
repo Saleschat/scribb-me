@@ -36,3 +36,10 @@ Status: decided, needs implementation
 ## Changed in v0.1: packs split by kind (2026-10-08)
 - Content types and styles answer different questions (what kind of writing vs. who it sounds like), so they now live in different folders in every scope: `packs/base/`, `packs/content-types/<id>/`, `packs/styles/<id>/`, plus `packs/rules/` for promoted memory rules. `kind:` in `pack.yaml` must match the folder.
 - Test for where a rule goes: if two excellent writers would both follow it, it's a content-type rule; if they'd disagree, it's a style rule.
+
+## Changed in v0.1: product docs and developer docs (2026-10-08)
+- `tech-docs` is split into two content types with the same conventions but different readers:
+  - `product-docs`: people using or evaluating the product. Getting started, how-tos, help articles, release notes, and GitHub repo files (README, CONTRIBUTING): technical enough to be exact, no more. Default for all Markdown.
+  - `developer-docs`: people writing code against the product. API, SDK and CLI reference, integration guides.
+- Developer docs have **no default paths**, because docs layouts vary too much (a GitBook repo, a Docusaurus site, a `docs/` folder). A file gets `developer-docs` from its frontmatter (`scribb-content-type: developer-docs`), from `paths_developer_docs` (which `/scribb:setup` proposes after reading the real layout, including GitBook `SUMMARY.md`), or from the request when Claude writes the page. If the checker hook picks product docs for a developer page, little is lost: the two share nearly all checker rules; the differences are in the guides and formats Claude applies.
+- The built-in packs are marked as worked examples of each layer (base, content type, format, style), for people building their own. The explanation of the layers is in the README.
