@@ -5,7 +5,9 @@
 #
 # Usage: scribb-guide --content-type ID [--format ID] [--style ID|none] [--session ID] [--summary]
 #   --content-type  product-docs | developer-docs | ux-microcopy | newsletter | …
-#   --format        a format in that content type (for example how-to); "list" lists them
+#   --format        a format for that content type (for example how-to); "list" lists them,
+#                   including your own in .scribb/local/formats/<ct>/, .scribb/formats/<ct>/
+#                   and <user dir>/formats/<ct>/
 #   --style         default: the active style setting
 #   --summary       print summary.md files instead of the full guides
 # Prints, in order: base, content type, format, style, approved memories.
@@ -24,7 +26,7 @@ while [ $# -gt 0 ]; do
     --style) style_opt="$2"; shift 2 ;;
     --session) SCRIBB_SESSION="$2"; shift 2 ;;
     --summary) which=summary.md; shift ;;
-    -h | --help) sed -n '2,12p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
+    -h | --help) sed -n '2,14p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
     *) echo "scribb-guide: unknown argument $1" >&2; exit 3 ;;
   esac
 done
@@ -44,21 +46,55 @@ section() { # title file
   cat "$2"
 }
 
+# Format folders, highest precedence first: your own formats for a content
+# type (local, project, user scope), then the content type's built-in ones.
+format_dirs() {
+  printf 'local\t%s\n' "$SCRIBB_PROJECT/.scribb/local/formats/$ct"
+  printf 'project\t%s\n' "$SCRIBB_PROJECT/.scribb/formats/$ct"
+  printf 'user\t%s\n' "$(scribb_user_dir)/formats/$ct"
+  printf 'built-in\t%s\n' "$ctdir/formats"
+}
+
+find_format() { # ID: the file that defines it
+  local scope dir
+  while IFS="$(printf '\t')" read -r scope dir; do
+    if [ -f "$dir/$1.md" ]; then
+      printf '%s\n' "$dir/$1.md"
+      return 0
+    fi
+  done <<EOF
+$(format_dirs)
+EOF
+  return 1
+}
+
+list_formats() {
+  local scope dir f id seen=" "
+  while IFS="$(printf '\t')" read -r scope dir; do
+    for f in "$dir"/*.md; do
+      [ -f "$f" ] || continue
+      id=$(basename "$f" .md)
+      case "$seen" in *" $id "*) continue ;; esac
+      seen="$seen$id "
+      printf '%s\t%s\t%s\n' "$id" "$scope" "$(yaml_get "$f" summary)"
+    done
+  done <<EOF
+$(format_dirs)
+EOF
+}
+
 if [ "$format" = list ]; then
-  for f in "$ctdir"/formats/*.md; do
-    [ -f "$f" ] || continue
-    printf '%s\t%s\n' "$(basename "$f" .md)" "$(yaml_get "$f" summary)"
-  done
+  list_formats
   exit 0
 fi
 
 d=$(pack_dir base) && section "Base: always on" "$d/$which"
 section "Content type: $(content_type_label "$ct")" "$ctdir/$which"
 if [ -n "$format" ]; then
-  if [ -f "$ctdir/formats/$format.md" ]; then
-    section "Format: $format" "$ctdir/formats/$format.md"
+  if ff=$(find_format "$format"); then
+    section "Format: $format" "$ff"
   else
-    echo "(No format '$format' in $ct. Formats: $(find "$ctdir/formats" -name '*.md' -exec basename {} .md \; 2>/dev/null | sort | tr '\n' ' '))"
+    echo "(No format '$format' for $ct. Formats: $(list_formats | cut -f1 | tr '\n' ' '))"
   fi
 fi
 style=${style_opt:-$(cfg style)}

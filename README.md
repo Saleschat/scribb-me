@@ -4,42 +4,28 @@ scribb.me is a writing-style plugin for Claude. It makes the docs, UI copy and n
 
 It's one plugin that works in Claude Code, Cowork and claude.ai chat. Codex and other tools are planned (see [docs/open-items](docs/open-items/)).
 
-## Choose where to use it
-
-The same plugin works in three Claude apps. Each one loads a different part of it, so pick by where you write.
-
-| | **Claude Code** | **Cowork** | **claude.ai chat** |
-|---|---|---|---|
-| Best for | Docs and UI copy that live in a code repository | Writing tasks on your computer, outside a repository | Drafting and reviewing in a conversation |
-| Install from | `/plugin` in Claude Code | Your claude.ai account (Customize > Plugins) | Your claude.ai account (Customize > Plugins) |
-| Write and review (`/scribb:write`, `/scribb:review`) | ✓ | ✓ | ✓ |
-| Rules applied whenever you ask for docs, UI copy or a newsletter | ✓ | ✓ | ✓ |
-| Checker, after every file edit | ✓ (Vale, or the built-in checker) | ✓ (your Vale, or the built-in checker) | Built-in checker on drafts, when code execution is on |
-| Fresh-context reviewer agent | ✓ | ✓ | Self-review pass in the same chat |
-| Corrections captured automatically | ✓ | ✓ | Offered when you correct a word |
-| Memories (saved preferences) | Files for you or your team | Same files as Claude Code; carry over between tasks | A line for your Project instructions |
-| Learn a style from samples | ✓ saved as a style pack | ✓ saved as a style pack | ✓ handed back as a skill to upload |
-| Team setup, contributing fixes upstream | ✓ | ✓ | ✗ |
-
-**Which to choose**
-- **You write docs or UI copy in a repository:** use **Claude Code**. It's the full version: checks after every edit, team settings and memories committed with the repo, and the reviewer agent.
-- **You work on files outside a repository** (a folder of drafts, a newsletter, a handbook): use **Cowork**. It runs the same hooks and agents as Claude Code.
-- **You draft or review in a conversation,** or don't use Claude Code: use **claude.ai chat**. You get the guides, the built-in checker and a review pass, but nothing runs automatically between messages.
-
-You can use more than one. Plugins you add on claude.ai appear in Cowork and also sync into Claude Code. If you've installed scribb in Claude Code from the marketplace too, Claude Code uses that copy and skips the synced one, so it never loads twice.
-
 ## Install
 
+scribb works in Claude Code, Cowork and claude.ai chat. Not sure which to use? See [Choose where to use it](#choose-where-to-use-it) at the end.
+
 ### Claude Code
+
+In a Claude Code session, run:
+
+```
+/plugin install scribb --marketplace Saleschat/scribb-me
+```
+
+This adds scribb's marketplace (this GitHub repository) and installs the plugin in one step; Claude Code asks you to confirm the source first. It needs Claude Code 2.1.275 or later (`claude --version`). On an older version, run the two steps yourself:
 
 ```
 /plugin marketplace add Saleschat/scribb-me
 /plugin install scribb@scribb-me
 ```
 
-`/plugin install` asks where to install it:
+Either way, Claude Code then asks where to install it:
 - **Just you, in this repository** (local scope): good for trying it.
-- **Everyone in this repository** (project scope): writes `.claude/settings.json`, which you commit. Each teammate also runs `/plugin install scribb@scribb-me` once.
+- **Everyone in this repository** (project scope): writes `.claude/settings.json`, which you commit. Each teammate also runs the install command once.
 - **You, in every repository** (user scope).
 
 Then run `/reload-plugins` (or start a new session) and just write. There's no setup step; run `/scribb:setup` when you want team defaults.
@@ -64,7 +50,7 @@ Chat runs skills only, so these stay in Claude Code and Cowork: checks after eve
 
 ### Updates
 
-- **Claude Code:** `/plugin marketplace update scribb-me`, then `/reload-plugins`.
+- **Claude Code:** `/plugin marketplace update scribb-me` pulls the latest from this repository's `main` branch; then run `/reload-plugins`.
 - **Cowork and chat:** scribb updates from the repository on its own. To get the latest right away, select **Check for updates** in **Customize > Plugins**, or turn on **Sync automatically** for the marketplace.
 
 ## What it does
@@ -118,6 +104,45 @@ Developer docs and newsletters have no default folder, because every repo is lai
 
 The built-in packs in `plugin/packs/` double as worked examples of each layer. To build your own, see [docs/pack-format.md](docs/pack-format.md).
 
+## Make your own content type, format or style
+
+The built-in packs are a starting point. Add your own for your team (committed in the repo) or just for you (in every repo), with no code changes. Every built-in pack is marked as an example of its layer, so copy the closest one.
+
+**First, decide which one you need.** Ask whether two excellent writers would disagree about your rules (see [How scribb thinks about writing](#how-scribb-thinks-about-writing)):
+- Both would follow them, and they cover a whole kind of writing: a **content type** (for example "website content").
+- They describe one kind of piece inside a content type: a **format** (for example "changelog digest" for newsletters).
+- They're a matter of taste or voice: a **style** (for example "our brand voice").
+
+| To make | Copy | Into (team, committed) | Or (just you, every repo) |
+|---|---|---|---|
+| Content type | `plugin/packs/content-types/product-docs/` | `.scribb/packs/content-types/<id>/` | `~/.config/scribb/packs/content-types/<id>/` |
+| Format | any file in a content type's `formats/` | `.scribb/formats/<content type>/<id>.md` | `~/.config/scribb/formats/<content type>/<id>.md` |
+| Style | `plugin/packs/styles/direct-developer-docs/` | `.scribb/packs/styles/<id>/` | `~/.config/scribb/packs/styles/<id>/` |
+
+### A style
+The quickest way is `/scribb:learn`: give it 5–20 samples of the writing you want, and it drafts the style, shows you a sample paragraph next to the neutral one, and saves it once you approve. To write one by hand, edit the copy's:
+- `pack.yaml`: `id` (the folder name), `kind: style`, a one-line `tagline`, and `good_for` (the content types it suits).
+- `summary.md` (5–10 bullets), `guide.md` (the voice in your own words, with examples) and `sample.md` (the shared sample text rewritten in this style).
+- Optional checker rules in `checks/vale/<StyleName>/`, at `level: suggestion`.
+
+Turn it on with `/scribb:style use <id>`.
+
+### A format
+A format is one Markdown file: frontmatter with `id`, `content_type`, a one-line `summary` and the `sections` (each with `name`, `required` and `length`), then a short example. `/scribb:write` picks it up from the request ("write a changelog digest"), or name it with `--format <id>`. A format with the same id as a built-in one replaces it.
+
+### A content type
+Edit the copy's `pack.yaml`:
+- `id` (the folder name), `kind: content-type`, `label` (the name people see) and a `tagline` that says who it's for.
+- `freedom`: `strict`, `balanced` or `expressive`.
+- `paths`: the files it covers (`["site/*"]`), or `[]` if it's chosen per piece, from the request or a `scribb-content-type: <id>` frontmatter line.
+- `match_order`: lower wins when patterns overlap. Keep it under 90 so it beats Product docs' `*.md`.
+
+Then write its `guide.md`, `summary.md`, `sample.md` and at least one format in `formats/`. Checker rules go in `checks/vale/<StyleName>/` at `level: warning`, each with a bad and a good example in `checks/vale/tests/`. Run `/scribb:style` to check that scribb lists it.
+
+Your own packs work in Claude Code and Cowork. claude.ai chat uses the built-in packs only, so for chat, turn a style into a skill with `/scribb:learn`.
+
+Think a pack would help everyone? See [CONTRIBUTING.md](CONTRIBUTING.md) to add it to the built-in packs. The full pack format is in [docs/pack-format.md](docs/pack-format.md).
+
 ## Commands
 
 Type `/scribb` to list them all, in any of the three apps. In chat, `/scribb:setup` and `/scribb:contribute` explain that they need Claude Code or Cowork.
@@ -164,8 +189,8 @@ You can also switch off parts of it with `/scribb:style`: the reviewer (`reviewe
 | Scope | Path | Committed |
 |---|---|---|
 | Built-in | the plugin's `packs/` (`base/`, `content-types/`, `styles/`) | — |
-| User | `~/.config/scribb/` | no |
-| Project | `.scribb/` (settings, memories, `vocab.txt`) | yes |
+| User | `~/.config/scribb/` (settings, memories, your own `packs/` and `formats/`) | no |
+| Project | `.scribb/` (settings, memories, `vocab.txt`, the team's `packs/` and `formats/`) | yes |
 | Local | `.scribb/local/` | no (it ignores itself) |
 
 Product names that keep their own casing go in `vocab.txt`, one per line, so the checker accepts them. Captured corrections stay in `.scribb/local/inbox/` on your machine. scribb sends no telemetry.
@@ -184,3 +209,27 @@ To improve the built-in packs, see [CONTRIBUTING.md](CONTRIBUTING.md). The desig
 ## Licence
 
 MIT. Built-in packs are our own writing; [plugin/NOTICE.md](plugin/NOTICE.md) credits the style guides and rule sets they drew on.
+
+## Choose where to use it
+
+The same plugin works in three Claude apps. Each one loads a different part of it, so pick by where you write.
+
+| | **Claude Code** | **Cowork** | **claude.ai chat** |
+|---|---|---|---|
+| Best for | Docs and UI copy that live in a code repository | Writing tasks on your computer, outside a repository | Drafting and reviewing in a conversation |
+| Install from | `/plugin` in Claude Code | Your claude.ai account (Customize > Plugins) | Your claude.ai account (Customize > Plugins) |
+| Write and review (`/scribb:write`, `/scribb:review`) | ✓ | ✓ | ✓ |
+| Rules applied whenever you ask for docs, UI copy or a newsletter | ✓ | ✓ | ✓ |
+| Checker, after every file edit | ✓ (Vale, or the built-in checker) | ✓ (your Vale, or the built-in checker) | Built-in checker on drafts, when code execution is on |
+| Fresh-context reviewer agent | ✓ | ✓ | Self-review pass in the same chat |
+| Corrections captured automatically | ✓ | ✓ | Offered when you correct a word |
+| Memories (saved preferences) | Files for you or your team | Same files as Claude Code; carry over between tasks | A line for your Project instructions |
+| Learn a style from samples | ✓ saved as a style pack | ✓ saved as a style pack | ✓ handed back as a skill to upload |
+| Team setup, contributing fixes upstream | ✓ | ✓ | ✗ |
+
+**Which to choose**
+- **You write docs or UI copy in a repository:** use **Claude Code**. It's the full version: checks after every edit, team settings and memories committed with the repo, and the reviewer agent.
+- **You work on files outside a repository** (a folder of drafts, a newsletter, a handbook): use **Cowork**. It runs the same hooks and agents as Claude Code.
+- **You draft or review in a conversation,** or don't use Claude Code: use **claude.ai chat**. You get the guides, the built-in checker and a review pass, but nothing runs automatically between messages.
+
+You can use more than one. Plugins you add on claude.ai appear in Cowork and also sync into Claude Code. If you've installed scribb in Claude Code from the marketplace too, Claude Code uses that copy and skips the synced one, so it never loads twice.

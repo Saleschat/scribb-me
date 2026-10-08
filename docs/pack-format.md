@@ -88,6 +88,9 @@ Freedom then decides what each severity does (block, warn or suggest); see `docs
 ## Memories
 A memory is one markdown file with frontmatter (see `docs/open-items/003-feedback-loop-learning-agent.md`), stored in `memories/` in the local (`.scribb/local/memories/`), project (`.scribb/memories/`) or user (`~/.config/scribb/memories/`) scope.
 
+## Your own formats
+A format for any content type can also live outside its pack, in `.scribb/local/formats/<content type>/<id>.md`, `.scribb/formats/<content type>/<id>.md` (committed, for the team) or `~/.config/scribb/formats/<content type>/<id>.md`. `scribb-guide --content-type <ct> --format list` lists them with the built-in ones, and the first match wins in that order (local, project, user, built-in), so a format with a built-in id replaces it.
+
 ## Vocabulary
 A `vocab.txt` in the user, project (`.scribb/vocab.txt`) or local scope lists terms that keep their own casing and spelling, one per line (`#` starts a comment). `scribb-check` passes them to Vale as an accepted vocabulary, which adds them to the exceptions of every rule. Use it for product names, so `HeadingCase` accepts "Connect scribb.me to Slack".
 
