@@ -96,6 +96,45 @@ Developer docs and newsletters have no default folder, because every repo is lai
 
 The built-in packs in `plugin/packs/` double as worked examples of each layer. To build your own, see [docs/pack-format.md](docs/pack-format.md).
 
+## Make your own content type, format or style
+
+The built-in packs are a starting point. Add your own for your team (committed in the repo) or just for you (in every repo), with no code changes. Every built-in pack is marked as an example of its layer, so copy the closest one.
+
+**First, decide which one you need.** Ask whether two excellent writers would disagree about your rules (see [How scribb thinks about writing](#how-scribb-thinks-about-writing)):
+- Both would follow them, and they cover a whole kind of writing: a **content type** (for example "website content").
+- They describe one kind of piece inside a content type: a **format** (for example "changelog digest" for newsletters).
+- They're a matter of taste or voice: a **style** (for example "our brand voice").
+
+| To make | Copy | Into (team, committed) | Or (just you, every repo) |
+|---|---|---|---|
+| Content type | `plugin/packs/content-types/product-docs/` | `.scribb/packs/content-types/<id>/` | `~/.config/scribb/packs/content-types/<id>/` |
+| Format | any file in a content type's `formats/` | `.scribb/formats/<content type>/<id>.md` | `~/.config/scribb/formats/<content type>/<id>.md` |
+| Style | `plugin/packs/styles/direct-developer-docs/` | `.scribb/packs/styles/<id>/` | `~/.config/scribb/packs/styles/<id>/` |
+
+### A style
+The quickest way is `/scribb:learn`: give it 5–20 samples of the writing you want, and it drafts the style, shows you a sample paragraph next to the neutral one, and saves it once you approve. To write one by hand, edit the copy's:
+- `pack.yaml`: `id` (the folder name), `kind: style`, a one-line `tagline`, and `good_for` (the content types it suits).
+- `summary.md` (5–10 bullets), `guide.md` (the voice in your own words, with examples) and `sample.md` (the shared sample text rewritten in this style).
+- Optional checker rules in `checks/vale/<StyleName>/`, at `level: suggestion`.
+
+Turn it on with `/scribb:style use <id>`.
+
+### A format
+A format is one Markdown file: frontmatter with `id`, `content_type`, a one-line `summary` and the `sections` (each with `name`, `required` and `length`), then a short example. `/scribb:write` picks it up from the request ("write a changelog digest"), or name it with `--format <id>`. A format with the same id as a built-in one replaces it.
+
+### A content type
+Edit the copy's `pack.yaml`:
+- `id` (the folder name), `kind: content-type`, `label` (the name people see) and a `tagline` that says who it's for.
+- `freedom`: `strict`, `balanced` or `expressive`.
+- `paths`: the files it covers (`["site/*"]`), or `[]` if it's chosen per piece, from the request or a `scribb-content-type: <id>` frontmatter line.
+- `match_order`: lower wins when patterns overlap. Keep it under 90 so it beats Product docs' `*.md`.
+
+Then write its `guide.md`, `summary.md`, `sample.md` and at least one format in `formats/`. Checker rules go in `checks/vale/<StyleName>/` at `level: warning`, each with a bad and a good example in `checks/vale/tests/`. Run `/scribb:style` to check that scribb lists it.
+
+Your own packs work in Claude Code and Cowork. claude.ai chat uses the built-in packs only, so for chat, turn a style into a skill with `/scribb:learn`.
+
+Think a pack would help everyone? See [CONTRIBUTING.md](CONTRIBUTING.md) to add it to the built-in packs. The full pack format is in [docs/pack-format.md](docs/pack-format.md).
+
 ## Commands
 
 Type `/scribb` to list them all, in any of the three apps. In chat, `/scribb:setup` and `/scribb:contribute` explain that they need Claude Code or Cowork.
@@ -136,45 +175,6 @@ scribb is on by default. You can turn it off at any level:
 | Kill switch | `SCRIBB_DISABLE=1` in the environment |
 
 You can also switch off parts of it with `/scribb:style`: the reviewer (`reviewer: off`), nudges (`nudges: off`), correction capture (`capture: off`) or the session-start summary (`inject: off`).
-
-## Make your own content type, format or style
-
-The built-in packs are a starting point. Add your own for your team (committed in the repo) or just for you (in every repo), with no code changes. Every built-in pack is marked as an example of its layer, so copy the closest one.
-
-**First, decide which one you need.** Ask whether two excellent writers would disagree about your rules (see [How scribb thinks about writing](#how-scribb-thinks-about-writing)):
-- Both would follow them, and they cover a whole kind of writing: a **content type** (for example "website content").
-- They describe one kind of piece inside a content type: a **format** (for example "changelog digest" for newsletters).
-- They're a matter of taste or voice: a **style** (for example "our brand voice").
-
-| To make | Copy | Into (team, committed) | Or (just you, every repo) |
-|---|---|---|---|
-| Content type | `plugin/packs/content-types/product-docs/` | `.scribb/packs/content-types/<id>/` | `~/.config/scribb/packs/content-types/<id>/` |
-| Format | any file in a content type's `formats/` | `.scribb/formats/<content type>/<id>.md` | `~/.config/scribb/formats/<content type>/<id>.md` |
-| Style | `plugin/packs/styles/direct-developer-docs/` | `.scribb/packs/styles/<id>/` | `~/.config/scribb/packs/styles/<id>/` |
-
-### A style
-The quickest way is `/scribb:learn`: give it 5–20 samples of the writing you want, and it drafts the style, shows you a sample paragraph next to the neutral one, and saves it once you approve. To write one by hand, edit the copy's:
-- `pack.yaml`: `id` (the folder name), `kind: style`, a one-line `tagline`, and `good_for` (the content types it suits).
-- `summary.md` (5–10 bullets), `guide.md` (the voice in your own words, with examples) and `sample.md` (the shared sample text rewritten in this style).
-- Optional checker rules in `checks/vale/<StyleName>/`, at `level: suggestion`.
-
-Turn it on with `/scribb:style use <id>`.
-
-### A format
-A format is one Markdown file: frontmatter with `id`, `content_type`, a one-line `summary` and the `sections` (each with `name`, `required` and `length`), then a short example. `/scribb:write` picks it up from the request ("write a changelog digest"), or name it with `--format <id>`. A format with the same id as a built-in one replaces it.
-
-### A content type
-Edit the copy's `pack.yaml`:
-- `id` (the folder name), `kind: content-type`, `label` (the name people see) and a `tagline` that says who it's for.
-- `freedom`: `strict`, `balanced` or `expressive`.
-- `paths`: the files it covers (`["site/*"]`), or `[]` if it's chosen per piece, from the request or a `scribb-content-type: <id>` frontmatter line.
-- `match_order`: lower wins when patterns overlap. Keep it under 90 so it beats Product docs' `*.md`.
-
-Then write its `guide.md`, `summary.md`, `sample.md` and at least one format in `formats/`. Checker rules go in `checks/vale/<StyleName>/` at `level: warning`, each with a bad and a good example in `checks/vale/tests/`. Run `/scribb:style` to check that scribb lists it.
-
-Your own packs work in Claude Code and Cowork. claude.ai chat uses the built-in packs only, so for chat, turn a style into a skill with `/scribb:learn`.
-
-Think a pack would help everyone? See [CONTRIBUTING.md](CONTRIBUTING.md) to add it to the built-in packs. The full pack format is in [docs/pack-format.md](docs/pack-format.md).
 
 ## Where things live
 
