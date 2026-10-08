@@ -14,10 +14,10 @@ The same plugin works in three Claude apps. Each one loads a different part of i
 | Install from | `/plugin` in Claude Code | Your claude.ai account (Customize > Plugins) | Your claude.ai account (Customize > Plugins) |
 | Write and review (`/scribb:write`, `/scribb:review`) | ✓ | ✓ | ✓ |
 | Rules applied whenever you ask for docs, UI copy or a newsletter | ✓ | ✓ | ✓ |
-| Checker, after every file edit | ✓ (Vale, or the built-in checker) | ✓ (Vale, or the built-in checker) | Built-in checker on drafts, when code execution is on |
+| Checker, after every file edit | ✓ (Vale, or the built-in checker) | ✓ (your Vale, or the built-in checker) | Built-in checker on drafts, when code execution is on |
 | Fresh-context reviewer agent | ✓ | ✓ | Self-review pass in the same chat |
 | Corrections captured automatically | ✓ | ✓ | Offered when you correct a word |
-| Memories (saved preferences) | Files for you or your team | Files in the folder you work on | A line for your Project instructions |
+| Memories (saved preferences) | Files for you or your team | Same files as Claude Code; carry over between tasks | A line for your Project instructions |
 | Learn a style from samples | ✓ saved as a style pack | ✓ saved as a style pack | ✓ handed back as a skill to upload |
 | Team setup, contributing fixes upstream | ✓ | ✓ | ✗ |
 
@@ -52,7 +52,7 @@ The checks after each edit work out of the box with scribb's built-in checker, w
 2. Start a new Cowork task. Plugins load when a task starts.
 3. Use it as in Claude Code: `/scribb:write`, `/scribb:review`, or just ask for docs, UI copy or a newsletter.
 
-The checks after each edit use Vale if Cowork's environment has it, and scribb's built-in checker otherwise. Not yet tested in Cowork: whether personal settings and memories outside the folder you work on carry over between tasks. [Report](https://github.com/Saleschat/scribb-me/issues/new?template=bug.yml) what you find.
+Tested in Cowork in the desktop app: Cowork runs on your computer, so it uses your installed Vale (or scribb's built-in checker if you don't have Vale) and the same personal settings and memories as Claude Code, which carry over between tasks. The checks after each edit, the reviewer agent, nudges and scribb's questions all work as in Claude Code. If something looks off, run `/scribb:style doctor` and [report](https://github.com/Saleschat/scribb-me/issues/new?template=bug.yml) what it shows.
 
 ### claude.ai chat
 
