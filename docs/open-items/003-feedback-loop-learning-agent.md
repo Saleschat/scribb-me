@@ -47,7 +47,7 @@ promoted_to_rule: null # or the checker rule path, once a memory becomes a lint 
 
 **Applying memories:**
 - The `SessionStart` hook injects the active style summary plus memories (size-capped, highest confidence first).
-- A memory that can be checked mechanically (terms, banned words) can be promoted to a checker rule in the project pack (`.scribb/packs/project/checks/<engine>/`). That needs its own approval.
+- A memory that can be checked mechanically (terms, banned words) can be promoted to a checker rule in the project pack (`.scribb/packs/rules/checks/<engine>/`). That needs its own approval.
 
 ## Open questions
 - Correction phrasing list and its false-positive rate.

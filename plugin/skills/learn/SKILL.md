@@ -22,7 +22,7 @@ Helper: `"${CLAUDE_PLUGIN_ROOT}/bin/scribb-config"`. Plugin root: `${CLAUDE_PLUG
 2. **Ask** the name and where it lives, in one AskUserQuestion: a private style (user scope, any name), a team style (project scope), or "I'll share it" (named by traits, only from openly licensed material or with the writer's permission; examples become original rewrites).
 3. **Learn.** Hand the job to the `scribb-learner` agent (Job A), with the sources, the scope, the name and the plugin root.
 4. **Show the proposal**: tagline, traits, `summary.md`, the sample paragraph next to the neutral one from the content type's `sample.md`, the validation score, the sample-size warning if any, and any proposed checker rules.
-5. **Approve.** On yes, write the files to `<scope dir>/packs/<id>/` (`scribb-config paths`). Add `approved_by` (from `scribb-config approver`) and `approved_at` to `pack.yaml`. Save `sources.json` there with metadata only (URL or file name, fetched date, a content hash). Never save raw source text in the repo; if useful, cache it under the user dir in `sources-cache/<id>/`.
+5. **Approve.** On yes, write the files to `<scope dir>/packs/styles/<id>/` (`scribb-config paths`). Add `approved_by` (from `scribb-config approver`) and `approved_at` to `pack.yaml`. Save `sources.json` there with metadata only (URL or file name, fetched date, a content hash). Never save raw source text in the repo; if useful, cache it under the user dir in `sources-cache/<id>/`.
 6. Offer to switch to it now (`scribb-config set style <id> --scope local`).
 
 Re-learning an existing style: run the same steps, then show a diff against the current pack and ask before replacing anything.

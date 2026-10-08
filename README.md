@@ -74,7 +74,7 @@ You can also switch off parts of it with `/scribb:style`: the reviewer (`reviewe
 
 | Scope | Path | Committed |
 |---|---|---|
-| Built-in | the plugin's `packs/` | — |
+| Built-in | the plugin's `packs/` (`base/`, `content-types/`, `styles/`) | — |
 | User | `~/.config/scribb/` | no |
 | Project | `.scribb/` (settings, memories, `vocab.txt`) | yes |
 | Local | `.scribb/local/` | no (it ignores itself) |

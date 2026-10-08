@@ -181,6 +181,9 @@ for jqmode in jq nojq; do
   assert "config: accepts built-in styles" "$PLUGIN/bin/scribb-config" set style crisp-product-ui --scope project >/dev/null
   assert "config: accepts content types from packs" "$PLUGIN/bin/scribb-config" set content_type newsletter --scope user >/dev/null
   refute "config: rejects unknown content types" "$PLUGIN/bin/scribb-config" set content_type poetry --scope user 2>/dev/null
+  mkdir -p "$HOME/.config/scribb/packs/styles/my-voice"
+  printf 'id: my-voice\nkind: style\nversion: 0.1.0\ntagline: Mine.\nlicense: MIT\n' > "$HOME/.config/scribb/packs/styles/my-voice/pack.yaml"
+  assert "packs: a user style in packs/styles/ is found" "$PLUGIN/bin/scribb-config" set style my-voice --scope user >/dev/null
   assert "config: lists styles" contains "$("$PLUGIN/bin/scribb-config" packs --kind style)" "direct-developer-docs"
   teardown
 

@@ -88,7 +88,7 @@ add_pack_styles() {
 }
 
 # pack dirs for a content type: base, the content type, the style, then the
-# project and local packs that hold promoted memories.
+# project and local rules packs that hold promoted memories.
 packs_for() {
   local ct="$1" d
   d=$(pack_dir base) && printf '%s\n' "$d"
@@ -100,8 +100,8 @@ packs_for() {
       echo "scribb-check: style '$style' not found; checking without it." >&2
     fi
   fi
-  [ -f "$SCRIBB_PROJECT/.scribb/packs/project/pack.yaml" ] && printf '%s\n' "$SCRIBB_PROJECT/.scribb/packs/project"
-  [ -f "$SCRIBB_PROJECT/.scribb/local/packs/local/pack.yaml" ] && printf '%s\n' "$SCRIBB_PROJECT/.scribb/local/packs/local"
+  [ -f "$SCRIBB_PROJECT/.scribb/packs/rules/pack.yaml" ] && printf '%s\n' "$SCRIBB_PROJECT/.scribb/packs/rules"
+  [ -f "$SCRIBB_PROJECT/.scribb/local/packs/rules/pack.yaml" ] && printf '%s\n' "$SCRIBB_PROJECT/.scribb/local/packs/rules"
   return 0
 }
 

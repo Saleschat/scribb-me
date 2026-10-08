@@ -26,7 +26,7 @@ Status: decided, needs implementation
     plugin/        # what installs (marketplace path + npm "files")
     catalog/
       catalog.json
-      packs/<id>/
+      packs/{content-types,styles}/<id>/
     evals/
     docs/
   ```
@@ -40,7 +40,7 @@ Status: decided, needs implementation
 | Change | How it reaches users |
 |---|---|
 | New catalog pack | Merge to `main`; appears at the next catalog refresh. No plugin release |
-| Promote to bundle | Passed evals, been in the catalog a while, good ratings and installs. `git mv catalog/packs/x plugin/packs/x` in a **minor** release |
+| Promote to bundle | Passed evals, been in the catalog a while, good ratings and installs. `git mv catalog/packs/styles/x plugin/packs/styles/x` in a **minor** release |
 | Update a bundled pack | Bump the pack `version`; styles that `extends:` it see "review changes?" in `/scribb:style` |
 | Remove a bundled pack | **Major** release only, after a deprecation period of at least one minor release. `doctor` offers to copy the last version into the user scope |
 

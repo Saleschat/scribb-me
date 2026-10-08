@@ -44,6 +44,6 @@ Pick the case from the arguments, or from what the user asked:
 2. Refuse it if it contains any executable or script file (anything other than `.md`, `.yaml`, `.yml`, `.json`, `.txt`). Say which file.
 3. Show `pack.yaml` (tagline, licence, sources), `summary.md`, and the list of checker rules.
 4. Ask to approve and pick the scope (user or project).
-5. Copy it to `<scope>/packs/<id>/` (paths from `scribb-config paths`) and add to its `pack.yaml`: `installed_from: <url>@<commit>`, `approved_by: <scribb-config approver>`, `approved_at: <UTC time>`.
+5. Copy it to `<scope>/packs/styles/<id>/` (paths from `scribb-config paths`) and add to its `pack.yaml`: `installed_from: <url>@<commit>`, `approved_by: <scribb-config approver>`, `approved_at: <UTC time>`.
 
 The catalog of shared styles isn't published yet; for now `add` takes a git URL or a path.

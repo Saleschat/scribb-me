@@ -1,9 +1,21 @@
 # Pack format
 
-A pack is a folder that holds one base, content type or style. Built-in packs live in `plugin/packs/<id>/`. Users and teams add their own in the user scope (`~/.config/scribb/packs/<id>/`) or the project scope (`.scribb/packs/<id>/`). Packs contain markdown, YAML and plain text only. scribb refuses to install a pack that contains executable files.
+A pack is a folder that holds one base, content type or style. Packs are grouped by kind, in the same layout in every scope:
 
 ```
-packs/<id>/
+packs/
+  base/                    the base layer: always on (built-in only)
+  content-types/<id>/      what kind of writing: exactly one per piece
+  styles/<id>/             who it sounds like: zero or one per piece
+  rules/                   memories promoted to checker rules (project and local scopes)
+```
+
+Built-in packs live in `plugin/packs/`. Users add their own in the user scope (`~/.config/scribb/packs/styles/<id>/`), and teams in the project scope (`.scribb/packs/styles/<id>/`). A pack's folder must match its `kind`; `evals/rules/run.sh` checks this.
+
+**Content type or style?** Ask whether two excellent writers would disagree about a rule. If both would follow it, it belongs in the content type. If it's a matter of taste, it belongs in a style. Packs contain markdown, YAML and plain text only. scribb refuses to install a pack that contains executable files.
+
+```
+<kind folder>/<id>/
   pack.yaml          # metadata (required)
   summary.md         # 5–12 short bullets, injected at session start (required)
   guide.md           # full guidance for writers and the reviewer (required)

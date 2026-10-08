@@ -54,7 +54,7 @@ setup_env() {
   done
   # Views (for example the JSX ones from ux-microcopy) apply to every pack, so
   # copy them from all packs.
-  for p in "$PACKS"/*/checks/vale/config/views; do
+  for p in "$PACKS"/base/checks/vale/config/views "$PACKS"/content-types/*/checks/vale/config/views "$PACKS"/styles/*/checks/vale/config/views; do
     [ -d "$p" ] && cp "$p"/*.yml "$dir/styles/config/views/" 2>/dev/null
   done
   {
@@ -86,8 +86,22 @@ run_vale() {
 }
 
 # 1. Rule tests, per pack.
-for pack in "$PACKS"/*/; do
+for pack in "$PACKS"/base/ "$PACKS"/content-types/*/ "$PACKS"/styles/*/; do
   pack=${pack%/}
+  [ -f "$pack/pack.yaml" ] || continue
+  # A pack's folder must match its kind.
+  kind=$(sed -n 's/^kind:[[:space:]]*//p' "$pack/pack.yaml" | head -n 1)
+  case "${pack#"$PACKS"/}" in
+    base) want=base ;;
+    content-types/*) want=content-type ;;
+    styles/*) want=style ;;
+    *) want=unknown ;;
+  esac
+  if [ "$kind" = "$want" ]; then
+    ok "${pack#"$PACKS"/}: kind $kind matches its folder"
+  else
+    bad "${pack#"$PACKS"/}: kind is '$kind' but the folder says $want"
+  fi
   [ -d "$pack/checks/vale" ] || continue
   id=$(basename "$pack")
   for style in $(pack_styles "$pack"); do

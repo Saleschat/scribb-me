@@ -19,7 +19,7 @@ If the plugin root isn't given, find it: it's two levels above this agent's file
    - `<plugin>/packs/base/guide.md` (always)
    - the content type's `guide.md` and, if a format is named, `formats/<format>.md`
    - the style's `guide.md` if a style is set (`scribb-config packs --kind style` shows where it lives)
-   - for UI copy in components, `<plugin>/packs/ux-microcopy/roles/shadcn.yaml`, to work out each string's role
+   - for UI copy in components, `<plugin>/packs/content-types/ux-microcopy/roles/shadcn.yaml`, to work out each string's role
    - memories: `.scribb/local/memories/`, `.scribb/memories/`, and `~/.config/scribb/memories/` (read the `statement:` lines)
 2. If the text is in a file and Vale is installed, run `<plugin>/bin/scribb-check --content-type <ct> --freedom <f> <file>` and include its findings. Don't repeat a checker finding as your own.
 3. Read the piece once for meaning, then again for the rubric. Look hardest at what a checker can't see: generic openings and closings, a summary that repeats the text, lists of three by reflex, uniform sentence length, hedging, vague claims with no example, a UI string that doesn't fit its role.

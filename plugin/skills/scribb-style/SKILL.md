@@ -15,8 +15,8 @@ If the setup above says scribb is off, stop here and write normally.
 1. **Pick the content type.** Docs (`tech-docs`) for documentation and long-form technical prose; UI copy (`ux-microcopy`) for strings in an interface; Newsletter (`newsletter`) for newsletter issues, product updates and welcome emails. The file path usually settles it; for a piece drafted in chat, the request does.
 2. **Read the guides** before a piece longer than a few sentences:
    - `${CLAUDE_PLUGIN_ROOT}/packs/base/guide.md` (always)
-   - `${CLAUDE_PLUGIN_ROOT}/packs/<content type>/guide.md`, and a matching file in its `formats/` if one fits (how-to, release note, error message, …)
-   - for UI copy in components, `${CLAUDE_PLUGIN_ROOT}/packs/ux-microcopy/roles/shadcn.yaml` to map each component to its role
+   - `${CLAUDE_PLUGIN_ROOT}/packs/content-types/<content type>/guide.md`, and a matching file in its `formats/` if one fits (how-to, release note, error message, …)
+   - for UI copy in components, `${CLAUDE_PLUGIN_ROOT}/packs/content-types/ux-microcopy/roles/shadcn.yaml` to map each component to its role
    - the active style's `guide.md`, if a style is set
 3. **Follow the memories** in the session-start note. They're approved by the user or team and beat the style.
 4. **Write at the active freedom.** Strict: conventional, no flourishes. Balanced: one good version. Expressive: freer, and offer 2–3 options for short strings.

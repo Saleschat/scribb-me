@@ -255,14 +255,34 @@ scribb_disabled() {
 # --- Packs ---------------------------------------------------------------------
 
 # pack_dir ID: first match in local > project > user > built-in.
+# Packs are grouped by kind in every scope:
+#   packs/base/               the base layer (built-in only)
+#   packs/content-types/<id>/ exactly one per piece
+#   packs/styles/<id>/        zero or one per piece
+#   packs/rules/              memories promoted to checker rules (project, local)
+
+# The packs/ folder of each scope, highest precedence first ("scope<TAB>dir").
+pack_roots() {
+  printf 'local\t%s\n' "$SCRIBB_PROJECT/.scribb/local/packs"
+  printf 'project\t%s\n' "$SCRIBB_PROJECT/.scribb/packs"
+  printf 'user\t%s\n' "$(scribb_user_dir)/packs"
+  printf 'built-in\t%s\n' "$(scribb_plugin_root)/packs"
+}
+
+# pack_dir ID: first match in local > project > user > built-in.
 pack_dir() {
-  local id="$1" d
-  for d in "$SCRIBB_PROJECT/.scribb/local/packs/$id" "$SCRIBB_PROJECT/.scribb/packs/$id" "$(scribb_user_dir)/packs/$id" "$(scribb_plugin_root)/packs/$id"; do
-    if [ -f "$d/pack.yaml" ]; then
-      printf '%s\n' "$d"
-      return 0
-    fi
-  done
+  local id="$1" scope root d
+  while IFS="$(printf '\t')" read -r scope root; do
+    for d in "$root/content-types/$id" "$root/styles/$id" "$root/$id"; do
+      [ "$d" = "$root/$id" ] && [ "$id" != base ] && continue
+      if [ -f "$d/pack.yaml" ]; then
+        printf '%s\n' "$d"
+        return 0
+      fi
+    done
+  done <<EOF
+$(pack_roots)
+EOF
   return 1
 }
 
@@ -272,19 +292,15 @@ pack_field() {
 
 # All pack directories, every scope, one per line ("scope<TAB>dir").
 list_pack_dirs() {
-  local scope base d
-  for scope in local project user built-in; do
-    case "$scope" in
-      local) base="$SCRIBB_PROJECT/.scribb/local/packs" ;;
-      project) base="$SCRIBB_PROJECT/.scribb/packs" ;;
-      user) base="$(scribb_user_dir)/packs" ;;
-      built-in) base="$(scribb_plugin_root)/packs" ;;
-    esac
-    [ -d "$base" ] || continue
-    for d in "$base"/*/; do
+  local scope root d
+  while IFS="$(printf '\t')" read -r scope root; do
+    [ -d "$root" ] || continue
+    for d in "$root/base/" "$root"/content-types/*/ "$root"/styles/*/; do
       [ -f "$d/pack.yaml" ] && printf '%s\t%s\n' "$scope" "${d%/}"
     done
-  done
+  done <<EOF
+$(pack_roots)
+EOF
 }
 
 # --- Files → content type --------------------------------------------------------

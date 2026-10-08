@@ -7,7 +7,7 @@ shadcn/ui is the first design system we support. UX copy rules depend on where a
 
 ## Decided (v1)
 - **The UI-copy pack defines rules for each generic UI role** (button, dialog-title, dialog-description, destructive-confirm, toast, field-error, empty-state, tooltip, badge…): length, casing, structure and examples for each. The UI-copy formats in 013 line up with these roles.
-- **Component → role maps are data:** `packs/ux-microcopy/roles/shadcn.yaml` (`AlertDialogTitle` → dialog-title, `Button` → button, `toast()`/sonner → toast, `FormMessage` → field-error…). Another design system means adding another YAML file.
+- **Component → role maps are data:** `packs/content-types/ux-microcopy/roles/shadcn.yaml` (`AlertDialogTitle` → dialog-title, `Button` → button, `toast()`/sonner → toast, `FormMessage` → field-error…). Another design system means adding another YAML file.
 - **In v1 the model works out roles:**
   - When writing, Claude knows which component it's filling in; the background skill and reviewer apply the role guide.
   - When reviewing existing files, the reviewer judges roles using the same map.
@@ -19,6 +19,6 @@ shadcn/ui is the first design system we support. UX copy rules depend on where a
 - How to check i18n JSON values (see below).
 
 ## Checked 2026-10-07 (Vale 3.24)
-- Vale views (tree-sitter) reach string literals in `.tsx` and both string literals and JSX text in `.jsx`. Vale parses `.tsx` with the TypeScript grammar, which has no `jsx_text` node, so JSX text in `.tsx` isn't reachable. The views are `plugin/packs/ux-microcopy/checks/vale/config/views/{JSXCopy,TSXCopy}.yml`.
+- Vale views (tree-sitter) reach string literals in `.tsx` and both string literals and JSX text in `.jsx`. Vale parses `.tsx` with the TypeScript grammar, which has no `jsx_text` node, so JSX text in `.tsx` isn't reachable. The views are `plugin/packs/content-types/ux-microcopy/checks/vale/config/views/{JSXCopy,TSXCopy}.yml`.
 - i18n JSON: a dasel view didn't select values, and plain linting would also lint keys, so i18n JSON isn't checked in v0.1. The reviewer covers it, and the AST extractor (010) will.
 - `roles/shadcn.yaml` adds `label`, `placeholder`, `menu-item`, `heading` and `field-help` roles, each following an existing role's rules.

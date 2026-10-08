@@ -10,7 +10,7 @@ Status: decided, needs implementation
   - resolves the config by scope (local > project),
   - runs the engine and normalises its output to `file:line:severity:rule:message`,
   - exits 0 when the engine is missing (with one notice), so nothing breaks.
-- **Rule format is engine-specific, and kept in its own folder:** `packs/<id>/checks/vale/*.yml`. A future engine adds `checks/<engine>/` beside it. Prose guidance and examples are engine-neutral.
+- **Rule format is engine-specific, and kept in its own folder:** `packs/<kind folder>/<id>/checks/vale/*.yml`. A future engine adds `checks/<engine>/` beside it. Prose guidance and examples are engine-neutral.
 - **Severity map:** our severity (hard/convention/preference) maps to the engine's levels (Vale: error/warning/suggestion). Freedom maps to the engine's minimum alert level (Vale: `MinAlertLevel`).
 - **Engine config is generated into `.scribb/checker/`,** not the repo root:
   - project: `.scribb/checker/vale.ini`,
