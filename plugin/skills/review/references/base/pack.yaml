@@ -16,8 +16,8 @@ sources:
     url: https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing
     license: CC-BY-SA-4.0
     use: inspiration only; no text is quoted
-  - name: a16z crypto, "habits of AI writing" (22 Aug 2026)
-    url: null  # TODO: add the post's URL
+  - name: 'Stephanie Zinn, "Habits of AI writing, and what to do about them", a16z crypto (Aug 2026)'
+    url: https://a16zcrypto.com/posts/article/ai-writing-hallmarks-for-founders/
     license: all rights reserved
     use: inspiration only; reworded, never quoted
   - name: sam-paech/slop-score

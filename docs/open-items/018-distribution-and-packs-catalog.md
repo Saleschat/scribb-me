@@ -58,3 +58,9 @@ Status: decided, needs implementation
 - Chat sections use a stricter self-review (read cold, one habit at a time, quote passages) and offer to save a wording correction with `remember`, in place of the reviewer agent and the capture hook.
 - Verified on claude.ai (upload of this branch, 2026-10-08): install, skills in chat, `check.py` running in the sandbox, `/scribb` listing every skill, and the offer to remember a correction.
 
+## Anthropic's directory (deferred, 2026-10-08)
+Listing scribb in Anthropic's plugin directory would put it under **Discover** in claude.ai, the desktop app and Cowork, with a security scan on every version, usage figures, and updates that follow `main`. Not now. When it's picked up:
+- Add `plugin/README.md` (at least 40 words outside code blocks: what it does, how to use it, what data it sends, which is none) and `plugin/LICENSE`; people who install get only `plugin/`.
+- Check the folder against the directory's blocking rules: no `.DS_Store`, names valid on Windows and macOS, every file under 5 MiB, no symlinks, all component paths inside `plugin/`.
+- Submit from claude.ai/directory/manage, from the Saleschat organization (an Owner on Team or Enterprise), with `plugin` as the plugin path and `main` as the tracked branch. Use the portal's **Validate** first. The name `scribb` has to be free.
+- Keep this repository's own marketplace as well.
