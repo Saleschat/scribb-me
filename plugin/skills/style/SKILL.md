@@ -2,10 +2,12 @@
 name: style
 description: Show or change scribb.me's writing setup. Shows the active style, content types, freedom and where each setting comes from; lists and switches styles; sets freedom or the reviewer; turns scribb off or on for this session, this repo or everywhere; adds a style pack from a git URL or path. Use when the user asks what style is active, wants a different style, or wants scribb off or on.
 argument-hint: "[off|on [--repo|--team|--everywhere] | list | use <style> | freedom <level> | reviewer <off|auto|always> | add <git-url|path>]"
-allowed-tools: Bash(${CLAUDE_PLUGIN_ROOT}/bin/scribb-config *) Bash(${CLAUDE_PLUGIN_ROOT}/bin/scribb-check *)
+allowed-tools: Bash(${CLAUDE_PLUGIN_ROOT}/bin/scribb-config *) Bash(${CLAUDE_PLUGIN_ROOT}/bin/scribb-guide *) Bash(${CLAUDE_PLUGIN_ROOT}/bin/scribb-check *) Bash(${CLAUDE_PLUGIN_ROOT}/bin/scribb-nudge *) Read(/${CLAUDE_PLUGIN_ROOT}/**) Read(~/.config/scribb/**) Write(~/.config/scribb/**) Edit(~/.config/scribb/**)
 ---
 
 # /scribb:style
+
+**Running the helpers:** run each helper as its own command, with nothing chained before or after it (no `;`, `&&`, `|`, `2>&1` or `echo`). A chained command doesn't match this skill's allowed tools, so it would stop and ask the user for permission. Use the helpers instead of `cat` or `ls` on plugin files.
 
 Arguments: `$ARGUMENTS`
 

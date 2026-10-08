@@ -91,16 +91,7 @@ Style: none (neutral house style)."
       sd=""
     fi
     ctx="$ctx
-When you write or substantially revise prose (docs, READMEs, guides, release notes, UI strings, newsletters, or a written piece in chat), follow the rules below. For a longer piece, first read the full guide for its content type:"
-    while IFS= read -r ct; do
-      [ -n "$ct" ] || continue
-      d=$(pack_dir "$ct") && ctx="$ctx
-- $(content_type_label "$ct"): $d/guide.md"
-    done <<EOF
-$cts
-EOF
-    [ -n "$sd" ] && ctx="$ctx
-- Style: $sd/guide.md"
+When you write or substantially revise prose (docs, READMEs, guides, release notes, UI strings, newsletters, or a written piece in chat), follow the rules below. For a longer piece, first load the full guides with the scribb:scribb-style skill (it fetches them without asking for permission; don't read files in the plugin folder directly). For a careful, reviewed draft, the user can run /scribb:write."
     if d=$(pack_dir base) && [ -f "$d/summary.md" ]; then
       ctx="$ctx
 
@@ -253,23 +244,36 @@ $warns"
 # --- Stop: lint chat-only pieces during /scribb:write --------------------------------------
 
 stop() {
-  local active ct msg tmpf out blocks key tries
+  local active ct msg tmpf out blocks key tries freedom
   active=$(cfg write_session)
   [ "$active" = on ] || return 0
   [ "$(json_get_bool stop_hook_active "$INPUT")" = true ] && return 0
-  command -v vale >/dev/null 2>&1 || return 0
   msg=$(json_get last_assistant_message "$INPUT")
-  [ -n "$msg" ] || return 0
   key="stop-lint"
   tries=$(counter_get "$key")
-  [ "$tries" -ge "$MAX_RETRIES" ] && return 0
   ct=$(cfg content_type)
   [ -n "$ct" ] || ct=product-docs
-  tmpf="$(session_dir)/reply.md"
-  printf '%s\n' "$msg" > "$tmpf"
-  out=$(cd "$SCRIBB_PROJECT" && "$PLUGIN_ROOT/bin/scribb-check" --session "$SCRIBB_SESSION" --content-type "$ct" "$tmpf" 2>/dev/null)
-  blocks=$(printf '%s\n' "$out" | awk -F: '$4 == "block"' | sed "s#^$tmpf:#reply:#" | head -n 15)
-  [ -n "$blocks" ] || return 0
+  freedom=$(cfg write_freedom)
+  [ -n "$freedom" ] || freedom=$(freedom_for "$ct")
+  blocks=""
+  if [ -n "$msg" ] && [ "$tries" -lt "$MAX_RETRIES" ] && command -v vale >/dev/null 2>&1; then
+    tmpf="$(session_dir)/reply.md"
+    [ "$ct" = ux-microcopy ] && tmpf="$(session_dir)/reply.jsx"
+    printf '%s\n' "$msg" > "$tmpf"
+    out=$(cd "$SCRIBB_PROJECT" && "$PLUGIN_ROOT/bin/scribb-check" --session "$SCRIBB_SESSION" --content-type "$ct" --freedom "$freedom" "$tmpf" 2>/dev/null)
+    blocks=$(printf '%s\n' "$out" | awk -F: '$4 == "block"' | sed "s#^$tmpf:#reply:#" | head -n 15)
+  fi
+  if [ -z "$blocks" ]; then
+    # The piece passed (or there's nothing more to do): end the write session
+    # here, after the check, so a skill can't switch it off too early.
+    local f
+    f=$(scribb_config_file_for_scope session)
+    yaml_unset "$f" write_session
+    yaml_unset "$f" content_type
+    yaml_unset "$f" write_freedom
+    rm -f "$(session_dir)/$key"
+    return 0
+  fi
   counter_incr "$key"
   local reason
   reason="scribb.me checker found issues in the piece you just wrote (reply:line:col:action:severity:rule:message):

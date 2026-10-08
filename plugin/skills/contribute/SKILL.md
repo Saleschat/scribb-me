@@ -3,10 +3,12 @@ name: contribute
 description: Turn something learned locally with scribb.me (a memory, a vocab entry, a rule promoted from a memory, or a fix the user keeps making) into a pull request against the built-in packs in Saleschat/scribb-me, so every user gets it. Checks whether it's general enough, strips anything private, writes the rule or guide change with its tests, and opens the pull request only after the user approves. Use when the user wants to share or upstream a scribb preference or rule.
 disable-model-invocation: true
 argument-hint: "[memory id | rule | what to share]"
-allowed-tools: Bash(${CLAUDE_PLUGIN_ROOT}/bin/scribb-config *)
+allowed-tools: Bash(${CLAUDE_PLUGIN_ROOT}/bin/scribb-config *) Bash(${CLAUDE_PLUGIN_ROOT}/bin/scribb-guide *) Bash(${CLAUDE_PLUGIN_ROOT}/bin/scribb-check *) Bash(${CLAUDE_PLUGIN_ROOT}/bin/scribb-nudge *) Read(/${CLAUDE_PLUGIN_ROOT}/**) Bash(git switch -c contrib/*) Bash(git checkout -b contrib/*) Bash(git add *) Bash(git commit *) Bash(git diff *) Bash(git status *) Bash(evals/rules/run.sh*)
 ---
 
 # /scribb:contribute
+
+**Running the helpers:** run each helper as its own command, with nothing chained before or after it (no `;`, `&&`, `|`, `2>&1` or `echo`). A chained command doesn't match this skill's allowed tools, so it would stop and ask the user for permission. Use the helpers instead of `cat` or `ls` on plugin files.
 
 What to share: `$ARGUMENTS`
 
@@ -39,11 +41,11 @@ Work in a fresh clone in a temp folder, never in the user's own repositories:
 
 Read `CONTRIBUTING.md` in the clone for the current rules.
 
-In the clone, on a new branch (`contrib/<short-slug>`):
+Change into the clone first (`cd <clone>`, as its own command), so the commands below run there and match this skill's allowed tools. Pushing and opening the pull request will still ask the user, on purpose. In the clone, on a new branch (`git switch -c contrib/<short-slug>`):
 - **A word or phrase rule**: add it to an existing rule file in the target pack's `checks/vale/<ValeStyle>/` if one fits (for example a substitution or existence list), or add a new rule file. Use `level: error` for base and `warning` for content types. Add or extend the test pair in `checks/vale/tests/` with invented bad and good text.
 - **Guidance that a rule can't check**: add one or two lines to the target pack's `guide.md` (and `summary.md` if it's important enough to inject at session start), with an invented before/after example.
 - Bump the pack's `version` (patch for a fix, minor for a new rule).
-- Run `evals/rules/run.sh` in the clone (needs Vale). Fix the change until it passes. For a guidance change, mention that the quality evals can be run with `evals/quality/run.sh --case <case>`, and offer to run the affected case (it costs money; say roughly how much).
+- Run `evals/rules/run.sh` in the clone (needs Vale), as its own command. Fix the change until it passes. For a guidance change, mention that the quality evals can be run with `evals/quality/run.sh --case <case>`, and offer to run the affected case (it costs money; say roughly how much).
 
 ## 5. Review with the user
 Show the full diff, the test result and the draft pull request:

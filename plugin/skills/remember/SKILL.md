@@ -2,10 +2,12 @@
 name: remember
 description: Save one writing preference as a scribb.me memory (a term, a word to avoid, a preference or a format), after asking who it applies to (just me here, the whole team, or me everywhere) and recording who approved it. Use when the user says to remember a wording or style preference, or after a scribb hook suggests saving a correction.
 argument-hint: "<the preference, e.g. say workspace, not account>"
-allowed-tools: Bash(${CLAUDE_PLUGIN_ROOT}/bin/scribb-config *)
+allowed-tools: Bash(${CLAUDE_PLUGIN_ROOT}/bin/scribb-config *) Bash(${CLAUDE_PLUGIN_ROOT}/bin/scribb-guide *) Bash(${CLAUDE_PLUGIN_ROOT}/bin/scribb-check *) Bash(${CLAUDE_PLUGIN_ROOT}/bin/scribb-nudge *) Read(/${CLAUDE_PLUGIN_ROOT}/**) Read(~/.config/scribb/**) Write(~/.config/scribb/**) Edit(~/.config/scribb/**)
 ---
 
 # /scribb:remember
+
+**Running the helpers:** run each helper as its own command, with nothing chained before or after it (no `;`, `&&`, `|`, `2>&1` or `echo`). A chained command doesn't match this skill's allowed tools, so it would stop and ask the user for permission. Use the helpers instead of `cat` or `ls` on plugin files.
 
 Preference: `$ARGUMENTS`
 
@@ -26,7 +28,7 @@ Helper: `"${CLAUDE_PLUGIN_ROOT}/bin/scribb-config"`.
    evidence: []
    proposed_by: user
    approved_by: <output of scribb-config approver>
-   approved_at: <UTC time, ISO 8601>
+   approved_at: <UTC time, ISO 8601; `date -u +%Y-%m-%dT%H:%M:%SZ`>
    promoted_to_rule: null
    ---
 
@@ -34,7 +36,7 @@ Helper: `"${CLAUDE_PLUGIN_ROOT}/bin/scribb-config"`.
    ```
    Keep `statement:` on one line, in double quotes only if it contains a colon. Use confidence 0.8 when the user stated it directly, and the learner's score when it came from the inbox. List the inbox files it came from under `evidence`.
 4. **Clean up the inbox.** Delete the inbox files the memory came from (`.scribb/local/inbox/`). On "Don't save", delete them too and append the statement to `.scribb/local/rejected.txt` so it isn't suggested again.
-5. **Cross-project index.** Append `<UTC time>\t<scope>\t<repo name>\t<statement>` to `approvals.index` in the user dir. If the same statement now appears for 2 or more repos, offer once to save it for every repo (user scope).
+5. **Cross-project index.** Run `scribb-config record-approval <scope> "<statement>"`. If it says the statement is now approved in 2 or more repos, offer once to save it for every repo (user scope).
 6. **Names.** If the memory is a product or feature name with its own casing, also append it to `vocab.txt` in the same scope (`.scribb/vocab.txt` for the team), so the checker accepts it.
 7. **Checker rule (optional).** If the memory is a fixed word or phrase, offer to also make it a checker rule. On yes, write a Vale rule in `.scribb/packs/rules/checks/vale/ScribbProject/` (or the local equivalent `.scribb/local/packs/rules/checks/vale/ScribbLocal/`), create that pack's `pack.yaml` if missing (`id: rules`, `kind: memory-rules`, `version: 0.1.0`, `tagline: Rules promoted from memories`, `license: MIT`), and set `promoted_to_rule:` to the rule path.
 8. Confirm in one line: what was saved, where, and that it applies from now on (and from the next session start for the injected summary).

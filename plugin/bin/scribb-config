@@ -11,6 +11,14 @@
 #   scribb-config packs [--kind KIND]            id, kind, scope, version, tagline
 #   scribb-config paths                          where each scope lives
 #   scribb-config approver                       who to record as the approver
+#   scribb-config inbox                          every pending inbox signal, with its file name
+#   scribb-config approvals                      the cross-project approvals index
+#   scribb-config memories                       every approved memory, with its scope and file
+#   scribb-config versions                       scribb, pack, Vale and OS versions (for reports)
+#   scribb-config hash FILE...                   a sha256 content hash per file (for sources.json)
+#   scribb-config record-approval SCOPE STATEMENT
+#                                                adds an approved memory to the cross-project
+#                                                index; prints how many repos approved it
 #
 # SCOPE is session, local (this repo, just me), project (this repo, whole team)
 # or user (everywhere, for me).
@@ -20,15 +28,15 @@ SELF_DIR=$(cd "$(dirname "$0")" && pwd)
 # shellcheck source=../lib/scribb.sh
 . "$SELF_DIR/../lib/scribb.sh"
 
-usage() { sed -n '2,16p' "$0" | sed 's/^# \{0,1\}//'; exit 3; }
+usage() { sed -n '2,24p' "$0" | sed 's/^# \{0,1\}//'; exit 3; }
 
 cmd="${1:-}"
 [ $# -gt 0 ] && shift
 SCRIBB_SESSION="${SCRIBB_SESSION:-}"
-scope="" kind="" target="" args=""
+scope="" kind="" target="" args="" saw_session=no
 while [ $# -gt 0 ]; do
   case "$1" in
-    --session) SCRIBB_SESSION="$2"; target=session; shift 2 ;;
+    --session) SCRIBB_SESSION="$2"; saw_session=yes; shift 2 ;;
     --scope) scope="$2"; shift 2 ;;
     --kind) kind="$2"; shift 2 ;;
     --repo) target=local; shift ;;
@@ -37,6 +45,9 @@ while [ $# -gt 0 ]; do
     *) args="$args$1"$'\n'; shift ;;
   esac
 done
+# A scope flag (--repo, --team, --everywhere) always wins; --session alone
+# means the session scope. Skills pass --session on every call.
+[ -z "$target" ] && [ "$saw_session" = yes ] && target=session
 arg1=$(printf '%s' "$args" | sed -n 1p)
 arg2=$(printf '%s' "$args" | sed -n 2p)
 
@@ -46,7 +57,7 @@ export SCRIBB_PROJECT SCRIBB_SESSION
 valid_value() {
   case "$1" in
     enabled) case "$2" in true | false) return 0 ;; esac ;;
-    freedom) case "$2" in strict | balanced | expressive) return 0 ;; esac ;;
+    freedom | write_freedom) case "$2" in strict | balanced | expressive) return 0 ;; esac ;;
     reviewer) case "$2" in off | auto | always) return 0 ;; esac ;;
     checker) case "$2" in vale | none) return 0 ;; esac ;;
     capture | inject | nudges | write_session) case "$2" in on | off) return 0 ;; esac ;;
@@ -165,5 +176,75 @@ case "$cmd" in
     echo "state:   $(scribb_state_dir)"
     ;;
   approver) scribb_approver ;;
+  inbox)
+    dir="$SCRIBB_PROJECT/.scribb/local/inbox"
+    rej="$SCRIBB_PROJECT/.scribb/local/rejected.txt"
+    n=0
+    for f in "$dir"/*.md; do
+      [ -f "$f" ] || continue
+      n=$((n + 1))
+      printf '===== %s =====\n' "${f#"$SCRIBB_PROJECT"/}"
+      cat "$f"
+      echo
+    done
+    [ "$n" -eq 0 ] && echo "The inbox is empty."
+    if [ -s "$rej" ]; then
+      echo "===== already rejected (don't suggest again) ====="
+      cat "$rej"
+    fi
+    ;;
+  approvals)
+    idx="$(scribb_user_dir)/approvals.index"
+    if [ -s "$idx" ]; then cat "$idx"; else echo "No approvals recorded yet."; fi
+    ;;
+  memories)
+    n=0
+    for scope in local project user; do
+      case "$scope" in
+        local) dir="$SCRIBB_PROJECT/.scribb/local/memories" ;;
+        project) dir="$SCRIBB_PROJECT/.scribb/memories" ;;
+        user) dir="$(scribb_user_dir)/memories" ;;
+      esac
+      for f in "$dir"/*.md; do
+        [ -f "$f" ] || continue
+        n=$((n + 1))
+        printf '%s\t%s\t%s\n' "$scope" "$(yaml_get "$f" statement)" "$f"
+      done
+    done
+    [ "$n" -eq 0 ] && echo "No memories yet."
+    ;;
+  versions)
+    root=$(scribb_plugin_root)
+    echo "scribb: $(sed -n 's/.*"version"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p' "$root/.claude-plugin/plugin.json" | head -n 1)"
+    list_pack_dirs | while IFS="$(printf '\t')" read -r s d; do
+      printf 'pack %s %s (%s)\n' "$(pack_field "$d" id)" "$(pack_field "$d" version)" "$s"
+    done
+    if command -v vale >/dev/null 2>&1; then echo "vale: $(vale --version 2>/dev/null | awk '{print $NF}')"; else echo "vale: not installed"; fi
+    if command -v sw_vers >/dev/null 2>&1; then echo "os: macOS $(sw_vers -productVersion)"; else echo "os: $(uname -sr)"; fi
+    ;;
+  hash)
+    [ -n "$arg1" ] || usage
+    printf '%s' "$args" | while IFS= read -r f; do
+      [ -n "$f" ] || continue
+      if command -v shasum >/dev/null 2>&1; then
+        h=$(shasum -a 256 "$f" | awk '{print $1}')
+      elif command -v sha256sum >/dev/null 2>&1; then
+        h=$(sha256sum "$f" | awk '{print $1}')
+      else
+        h="cksum-$(cksum "$f" | awk '{print $1}')"
+      fi
+      printf 'sha256:%s\t%s\n' "$h" "$f"
+    done
+    ;;
+  record-approval)
+    [ -n "$arg1" ] && [ -n "$arg2" ] || usage
+    idx="$(scribb_user_dir)/approvals.index"
+    mkdir -p "$(dirname "$idx")"
+    repo=$(basename "$SCRIBB_PROJECT")
+    printf '%s\t%s\t%s\t%s\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$arg1" "$repo" "$arg2" >> "$idx"
+    n=$(awk -F '\t' -v s="$arg2" '$4 == s { print $3 }' "$idx" | sort -u | wc -l | tr -d ' ')
+    echo "Recorded. Approved in $n repo(s)."
+    [ "$n" -ge 2 ] && echo "Suggest saving it for every repo (user scope)."
+    ;;
   *) usage ;;
 esac

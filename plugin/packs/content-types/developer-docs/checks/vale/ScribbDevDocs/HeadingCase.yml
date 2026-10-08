@@ -9,6 +9,20 @@ threshold: 0.5
 indicators:
   - ":"
 exceptions:
+  - iOS
+  - iPadOS
+  - macOS
+  - watchOS
+  - tvOS
+  - iPhone
+  - iPad
+  - iCloud
+  - npm
+  - pnpm
+  - gRPC
+  - jQuery
+  - eBay
+  - pytest
   - API
   - APIs
   - CLI

@@ -26,6 +26,8 @@ refute() {
   if "$@"; then bad "$name"; else ok "$name"; fi
 }
 
+yaml_val() { sed -n "s/^$2:[[:space:]]*//p" "$1" 2>/dev/null | tail -n 1; }
+
 contains() { case "$1" in *"$2"*) return 0 ;; esac; return 1; }
 valid_json() {
   [ -z "$1" ] && return 0
@@ -176,6 +178,11 @@ for jqmode in jq nojq; do
   out=$(run_hook session-start '{"session_id":"s7","cwd":"'"$T/proj"'"}')
   assert "off for this repo (local scope)" [ -z "$out" ]
   assert "status says off" contains "$("$PLUGIN/bin/scribb-config" status)" "is OFF"
+  "$PLUGIN/bin/scribb-config" off --session s10 --everywhere >/dev/null
+  assert "off: --everywhere wins over --session, in any order" [ "$(yaml_val "$HOME/.config/scribb/config.yaml" enabled)" = false ]
+  "$PLUGIN/bin/scribb-config" on --everywhere --session s10 >/dev/null
+  assert "on: --everywhere wins over --session" [ "$(yaml_val "$HOME/.config/scribb/config.yaml" enabled)" = true ]
+  refute "off: --session with a scope flag doesn't write the session" [ -f "$SCRIBB_STATE_DIR/sessions/s10.yaml" ]
   "$PLUGIN/bin/scribb-config" on --repo >/dev/null
   out=$(run_hook session-start '{"session_id":"s8","cwd":"'"$T/proj"'"}')
   assert "on again" [ -n "$out" ]
@@ -194,6 +201,16 @@ for jqmode in jq nojq; do
   mkdir -p "$HOME/.config/scribb/packs/styles/my-voice"
   printf 'id: my-voice\nkind: style\nversion: 0.1.0\ntagline: Mine.\nlicense: MIT\n' > "$HOME/.config/scribb/packs/styles/my-voice/pack.yaml"
   assert "packs: a user style in packs/styles/ is found" "$PLUGIN/bin/scribb-config" set style my-voice --scope user >/dev/null
+  ( cd "$T/proj" && "$PLUGIN/bin/scribb-config" record-approval project "Say board." ) >/dev/null
+  mkdir -p "$T/other" && git -C "$T/other" init -q
+  out=$(cd "$T/other" && CLAUDE_PROJECT_DIR="$T/other" "$PLUGIN/bin/scribb-config" record-approval project "Say board.")
+  assert "approvals: counts repos that approved a statement" contains "$out" "Approved in 2 repo(s)"
+  out=$("$PLUGIN/bin/scribb-guide" --content-type product-docs --format how-to)
+  assert "scribb-guide: prints base, content type and format" contains "$out" "===== Format: how-to"
+  assert "scribb-guide: includes memories" contains "$out" "Approved memories"
+  refute "scribb-guide: rejects unknown content types" "$PLUGIN/bin/scribb-guide" --content-type poetry 2>/dev/null
+  assert "scribb-config versions: lists packs" contains "$("$PLUGIN/bin/scribb-config" versions)" "pack product-docs"
+  assert "scribb-config inbox: empty inbox" contains "$("$PLUGIN/bin/scribb-config" inbox)" "The inbox is empty"
   assert "config: lists styles" contains "$("$PLUGIN/bin/scribb-config" packs --kind style)" "direct-developer-docs"
   teardown
 
@@ -212,6 +229,10 @@ for jqmode in jq nojq; do
     printf 'export const A = () => <p>{"Oops! Please try again."}</p>;\n' > A.tsx
     out=$("$PLUGIN/bin/scribb-check" A.tsx)
     assert "scribb-check: lints strings in .tsx" contains "$out" "ScribbUI.Oops"
+    printf 'type P = { n: number };\nexport function E({ n }: P): JSX.Element {\n  return <h2>Oops! No projects yet</h2>;\n}\n' > B.tsx
+    out=$("$PLUGIN/bin/scribb-check" B.tsx)
+    assert "scribb-check: lints JSX text in .tsx" contains "$out" "B.tsx:3:"
+    assert "scribb-check: reports the .tsx path, not the copy" contains "$out" "B.tsx:3:14:block:convention:ScribbUI.Oops"
     run_hook check "$(edit_input s1 "$T/proj/docs/good.md")" >/dev/null 2>&1
     assert "check hook: clean file exits 0" [ $? -eq 0 ]
     for i in 1 2; do
@@ -256,6 +277,11 @@ for jqmode in jq nojq; do
     assert "stop: respects stop_hook_active" [ -z "$out" ]
     out=$(run_hook stop "$(stop_input false "Rotate the key, then delete the old one.")")
     assert "stop: clean reply passes" [ -z "$out" ]
+    assert "stop: a clean reply ends the write session" [ -z "$(yaml_val "$SCRIBB_STATE_DIR/sessions/s9.yaml" write_session)" ]
+    out=$(run_hook stop "$(stop_input false "Great question! Let us delve in.")")
+    assert "stop: after the session ends, replies aren't checked" [ -z "$out" ]
+    out=$("$PLUGIN/bin/scribb-check" --content-type newsletter --text "We are thrilled to announce it.")
+    assert "scribb-check --text: checks text without a file" contains "$out" "text:1:"
     teardown
   else
     echo "  skip checker tests (Vale not installed)"

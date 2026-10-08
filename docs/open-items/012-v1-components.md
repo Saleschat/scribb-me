@@ -34,6 +34,25 @@ Status: implemented in v0.1 (Claude Code); Codex and generic adapters not starte
 ## Implemented in v0.1 (branch `v1-claude-code-plugin`, 2026-10-07)
 - Everything above is in `plugin/`, plus:
   - a `report` skill (from 016) and a `contribute` skill (local memory or rule → pull request against the built-in packs),
-  - `bin/scribb-config` (settings, status, off/on, packs) and `bin/scribb-nudge` (nudge checks for skills),
+  - `bin/scribb-config` (settings, status, off/on, packs, inbox, memories, approvals, versions), `bin/scribb-guide` (all the guidance for one piece in one call) and `bin/scribb-nudge` (nudge checks for skills),
   - a `newsletter` content type (issues, product updates, welcome emails), and two starter styles: `direct-developer-docs` and `crisp-product-ui`. `warm-and-plain` was dropped (002).
 - `setup`, `report` set `disable-model-invocation`; `scribb-style` is model-only (`user-invocable: false`).
+
+## Smoke test (2026-10-08)
+Every command was run headless against throwaway repos (about $5 in total), with file edits allowed and nothing else, which also tests whether each skill's `allowed-tools` avoids permission prompts.
+- **Worked first time:** `/scribb:style` (status, use, off), `/scribb:review` (no edits without `--fix`), correction capture into the inbox, `/scribb:setup` on a GitBook repo (read `SUMMARY.md` and mapped `api-reference/*` to developer docs), and the checker hook waking Claude after an edit.
+- **Bugs found and fixed:**
+  - `scribb-config` let `--session` override `--repo`/`--team`/`--everywhere`, so `/scribb:style off --everywhere` only turned scribb off for the session. Scope flags now always win.
+  - The Stop hook never checked chat pieces: `/scribb:write` turned the write session off before the reply finished. The Stop hook now ends the session itself after checking. Per-piece freedom moved to its own `write_freedom` key.
+  - The checker missed JSX text in `.tsx`, where most UI copy lives. `scribb-check` now lints a `.jsx` copy (see 008).
+  - `HeadingCase` flagged "iOS setup"; common lower-case-first names are now exceptions.
+- **Permission prompts removed:** skills and agents read pack files outside the project, chained helper calls (`cat a; ls b; …`), wrote temp draft files outside the project, and appended to the approvals index by hand, each of which asks the user. Now:
+  - `bin/scribb-guide` prints the base, content type, format and style guides, the UI role map and the memories in one allowed call; the reviewer gets that text from the caller.
+  - `scribb-check --text "…"` checks a draft without a file.
+  - `scribb-config` gained `inbox`, `memories`, `approvals`, `record-approval`, `hash` and `versions`.
+  - Every skill says to run helpers as single commands, and allows `Read` on the plugin folder plus `Read`/`Write`/`Edit` on `~/.config/scribb/**` where it saves there.
+  - `/scribb:learn` saves memories itself instead of invoking `/scribb:remember` (a skill call asks for permission).
+  - `/scribb:contribute` allows the local git and test commands in its clone; cloning, forking, pushing and opening the pull request still ask, on purpose.
+- **Judgement checks that passed:** Claude kept the user's explicit copy over checker findings and explained the conflict; `/scribb:learn inbox` merged duplicate signals and skipped one already saved; `/scribb:contribute` kept a product term and a house-voice preference local, and turned `please note` into a case-sensitive product-docs rule after noticing an existing rule already covered half of it.
+- **Not covered by a headless run:** questions asked with AskUserQuestion (headless sessions can't answer them), so the prompts named their choices up front.
+

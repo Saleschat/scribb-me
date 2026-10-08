@@ -57,7 +57,7 @@ The checker can't tell which role a string has. You can: look at the component i
 
 Coverage in v1:
 - `.jsx`: JSX text and string literals (the `JSXCopy` view).
-- `.tsx`: string literals only (the `TSXCopy` view). Vale parses `.tsx` with the TypeScript grammar, which has no JSX text node, so text between tags in `.tsx` isn't checked.
+- `.tsx`: JSX text and string literals too. `scribb-check` lints a `.jsx` copy of the file, because Vale's TypeScript grammar can't see text between tags. A standalone config from `scribb-check --export` (for CI or an editor) still uses the `TSXCopy` view, which reaches string literals only.
 - i18n JSON files: not checked. Vale can't select only the values.
 
 The reviewer covers what the checker can't reach, and applies the role rules above.

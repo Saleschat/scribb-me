@@ -1,0 +1,92 @@
+#!/usr/bin/env bash
+# scribb-guide: prints the guidance for one piece of writing in one call, so
+# skills and the reviewer don't have to read files inside the plugin (which
+# would ask for permission each time).
+#
+# Usage: scribb-guide --content-type ID [--format ID] [--style ID|none] [--session ID] [--summary]
+#   --content-type  product-docs | developer-docs | ux-microcopy | newsletter | …
+#   --format        a format in that content type (for example how-to); "list" lists them
+#   --style         default: the active style setting
+#   --summary       print summary.md files instead of the full guides
+# Prints, in order: base, content type, format, style, approved memories.
+set -u
+
+SELF_DIR=$(cd "$(dirname "$0")" && pwd)
+# shellcheck source=../lib/scribb.sh
+. "$SELF_DIR/../lib/scribb.sh"
+
+ct="" format="" style_opt="" which=guide.md
+SCRIBB_SESSION="${SCRIBB_SESSION:-}"
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --content-type) ct="$2"; shift 2 ;;
+    --format) format="$2"; shift 2 ;;
+    --style) style_opt="$2"; shift 2 ;;
+    --session) SCRIBB_SESSION="$2"; shift 2 ;;
+    --summary) which=summary.md; shift ;;
+    -h | --help) sed -n '2,12p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
+    *) echo "scribb-guide: unknown argument $1" >&2; exit 3 ;;
+  esac
+done
+
+SCRIBB_PROJECT=$(scribb_project_dir "$PWD")
+export SCRIBB_PROJECT SCRIBB_SESSION
+
+if [ -z "$ct" ]; then
+  echo "scribb-guide: --content-type is required. Content types: $(content_type_ids | tr '\n' ' ')" >&2
+  exit 3
+fi
+ctdir=$(pack_dir "$ct") || { echo "scribb-guide: no content type '$ct'. Content types: $(content_type_ids | tr '\n' ' ')" >&2; exit 3; }
+
+section() { # title file
+  [ -f "$2" ] || return 0
+  printf '\n===== %s (%s) =====\n\n' "$1" "$2"
+  cat "$2"
+}
+
+if [ "$format" = list ]; then
+  for f in "$ctdir"/formats/*.md; do
+    [ -f "$f" ] || continue
+    printf '%s\t%s\n' "$(basename "$f" .md)" "$(yaml_get "$f" summary)"
+  done
+  exit 0
+fi
+
+d=$(pack_dir base) && section "Base: always on" "$d/$which"
+section "Content type: $(content_type_label "$ct")" "$ctdir/$which"
+if [ -n "$format" ]; then
+  if [ -f "$ctdir/formats/$format.md" ]; then
+    section "Format: $format" "$ctdir/formats/$format.md"
+  else
+    echo "(No format '$format' in $ct. Formats: $(find "$ctdir/formats" -name '*.md' -exec basename {} .md \; 2>/dev/null | sort | tr '\n' ' '))"
+  fi
+fi
+style=${style_opt:-$(cfg style)}
+if ! is_off "$style"; then
+  if sd=$(pack_dir "$style"); then
+    section "Style: $style (on a conflict, the content type wins)" "$sd/$which"
+  else
+    echo "(Style '$style' not found.)"
+  fi
+fi
+if [ "$ct" = ux-microcopy ] && [ "$which" = guide.md ]; then
+  section "Component roles (shadcn/ui)" "$ctdir/roles/shadcn.yaml"
+fi
+
+printf '\n===== Approved memories (follow them; they beat the style) =====\n\n'
+n=0
+for scope in local project user; do
+  case "$scope" in
+    local) dir="$SCRIBB_PROJECT/.scribb/local/memories" ;;
+    project) dir="$SCRIBB_PROJECT/.scribb/memories" ;;
+    user) dir="$(scribb_user_dir)/memories" ;;
+  esac
+  for f in "$dir"/*.md; do
+    [ -f "$f" ] || continue
+    stmt=$(yaml_get "$f" statement) || continue
+    printf -- '- %s (%s)\n' "$stmt" "$scope"
+    n=$((n + 1))
+  done
+done
+[ "$n" -eq 0 ] && echo "(none)"
+exit 0

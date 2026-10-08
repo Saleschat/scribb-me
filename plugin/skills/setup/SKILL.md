@@ -3,10 +3,12 @@ name: setup
 description: Optional team setup for scribb.me in this repo. Writes the committed .scribb/ folder (default style, which files are Docs, UI copy and newsletters, freedom, glossary), adds .scribb/local/ to .gitignore, and can export a checker config for CI and editors. Use when the user wants to configure scribb for a team or repo, not for first use; scribb works without setup.
 disable-model-invocation: true
 argument-hint: "[--ci]"
-allowed-tools: Bash(${CLAUDE_PLUGIN_ROOT}/bin/scribb-config *) Bash(${CLAUDE_PLUGIN_ROOT}/bin/scribb-check *)
+allowed-tools: Bash(${CLAUDE_PLUGIN_ROOT}/bin/scribb-config *) Bash(${CLAUDE_PLUGIN_ROOT}/bin/scribb-guide *) Bash(${CLAUDE_PLUGIN_ROOT}/bin/scribb-check *) Bash(${CLAUDE_PLUGIN_ROOT}/bin/scribb-nudge *) Read(/${CLAUDE_PLUGIN_ROOT}/**) Bash(git check-ignore *) Bash(git ls-files *)
 ---
 
 # /scribb:setup
+
+**Running the helpers:** run each helper as its own command, with nothing chained before or after it (no `;`, `&&`, `|`, `2>&1` or `echo`). A chained command doesn't match this skill's allowed tools, so it would stop and ask the user for permission. Use the helpers instead of `cat` or `ls` on plugin files.
 
 scribb works without setup. This writes shared settings for everyone in the repo. Keep it short: at most three questions, each with a sensible default.
 

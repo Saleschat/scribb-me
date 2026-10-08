@@ -9,3 +9,11 @@ Run it.
 ## Connect Foo to Slack
 
 Link it.
+
+## iOS setup
+
+Install it.
+
+## npm scripts
+
+Run them.

@@ -3,11 +3,14 @@
 # this, never the engine directly. Vale is the only engine in v1.
 #
 # Usage: scribb-check [options] FILE...
+#        scribb-check [options] --content-type ID --text "TEXT"
 #   --content-type ID   product-docs | developer-docs | ux-microcopy | newsletter | …
 #                       (default: frontmatter, then the file path)
 #   --freedom LEVEL     strict | balanced | expressive (default: config, then the content type)
 #   --style ID          a style pack id, or none (default: config)
 #   --session ID        read session-scope config too
+#   --text TEXT         check this text instead of files (findings say "text:line");
+#                       lets skills check a draft without writing a file
 #   --export DIR        write a standalone checker config (vale.ini + styles/) to DIR
 #                       for CI and editor integrations, then exit
 #
@@ -22,7 +25,7 @@ SELF_DIR=$(cd "$(dirname "$0")" && pwd)
 # shellcheck source=../lib/scribb.sh
 . "$SELF_DIR/../lib/scribb.sh"
 
-ct_opt="" freedom_opt="" style_opt="" export_dir=""
+ct_opt="" freedom_opt="" style_opt="" export_dir="" text_opt="" have_text=no
 SCRIBB_SESSION="${SCRIBB_SESSION:-}"
 while [ $# -gt 0 ]; do
   case "$1" in
@@ -31,7 +34,8 @@ while [ $# -gt 0 ]; do
     --style) style_opt="$2"; shift 2 ;;
     --session) SCRIBB_SESSION="$2"; shift 2 ;;
     --export) export_dir="$2"; shift 2 ;;
-    -h | --help) sed -n '2,19p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
+    --text) text_opt="$2"; have_text=yes; shift 2 ;;
+    -h | --help) sed -n '2,22p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
     --) shift; break ;;
     -*) echo "scribb-check: unknown option $1" >&2; exit 3 ;;
     *) break ;;
@@ -41,7 +45,7 @@ done
 SCRIBB_PROJECT=$(scribb_project_dir "$PWD")
 export SCRIBB_PROJECT SCRIBB_SESSION
 
-if [ -z "$export_dir" ] && [ $# -eq 0 ]; then
+if [ -z "$export_dir" ] && [ $# -eq 0 ] && [ "$have_text" = no ]; then
   echo "scribb-check: no files given (see --help)" >&2
   exit 3
 fi
@@ -199,6 +203,16 @@ action_for() {
 tmp=$(mktemp -d "${TMPDIR:-/tmp}/scribb-check.XXXXXX") || exit 0
 trap 'rm -rf "$tmp"' EXIT
 
+# --text: write the text to a temp file and check that. UI copy is checked as
+# JSX so text between tags and string literals both count.
+text_file=""
+if [ "$have_text" = yes ]; then
+  ct_opt=${ct_opt:-product-docs}
+  case "$ct_opt" in ux-microcopy) text_file="$tmp/text.jsx" ;; *) text_file="$tmp/text.md" ;; esac
+  printf '%s\n' "$text_opt" > "$text_file"
+  set -- "$text_file"
+fi
+
 blocked=0
 for file in "$@"; do
   [ -f "$file" ] || { echo "scribb-check: $file: no such file" >&2; continue; }
@@ -214,6 +228,15 @@ for file in "$@"; do
   names=$(cat "$tmp/names-$ct")
   [ -n "$names" ] || continue
   ext="${file##*.}"
+  lint="$file"
+  # Vale parses .tsx with the TypeScript grammar, which can't see JSX text
+  # (<h2>Like this</h2>). The JSX grammar can, and skips TypeScript-only
+  # syntax without false findings, so lint a .jsx copy. Lines don't change.
+  if [ "$ext" = tsx ]; then
+    lint="$tmp/tsx-$(path_key "$file").jsx"
+    cp "$file" "$lint"
+    ext=jsx
+  fi
   ini="$tmp/vale-$ct-$ext.ini"
   if [ ! -f "$ini" ]; then
     view=$(view_for_ext "$styles" "$ext")
@@ -228,7 +251,7 @@ for file in "$@"; do
       [ -n "$view" ] && echo "View = $view"
     } > "$ini"
   fi
-  out=$(vale --config="$ini" --output="$TEMPLATE" "$file" 2>&1)
+  out=$(vale --config="$ini" --output="$TEMPLATE" "$lint" 2>&1)
   # Vale exits 1 for error-level findings and 2 for a runtime error.
   if [ $? -ge 2 ]; then
     echo "scribb-check: the checker failed on $file: $(printf '%s' "$out" | tr '\n' ' ' | cut -c1-300)" >&2
@@ -244,7 +267,9 @@ for file in "$@"; do
     esac
     act=$(action_for "$freedom" "$sev")
     [ "$act" = block ] && blocked=1
-    printf '%s:%s:%s:%s:%s:%s:%s\n' "$file" "$lno" "$col" "$act" "$sev" "$rule" "$msg"
+    shown="$file"
+    [ "$file" = "$text_file" ] && shown=text
+    printf '%s:%s:%s:%s:%s:%s:%s\n' "$shown" "$lno" "$col" "$act" "$sev" "$rule" "$msg"
   done <<EOF
 $out
 EOF
