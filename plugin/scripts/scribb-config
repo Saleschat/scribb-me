@@ -59,7 +59,7 @@ valid_value() {
     enabled) case "$2" in true | false) return 0 ;; esac ;;
     freedom | write_freedom) case "$2" in strict | balanced | expressive) return 0 ;; esac ;;
     reviewer) case "$2" in off | auto | always) return 0 ;; esac ;;
-    checker) case "$2" in vale | none) return 0 ;; esac ;;
+    checker) case "$2" in vale | builtin | none) return 0 ;; esac ;;
     capture | inject | nudges | write_session) case "$2" in on | off) return 0 ;; esac ;;
     style)
       [ "$2" = none ] && return 0
@@ -108,11 +108,11 @@ case "$cmd" in
     else
       echo "Style: none (neutral house style: base + content type)"
     fi
-    if command -v vale >/dev/null 2>&1; then
-      echo "Checker: $(vale --version 2>/dev/null)"
-    else
-      echo "Checker: Vale not installed (checks after edits are skipped)"
-    fi
+    case "$(scribb_engine)" in
+      vale) echo "Checker: $(vale --version 2>/dev/null)" ;;
+      builtin) echo "Checker: built-in (Python)$(command -v vale >/dev/null 2>&1 || echo '; install Vale for editor and CI integration')" ;;
+      *) echo "Checker: off or unavailable (no Vale, no python3)" ;;
+    esac
     n=0
     for dir in "$SCRIBB_PROJECT/.scribb/local/memories" "$SCRIBB_PROJECT/.scribb/memories" "$(scribb_user_dir)/memories"; do
       [ -d "$dir" ] && n=$((n + $(find "$dir" -maxdepth 1 -name '*.md' | wc -l)))

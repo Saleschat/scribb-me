@@ -54,7 +54,7 @@ cond_pick_style() {
 }
 
 cond_install_checker() {
-  [ -n "${NUDGE_CT:-}" ] && ! is_off "$(cfg checker)" && ! command -v vale >/dev/null 2>&1
+  [ -n "${NUDGE_CT:-}" ] && ! is_off "$(cfg checker)" && [ -z "$(scribb_engine)" ]
 }
 
 # --- Texts ---
@@ -72,7 +72,7 @@ text_pick_style() {
 }
 
 text_install_checker() {
-  printf '%s' "scribb.me: Vale isn't installed, so the automatic writing checks after each edit are skipped. Install it with 'brew install vale' (other systems: https://vale.sh/docs/install)."
+  printf '%s' "scribb.me: neither Vale nor python3 is available, so the automatic writing checks after each edit are skipped. Install Vale with 'brew install vale' (other systems: https://vale.sh/docs/install)."
 }
 
 # nudge_pick EVENT: sets NUDGE_ID, NUDGE_CHANNEL (user|claude) and NUDGE_TEXT,

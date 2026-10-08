@@ -207,7 +207,7 @@ check() {
   if [ -z "$file" ] || [ ! -f "$file" ]; then return 0; fi
   ct=$(content_type_for "$file")
   [ -n "$ct" ] || return 0
-  command -v vale >/dev/null 2>&1 || return 0
+  [ -n "$(scribb_engine)" ] || return 0
   rel=$(rel_path "$file")
   key="check-$(path_key "$file")"
   tries=$(counter_get "$key")
@@ -256,7 +256,7 @@ stop() {
   freedom=$(cfg write_freedom)
   [ -n "$freedom" ] || freedom=$(freedom_for "$ct")
   blocks=""
-  if [ -n "$msg" ] && [ "$tries" -lt "$MAX_RETRIES" ] && command -v vale >/dev/null 2>&1; then
+  if [ -n "$msg" ] && [ "$tries" -lt "$MAX_RETRIES" ] && [ -n "$(scribb_engine)" ]; then
     tmpf="$(session_dir)/reply.md"
     [ "$ct" = ux-microcopy ] && tmpf="$(session_dir)/reply.jsx"
     printf '%s\n' "$msg" > "$tmpf"

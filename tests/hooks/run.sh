@@ -265,6 +265,31 @@ for jqmode in jq nojq; do
     vale --config=.scribb/checker/vale.ini docs/good.md >/dev/null 2>&1
     assert "export: config runs in plain Vale" [ $? -eq 0 ]
 
+    # --- the built-in checker (no Vale) ---
+    mkdir -p .scribb && echo "checker: builtin" > .scribb/config.yaml
+    out=$("$PLUGIN/scripts/scribb-check" docs/bad.md)
+    assert "builtin: bad doc blocks" [ $? -eq 1 ]
+    assert "builtin: same findings as Vale" [ "$out" = "$(printf 'checker: vale\n' > .scribb/config.yaml; "$PLUGIN/scripts/scribb-check" docs/bad.md)" ]
+    echo "checker: builtin" > .scribb/config.yaml
+    "$PLUGIN/scripts/scribb-check" docs/good.md >/dev/null
+    assert "builtin: good doc passes" [ $? -eq 0 ]
+    assert "builtin: JSX text in .tsx" contains "$("$PLUGIN/scripts/scribb-check" B.tsx)" "B.tsx:3:14:block:convention:ScribbUI.Oops"
+    assert "builtin: --text" contains "$("$PLUGIN/scripts/scribb-check" --content-type newsletter --text "We are thrilled to announce it.")" "text:1:"
+    rm -f .scribb/config.yaml
+    # Fall back when Vale isn't on PATH (as in an environment without it).
+    shim="$T/shim"
+    mkdir -p "$shim"
+    ln -sf "$(command -v python3)" "$shim/python3"
+    nopath="$shim:/usr/bin:/bin"
+    out=$(PATH="$nopath" "$PLUGIN/scripts/scribb-check" docs/bad.md 2>&1)
+    assert "fallback: checks run without Vale" contains "$out" "ScribbBase.AIVocabulary"
+    err=$(run_hook_path() { printf '%s' "$1" | PATH="$nopath" "$HOOK" check; }; run_hook_path "$(edit_input s20 "$T/proj/docs/bad.md")" 2>&1 >/dev/null)
+    assert "fallback: the check hook still wakes Claude" contains "$err" "has writing issues to fix"
+    out=$(PATH="/usr/bin:/bin" "$PLUGIN/scripts/scribb-check" docs/bad.md 2>&1)
+    if ! PATH="/usr/bin:/bin" command -v python3 >/dev/null 2>&1; then
+      assert "no engine: says checks are skipped" contains "$out" "neither Vale nor python3"
+    fi
+
     # --- stop hook ---
     stop_input() { printf '{"session_id":"s9","cwd":"%s","hook_event_name":"Stop","stop_hook_active":%s,"last_assistant_message":"%s"}' "$T/proj" "$1" "$2"; }
     out=$(run_hook stop "$(stop_input false "Great question! Let us delve in.")")

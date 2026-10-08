@@ -26,7 +26,7 @@ Status: decided, needs implementation
 | on-by-default | PostToolUse | first time scribb acts automatically (checker ran, or the reviewer was asked to run) | user |
 | inbox-ready | SessionStart | inbox signal above threshold | claude (every session it applies, not once) |
 | pick-style | PostToolUse | file matches content type, no style set | claude |
-| install-checker | PostToolUse | a check would have run, `command -v vale` fails | user |
+| install-checker | PostToolUse | a check would have run, but neither Vale nor `python3` is available (the built-in checker covers a missing Vale) | user |
 | rate-rewrite | after `/scribb:write` or an auto review | sampled at `feedbackRate` (default 0.1) | claude + AskUserQuestion; repeatable, still one per session |
 | telemetry-optin | SessionStart | N sessions of real use | claude + AskUserQuestion |
 

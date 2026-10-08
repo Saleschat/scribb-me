@@ -99,7 +99,7 @@ Each scope can have a `config.yaml` with flat `key: value` lines. Precedence: se
 | `enabled` | `true` · `false` | `true` |
 | `style` | a style id, or `none` | `none` |
 | `freedom` | `strict` · `balanced` · `expressive` | the content type's default |
-| `checker` | `vale` · `none` | `vale` |
+| `checker` | `vale` (Vale if installed, else the built-in checker) · `builtin` (always the built-in Python checker) · `none` | `vale` |
 | `reviewer` | `off` · `auto` · `always` | `auto` |
 | `capture` | `on` · `off` (memory capture from corrections) | `on` |
 | `inject` | `on` · `off` (session-start style summary) | `on` |

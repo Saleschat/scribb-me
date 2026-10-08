@@ -54,16 +54,58 @@ checker=$(cfg checker)
 if is_off "$checker"; then
   exit 0
 fi
-if [ "$checker" != vale ]; then
-  echo "scribb-check: checker '$checker' isn't supported; only vale is in v1." >&2
-  exit 0
-fi
-if [ -z "$export_dir" ] && ! command -v vale >/dev/null 2>&1; then
-  echo "scribb-check: Vale isn't installed, so automatic checks are skipped. Install it with 'brew install vale' (see https://vale.sh/docs/install)." >&2
+case "$checker" in
+  vale | builtin) ;;
+  *) echo "scribb-check: checker '$checker' isn't supported; use vale or builtin." >&2; exit 0 ;;
+esac
+style=${style_opt:-$(cfg style)}
+
+engine=$(scribb_engine)
+if [ -z "$export_dir" ] && [ -z "$engine" ]; then
+  echo "scribb-check: neither Vale nor python3 is available, so automatic checks are skipped. Install Vale with 'brew install vale' (see https://vale.sh/docs/install)." >&2
   exit 0
 fi
 
-style=${style_opt:-$(cfg style)}
+# --- The built-in checker: Python, no Vale needed --------------------------------
+# Same rules and findings as Vale (tests/chat/parity.py), but it doesn't load
+# rules promoted from memories into .scribb/packs/rules/.
+if [ -z "$export_dir" ] && [ "$engine" = builtin ]; then
+  tmpb=$(mktemp -d "${TMPDIR:-/tmp}/scribb-check.XXXXXX") || exit 0
+  trap 'rm -rf "$tmpb"' EXIT
+  vocab=""
+  for f in "$(scribb_user_dir)/vocab.txt" "$SCRIBB_PROJECT/.scribb/vocab.txt" "$SCRIBB_PROJECT/.scribb/local/vocab.txt"; do
+    [ -f "$f" ] || continue
+    while IFS= read -r v; do
+      case "$v" in '' | '#'*) continue ;; esac
+      vocab="${vocab:+$vocab,}$v"
+    done < "$f"
+  done
+  text_file=""
+  if [ "$have_text" = yes ]; then
+    ct_opt=${ct_opt:-product-docs}
+    case "$ct_opt" in ux-microcopy) text_file="$tmpb/text.jsx" ;; *) text_file="$tmpb/text.md" ;; esac
+    printf '%s\n' "$text_opt" > "$text_file"
+    set -- "$text_file"
+  fi
+  blocked=0
+  for file in "$@"; do
+    [ -f "$file" ] || { echo "scribb-check: $file: no such file" >&2; continue; }
+    ct=${ct_opt:-$(content_type_for "$file")}
+    [ -n "$ct" ] || continue
+    freedom=${freedom_opt:-$(freedom_for "$ct")}
+    out=$(python3 "$(builtin_checker)" --content-type "$ct" --freedom "$freedom" --style "${style:-none}" --vocab "$vocab" "$file" 2>/dev/null)
+    rc=$?
+    [ "$rc" -eq 1 ] && blocked=1
+    [ -n "$out" ] || continue
+    if [ "$file" = "$text_file" ]; then
+      printf '%s\n' "$out" | sed "s#^$text_file:#text:#"
+    else
+      printf '%s\n' "$out"
+    fi
+  done
+  exit "$blocked"
+fi
+
 TEMPLATE="$(scribb_plugin_root)/lib/vale-line.tmpl"
 
 # add_pack_styles PACK_DIR STYLES_DIR MODE: links (or copies, for export) each

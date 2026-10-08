@@ -41,3 +41,10 @@ Status: decided, needs implementation
 - Machine-local state (session flags, retry counts) lives in the plugin data dir (`${CLAUDE_PLUGIN_DATA}`, else `~/.cache/scribb`), not `.scribb/local/`. `.scribb/local/` holds only the inbox, local config, memories and ratings, and writes a self-ignoring `.gitignore` when it's created.
 - `vocab.txt` in any scope lists accepted terms (product names); they become a Vale vocabulary.
 - The brief stays prose-only; file-pattern sections only map paths to content types.
+
+## Built-in checker fallback (2026-10-08)
+- `checker: vale` (the default) uses Vale when it's installed, and otherwise the built-in Python checker that ships with the skills (`plugin/skills/write/scripts/check.py`, generated; see 018). `checker: builtin` always uses the built-in one. `checker: none` turns checks off.
+- The built-in checker gives the same findings as Vale (`tests/chat/parity.py`, 160/160), so "Vale isn't installed" no longer means "no checks". It needs only `python3`. The install-Vale nudge now appears only when neither Vale nor `python3` is available.
+- Gaps of the built-in checker: it doesn't load rules promoted from memories into `.scribb/packs/rules/`, and `--export` (a config for editors and CI) still needs Vale.
+- Why: Cowork's environment may not have Vale, and many Claude Code users never install it.
+
