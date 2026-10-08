@@ -12,7 +12,7 @@ scribb.me is MIT-licensed (see `LICENSE` at the repository root). The packs in `
 | [Diátaxis](https://diataxis.fr/), by Daniele Procida | CC BY-SA 4.0 | Inspiration for the split of docs formats across `product-docs` (how-to) and `developer-docs` (concept, reference). No text is quoted. |
 | [blader/humanizer](https://github.com/blader/humanizer) | MIT | Inspiration for the AI-habit list in `packs/base/guide.md`. |
 | [Wikipedia: Signs of AI writing](https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing) | CC BY-SA 4.0 | Inspiration only. No text is quoted. If a future version quotes it, the quoted text goes in a separate CC BY-SA data file with its own notice. |
-| a16z crypto, "habits of AI writing" (22 Aug 2026) | All rights reserved | Cited as inspiration, reworded, never quoted. |
+| [Stephanie Zinn, "Habits of AI writing, and what to do about them"](https://a16zcrypto.com/posts/article/ai-writing-hallmarks-for-founders/), a16z crypto (August 2026) | All rights reserved (no licence stated) | Cited as inspiration, reworded, never quoted. |
 | [sam-paech/slop-score](https://github.com/sam-paech/slop-score) | MIT | Inspiration for the `ScribbBase.NotJustButAlso` patterns. |
 | [tbhb/vale-ai-tells](https://github.com/tbhb/vale-ai-tells) (the Vale hub "ai-tells" package), [krishnasunkam/vale-ai-tells](https://github.com/krishnasunkam/vale-ai-tells) ("AiTells"), [JMill/deslop](https://github.com/JMill/deslop), [jdkato/voices](https://github.com/jdkato/voices) | MIT | Reviewed for which tells are worth checking. Our rules are written from scratch. |
 | [errata-ai/Google](https://github.com/errata-ai/Google), [errata-ai/Microsoft](https://github.com/errata-ai/Microsoft) | MIT | Reviewed for rule mechanics. Not copied. |

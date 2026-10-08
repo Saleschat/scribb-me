@@ -32,3 +32,6 @@ Status: decided, needs implementation
   - Lessons: the first rubrics demanded too much and the default small judge failed good copy; rubrics as lists of clear failures with a Sonnet judge are stable. A case must use something the model wouldn't do anyway (the first memory case used "workspace", which the baseline picked on its own).
 - Next: cases where the gain should show without team context: longer pieces, a weaker `--model`, styles, and the checker loop on habits that appear in long drafts.
 - CI: `.github/workflows/quality-evals.yml` runs the suite manually (workflow_dispatch) with an `ANTHROPIC_API_KEY` secret. It isn't run on every pull request because of cost.
+
+## To do: run the quality evals in CI
+`.github/workflows/quality-evals.yml` (manual) needs an `ANTHROPIC_API_KEY` repository secret before it can run.

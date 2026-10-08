@@ -30,4 +30,4 @@ Rule: only sources with an open license that allows redistribution can be shippe
 - PostHog: only `/contents/` is MIT; the root `STYLEGUIDE.md` is not.
 - Google developer docs style guide: CC BY 4.0, credited in `plugin/NOTICE.md`.
 - No Wikipedia text is quoted anywhere, so no CC BY-SA data file is needed yet.
-- Still open: the URL of the a16z crypto post (`plugin/packs/base/pack.yaml` has a TODO).
+- The a16z crypto post is Stephanie Zinn, "Habits of AI writing, and what to do about them" (https://a16zcrypto.com/posts/article/ai-writing-hallmarks-for-founders/, dated 24 August 2026 on the site; also on the a16z crypto Substack). It states no licence, so it stays inspiration only: reworded, never quoted. Credited in `plugin/packs/base/pack.yaml` and `plugin/NOTICE.md` (2026-10-08).
