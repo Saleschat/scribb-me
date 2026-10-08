@@ -47,8 +47,10 @@ MAX_RETRIES=2
 PLUGIN_ROOT=$(scribb_plugin_root)
 
 rel_path() {
-  case "$1" in
-    "$SCRIBB_PROJECT"/*) printf '%s\n' "${1#"$SCRIBB_PROJECT"/}" ;;
+  local abs
+  abs=$(abs_path "$1")
+  case "$abs" in
+    "$SCRIBB_PROJECT"/*) printf '%s\n' "${abs#"$SCRIBB_PROJECT"/}" ;;
     *) printf '%s\n' "$1" ;;
   esac
 }

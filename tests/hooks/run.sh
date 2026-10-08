@@ -188,6 +188,19 @@ for jqmode in jq nojq; do
   assert "on again" [ -n "$out" ]
   teardown
 
+  # --- hooks and helpers agree on the state folder ---
+  # Hooks get CLAUDE_PLUGIN_DATA, commands Claude runs through Bash don't.
+  setup
+  unset SCRIBB_STATE_DIR
+  export XDG_CACHE_HOME="$T/cache"
+  ( unset CLAUDE_PLUGIN_DATA; "$PLUGIN/scripts/scribb-config" off --session s30 >/dev/null )
+  out=$(CLAUDE_PLUGIN_DATA="$T/plugin-data" run_hook post-edit "$(edit_input s30 "$T/proj/docs/a.md")")
+  assert "state: a session setting from a skill reaches the hooks" [ -z "$out" ]
+  CLAUDE_PLUGIN_DATA="$T/plugin-data" run_hook post-edit "$(edit_input s31 "$T/proj/docs/a.md")" >/dev/null
+  assert "state: doctor sees the hooks' log" contains "$( unset CLAUDE_PLUGIN_DATA; "$PLUGIN/scripts/scribb-config" doctor)" "edit: docs/a.md"
+  unset XDG_CACHE_HOME
+  teardown
+
   # --- config ---
   setup
   "$PLUGIN/scripts/scribb-config" set freedom balanced --scope user >/dev/null

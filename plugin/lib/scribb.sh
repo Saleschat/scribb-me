@@ -25,11 +25,12 @@ scribb_user_dir() {
 
 # Machine-local state (per-session flags, retry counts, generated checker config).
 # Never inside the user's repo, so a zero-config install leaves no files behind.
+# Not CLAUDE_PLUGIN_DATA: hooks get that variable, but commands Claude runs
+# through Bash (the skills' helper calls) don't, so the two would disagree on
+# where session settings and the hook log live.
 scribb_state_dir() {
   if [ -n "${SCRIBB_STATE_DIR:-}" ]; then
     printf '%s\n' "$SCRIBB_STATE_DIR"
-  elif [ -n "${CLAUDE_PLUGIN_DATA:-}" ]; then
-    printf '%s\n' "$CLAUDE_PLUGIN_DATA"
   else
     printf '%s\n' "${XDG_CACHE_HOME:-$HOME/.cache}/scribb"
   fi
