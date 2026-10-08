@@ -9,7 +9,8 @@ sentence, paragraph and heading scopes.
 
 Usage:
   python3 check.py --content-type ID [--freedom LEVEL] [--style ID]
-                   [--vocab "Term, Other term"] [--format md|jsx] FILE|-
+                   [--vocab "Term, Other term"] [--format md|jsx]
+                   [--rules-dir PACK_DIR]... FILE|-
 
 Output, one finding per line (same as scribb-check):
   file:line:col:action:severity:rule:message
@@ -84,6 +85,103 @@ def line_col(text, pos):
     line = text.count("\n", 0, pos) + 1
     col = pos - (text.rfind("\n", 0, pos) + 1) + 1
     return line, col
+
+
+# --- A small YAML subset: the forms scribb's pack.yaml and rule files use ---
+# Also used by tools/build-chat.py.
+
+def scalar(v):
+    v = v.strip()
+    if v.startswith("'") and v.endswith("'") and len(v) >= 2:
+        return v[1:-1].replace("''", "'")
+    if v.startswith('"') and v.endswith('"') and len(v) >= 2:
+        return json.loads(v)
+    if v in ("true", "false"):
+        return v == "true"
+    if v in ("null", "~", ""):
+        return None
+    if re.fullmatch(r"-?\d+", v):
+        return int(v)
+    if re.fullmatch(r"-?\d+\.\d+", v):
+        return float(v)
+    if v.startswith("[") and v.endswith("]"):
+        inner = v[1:-1].strip()
+        return [scalar(x) for x in re.findall(r"""'(?:[^']|'')*'|"(?:[^"\\]|\\.)*"|[^,]+""", inner)] if inner else []
+    return v
+
+
+def strip_comment(line):
+    out, q = [], None
+    for i, c in enumerate(line):
+        if q:
+            out.append(c)
+            if c == q:
+                q = None
+        elif c in "'\"":
+            q = c
+            out.append(c)
+        elif c == "#" and (i == 0 or line[i - 1] in " \t"):
+            break
+        else:
+            out.append(c)
+    return "".join(out).rstrip()
+
+
+def parse_yaml(text):
+    data, key, container = {}, None, None
+    for raw in text.splitlines():
+        line = strip_comment(raw)
+        if not line.strip():
+            continue
+        if not line.startswith((" ", "\t", "-")):
+            m = re.match(r"([A-Za-z_][\w-]*):\s*(.*)$", line)
+            if not m:
+                raise ValueError(f"can't parse line: {raw!r}")
+            key, rest = m.group(1), m.group(2)
+            if rest == "":
+                data[key], container = None, key
+            else:
+                data[key], container = scalar(rest), None
+            continue
+        item = line.strip()
+        if container is None:
+            continue  # nested structure we don't need (for example sources:)
+        if item.startswith("- "):
+            if data[container] is None:
+                data[container] = []
+            if isinstance(data[container], list):
+                data[container].append(scalar(item[2:]))
+        else:
+            # A key ends at the first colon followed by a space; a regex key
+            # such as "utiliz(?:e|es)" has colons with no space after them.
+            m = re.match(r"""((?:'(?:[^']|'')*')|(?:"(?:[^"\\]|\\.)*")|.+?):\s+(.*)$""", item)
+            if m:
+                if data[container] is None:
+                    data[container] = {}
+                if isinstance(data[container], dict):
+                    data[container][str(scalar(m.group(1)))] = scalar(m.group(2))
+    return data
+
+
+
+def load_rules_dir(d):
+    """Vale rules in <d>/checks/vale/<Style>/*.yml, such as rules promoted from memories."""
+    rules = []
+    vale = os.path.join(d, "checks", "vale")
+    if not os.path.isdir(vale):
+        return rules
+    for style in sorted(os.listdir(vale)):
+        sdir = os.path.join(vale, style)
+        if style in ("tests", "config") or not os.path.isdir(sdir):
+            continue
+        for f in sorted(os.listdir(sdir)):
+            if f.endswith(".yml"):
+                with open(os.path.join(sdir, f), encoding="utf-8") as fh:
+                    r = parse_yaml(fh.read())
+                r["id"] = f"{style}.{f[:-4]}"
+                if r.get("extends") in ("existence", "substitution", "occurrence", "capitalization"):
+                    rules.append(r)
+    return rules
 
 
 # --- Rules ---------------------------------------------------------------------
@@ -201,6 +299,7 @@ def main(argv):
     ap.add_argument("--vocab", default="", help="comma-separated accepted terms")
     ap.add_argument("--format", choices=["md", "jsx"])
     ap.add_argument("--rules", default=os.path.join(HERE, "rules.json"))
+    ap.add_argument("--rules-dir", action="append", default=[], help="also apply the Vale rules in this pack folder (repeatable)")
     ap.add_argument("--list", action="store_true", help="list content types and styles, then exit")
     ap.add_argument("file", nargs="?", default="-")
     args = ap.parse_args(argv)
@@ -228,6 +327,11 @@ def main(argv):
             print(f"check.py: unknown style '{args.style}'; checking without it.", file=sys.stderr)
         else:
             active.append(st)
+
+    for d in args.rules_dir:
+        extra = load_rules_dir(d)
+        if extra:
+            active.append({"kind": "rules", "rules": extra})
 
     if args.file == "-":
         raw, name = sys.stdin.read(), "text"

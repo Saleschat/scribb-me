@@ -46,7 +46,15 @@ Helper: `"${CLAUDE_PLUGIN_ROOT}/scripts/scribb-config"`.
 4. **Clean up the inbox.** Delete the inbox files the memory came from (`.scribb/local/inbox/`). On "Don't save", delete them too and append the statement to `.scribb/local/rejected.txt` so it isn't suggested again.
 5. **Cross-project index.** Run `scribb-config record-approval <scope> "<statement>"`. If it says the statement is now approved in 2 or more repos, offer once to save it for every repo (user scope).
 6. **Names.** If the memory is a product or feature name with its own casing, also append it to `vocab.txt` in the same scope (`.scribb/vocab.txt` for the team), so the checker accepts it.
-7. **Checker rule (optional).** If the memory is a fixed word or phrase, offer to also make it a checker rule. On yes, write a Vale rule in `.scribb/packs/rules/checks/vale/ScribbProject/` (or the local equivalent `.scribb/local/packs/rules/checks/vale/ScribbLocal/`), create that pack's `pack.yaml` if missing (`id: rules`, `kind: memory-rules`, `version: 0.1.0`, `tagline: Rules promoted from memories`, `license: MIT`), and set `promoted_to_rule:` to the rule path.
+7. **Checker rule (optional).** If the memory is a fixed word or phrase, offer to also make it a checker rule, in the **same scope as the memory**, and say what that scope means ("in every repo, for you", "in this repo, for the team", "in this repo, just for you"). On yes, write a Vale rule (`level: warning`, a `substitution` or `existence` rule with a bad/good example in your reply) in that scope's rules pack:
+
+   | Memory scope | Rules pack | Vale style folder |
+   |---|---|---|
+   | user (every repo, for you) | `<user dir>/packs/rules/` (`scribb-config paths`) | `checks/vale/ScribbUser/` |
+   | project (this repo, the team) | `.scribb/packs/rules/` | `checks/vale/ScribbProject/` |
+   | local (this repo, just you) | `.scribb/local/packs/rules/` | `checks/vale/ScribbLocal/` |
+
+   Create the pack's `pack.yaml` if it's missing (`id: rules`, `kind: memory-rules`, `version: 0.1.0`, `tagline: Rules promoted from memories`, `license: MIT`), and set the memory's `promoted_to_rule:` to the rule's path. Both checkers (Vale and the built-in one) load all three rules packs.
 8. Confirm in one line: what was saved, where, and that it applies from now on (and from the next session start for the injected summary).
 
 ## In chat

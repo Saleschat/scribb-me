@@ -22,6 +22,12 @@
           { "type": "command", "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/scribb-hook\" post-edit", "timeout": 10 },
           { "type": "command", "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/scribb-hook\" check", "asyncRewake": true, "timeout": 60 }
         ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          { "type": "command", "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/scribb-hook\" check-bash", "asyncRewake": true, "timeout": 60 }
+        ]
       }
     ],
     "Stop": [

@@ -14,6 +14,7 @@
 #   scribb-config inbox                          every pending inbox signal, with its file name
 #   scribb-config approvals                      the cross-project approvals index
 #   scribb-config memories                       every approved memory, with its scope and file
+#   scribb-config doctor                         environment, checker and the last hook runs
 #   scribb-config versions                       scribb, pack, Vale and OS versions (for reports)
 #   scribb-config hash FILE...                   a sha256 content hash per file (for sources.json)
 #   scribb-config record-approval SCOPE STATEMENT
@@ -28,7 +29,7 @@ SELF_DIR=$(cd "$(dirname "$0")" && pwd)
 # shellcheck source=../lib/scribb.sh
 . "$SELF_DIR/../lib/scribb.sh"
 
-usage() { sed -n '2,24p' "$0" | sed 's/^# \{0,1\}//'; exit 3; }
+usage() { sed -n '2,25p' "$0" | sed 's/^# \{0,1\}//'; exit 3; }
 
 cmd="${1:-}"
 [ $# -gt 0 ] && shift
@@ -59,7 +60,7 @@ valid_value() {
     enabled) case "$2" in true | false) return 0 ;; esac ;;
     freedom | write_freedom) case "$2" in strict | balanced | expressive) return 0 ;; esac ;;
     reviewer) case "$2" in off | auto | always) return 0 ;; esac ;;
-    checker) case "$2" in vale | none) return 0 ;; esac ;;
+    checker) case "$2" in vale | builtin | none) return 0 ;; esac ;;
     capture | inject | nudges | write_session) case "$2" in on | off) return 0 ;; esac ;;
     style)
       [ "$2" = none ] && return 0
@@ -108,11 +109,11 @@ case "$cmd" in
     else
       echo "Style: none (neutral house style: base + content type)"
     fi
-    if command -v vale >/dev/null 2>&1; then
-      echo "Checker: $(vale --version 2>/dev/null)"
-    else
-      echo "Checker: Vale not installed (checks after edits are skipped)"
-    fi
+    case "$(scribb_engine)" in
+      vale) echo "Checker: $(vale --version 2>/dev/null)" ;;
+      builtin) echo "Checker: built-in (Python)$(command -v vale >/dev/null 2>&1 || echo '; install Vale for editor and CI integration')" ;;
+      *) echo "Checker: off or unavailable (no Vale, no python3)" ;;
+    esac
     n=0
     for dir in "$SCRIBB_PROJECT/.scribb/local/memories" "$SCRIBB_PROJECT/.scribb/memories" "$(scribb_user_dir)/memories"; do
       [ -d "$dir" ] && n=$((n + $(find "$dir" -maxdepth 1 -name '*.md' | wc -l)))
@@ -212,6 +213,26 @@ case "$cmd" in
       done
     done
     [ "$n" -eq 0 ] && echo "No memories yet."
+    ;;
+  doctor)
+    echo "scribb.me doctor"
+    echo "  plugin root:      $(scribb_plugin_root)"
+    echo "  project folder:   $SCRIBB_PROJECT"
+    echo "  working folder:   $PWD"
+    echo "  CLAUDE_PROJECT_DIR: ${CLAUDE_PROJECT_DIR:-(not set)}"
+    echo "  user scope:       $(scribb_user_dir) ($([ -d "$(scribb_user_dir)" ] && echo exists || echo missing))"
+    echo "  state:            $(scribb_state_dir)"
+    echo "  vale:             $(command -v vale || echo 'not installed')"
+    echo "  python3:          $(command -v python3 || echo 'not installed')"
+    echo "  checker in use:   $(scribb_engine | sed 's/^$/none/')"
+    if scribb_disabled; then echo "  scribb is OFF"; fi
+    log="$(scribb_state_dir)/hook.log"
+    if [ -s "$log" ]; then
+      echo "Last hook runs (newest last):"
+      tail -n 15 "$log" | sed 's/^/  /'
+    else
+      echo "No hook runs recorded in $log. If you've edited a Markdown or TSX file in this session, the hooks didn't run."
+    fi
     ;;
   versions)
     root=$(scribb_plugin_root)

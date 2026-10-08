@@ -3,7 +3,8 @@
 #   session-start  SessionStart        inject the active style, memories, inbox nudge
 #   prompt         UserPromptSubmit    capture writing-style corrections into the inbox
 #   post-edit      PostToolUse (sync)  nudges, and ask for a review after big prose edits
-#   check          PostToolUse (asyncRewake)  run the checker; exit 2 wakes Claude on blocking findings
+#   check          PostToolUse on Write|Edit (asyncRewake)  run the checker; exit 2 wakes Claude on blocking findings
+#   check-bash     PostToolUse on Bash (asyncRewake)  the same, for prose files a shell command wrote
 #   stop           Stop                lint a chat-only reply while a /scribb:write session is active
 # Synchronous paths use grep, sed, awk and cat only. Every path exits 0 when scribb is off.
 set -u
@@ -25,14 +26,32 @@ cwd=$(json_get cwd "$INPUT")
 SCRIBB_PROJECT=$(scribb_project_dir "${cwd:-$PWD}")
 export SCRIBB_SESSION SCRIBB_PROJECT
 
-scribb_disabled && exit 0
+# One line per hook decision, kept on this machine, for /scribb:style doctor.
+hook_log() {
+  local log
+  log="$(scribb_state_dir)/hook.log"
+  mkdir -p "$(dirname "$log")" 2>/dev/null || return 0
+  printf '%s\t%s\t%s\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$event" "$*" >> "$log" 2>/dev/null
+  if [ "$(wc -l < "$log" 2>/dev/null)" -gt 400 ]; then
+    tail -n 200 "$log" > "$log.tmp" 2>/dev/null && mv "$log.tmp" "$log"
+  fi
+  return 0
+}
+
+if scribb_disabled; then
+  hook_log "off (SCRIBB_DISABLE or enabled: false)"
+  exit 0
+fi
+hook_log "start: cwd=${cwd:-?} project=$SCRIBB_PROJECT"
 
 MAX_RETRIES=2
 PLUGIN_ROOT=$(scribb_plugin_root)
 
 rel_path() {
-  case "$1" in
-    "$SCRIBB_PROJECT"/*) printf '%s\n' "${1#"$SCRIBB_PROJECT"/}" ;;
+  local abs
+  abs=$(abs_path "$1")
+  case "$abs" in
+    "$SCRIBB_PROJECT"/*) printf '%s\n' "${abs#"$SCRIBB_PROJECT"/}" ;;
     *) printf '%s\n' "$1" ;;
   esac
 }
@@ -63,6 +82,7 @@ memories_block() {
 
 session_start() {
   prune_sessions
+  touch "$(session_dir)/files-marker" 2>/dev/null
   local ctx="" st sd ct d nudge=""
   if nudge_pick SessionStart && [ "$NUDGE_CHANNEL" = claude ]; then
     nudge="$NUDGE_TEXT"
@@ -125,13 +145,19 @@ The user can always skip scribb for a piece (\"skip review\", \"no checks\"); re
 # --- UserPromptSubmit: correction capture --------------------------------------------
 
 # shellcheck disable=SC1111 # curly quotes are part of the pattern
-CORRECTION_RE="(don'?t|do not|never|stop) (say|saying|use|using|write|writing|call|calling)\b|(instead of|rather than) [\"'“‘]|we (call|say|write) (it|them|this)\b|(too|so|very) (formal|casual|wordy|long|verbose|stiff|robotic|salesy|chatty|corporate|fluffy)\b|(sounds|reads) (like (an? )?(ai|chatgpt|robot|bot|marketing)|robotic|stiff)|(less|more) (formal|casual|wordy|salesy|concise|direct|friendly)\b|no (more )?em[ -]?dash|(use|prefer) [\"'“‘][^\"'”’]{1,40}[\"'”’] (not|instead|over)"
+CORRECTION_RE="(don'?t|do not|never|stop) (say|saying|use|using|write|writing|call|calling) [\"'“‘]|(instead of|rather than) [\"'“‘]|we (call|say|write) (it|them|this)\b|(too|so|very) (formal|casual|wordy|long|verbose|stiff|robotic|salesy|chatty|corporate|fluffy)\b|(sounds|reads) (like (an? )?(ai|chatgpt|robot|bot|marketing)|robotic|stiff)|(less|more) (formal|casual|wordy|salesy|concise|direct|friendly)\b|no (more )?em[ -]?dash|(use|prefer) [\"'“‘][^\"'”’]{1,40}[\"'”’] (not|instead|over)"
 
 prompt_capture() {
   is_off "$(cfg capture)" && return 0
   local prompt match dir f ts
   prompt=$(json_get prompt "$INPUT")
   [ -n "$prompt" ] || return 0
+  # Hook and checker output can reach this hook as if the user typed it; skip it.
+  case "$prompt" in
+    *"scribb.me checker"* | *"scribb.me:"* | *":block:"* | *":warn:"* | *"<system-reminder>"* | *"hook feedback"* | *"Stop hook"*)
+      hook_log "skip capture: hook or checker output, not the user"
+      return 0 ;;
+  esac
   match=$(printf '%s' "$prompt" | grep -Eoi "$CORRECTION_RE" | head -n 1)
   [ -n "$match" ] || return 0
   dir=$(scribb_ensure_local_dir "$SCRIBB_PROJECT") || return 0
@@ -161,8 +187,9 @@ post_edit() {
   file=$(json_get file_path "$INPUT")
   [ -n "$file" ] || return 0
   ct=$(content_type_for "$file")
-  [ -n "$ct" ] || return 0
+  if [ -z "$ct" ]; then hook_log "skip: $file (no content type, ignored, or outside the project)"; return 0; fi
   rel=$(rel_path "$file")
+  hook_log "edit: $rel ($ct)"
 
   NUDGE_CT="$ct" NUDGE_FILE="$file"
   if nudge_pick PostToolUse; then
@@ -201,21 +228,28 @@ EOF
 
 # --- PostToolUse (asyncRewake): the checker loop -----------------------------------------
 
-check() {
-  local file ct rel key tries out blocks warns
-  file=$(json_get file_path "$INPUT")
-  if [ -z "$file" ] || [ ! -f "$file" ]; then return 0; fi
+# check_file FILE: checks one file. Appends blocking findings to $REPORT and
+# optional ones to $WARNINGS (both files), and logs the outcome.
+check_file() {
+  local file="$1" ct rel key tries out blocks warns
+  if [ -z "$file" ] || [ ! -f "$file" ]; then hook_log "skip: no file ($file)"; return 0; fi
   ct=$(content_type_for "$file")
-  [ -n "$ct" ] || return 0
-  command -v vale >/dev/null 2>&1 || return 0
+  if [ -z "$ct" ]; then
+    case "$(abs_path "$file")" in
+      "$SCRIBB_PROJECT"/*) hook_log "skip: $file isn't a known content type (or is ignored)" ;;
+      *) hook_log "skip: $file is outside the project ($SCRIBB_PROJECT)" ;;
+    esac
+    return 0
+  fi
   rel=$(rel_path "$file")
-  key="check-$(path_key "$file")"
+  key="check-$(path_key "$(abs_path "$file")")"
   tries=$(counter_get "$key")
-  [ "$tries" -gt "$MAX_RETRIES" ] && return 0
+  if [ "$tries" -gt "$MAX_RETRIES" ]; then hook_log "skip: $rel retry limit reached"; return 0; fi
 
   out=$(cd "$SCRIBB_PROJECT" && "$PLUGIN_ROOT/scripts/scribb-check" --session "$SCRIBB_SESSION" --content-type "$ct" "$file" 2>/dev/null)
   blocks=$(printf '%s\n' "$out" | awk -F: '$4 == "block"' | sed "s#^$file:#$rel:#" | head -n 20)
   warns=$(printf '%s\n' "$out" | awk -F: '$4 == "warn"' | sed "s#^$file:#$rel:#" | head -n 10)
+  hook_log "checked $rel ($ct, $(scribb_engine)): $(printf '%s\n' "$blocks" | grep -c . | tr -d ' ') blocking, $(printf '%s\n' "$warns" | grep -c . | tr -d ' ') warnings"
 
   if [ -n "$blocks" ]; then
     counter_incr "$key"
@@ -224,21 +258,81 @@ check() {
         echo "scribb.me checker: $rel has writing issues to fix (file:line:col:action:severity:rule:message):"
         printf '%s\n' "$blocks"
         [ -n "$warns" ] && printf 'Also worth a look (not required):\n%s\n' "$warns"
-        echo "Revise those passages with minimal changes, unless the user asked to skip checks. Don't reword text you weren't asked to touch just to satisfy a rule if it's quoted, code, or a proper name; say so instead."
-      } >&2
+      } >> "$REPORT"
     else
       {
-        echo "scribb.me checker: $rel still has these after $MAX_RETRIES revisions:"
+        echo "scribb.me checker: $rel still has these after $MAX_RETRIES revisions. Don't revise again. List them for the user in one or two lines so they can decide:"
         printf '%s\n' "$blocks"
-        echo "Don't revise again. List them for the user in one or two lines so they can decide."
-      } >&2
+      } >> "$REPORT"
     fi
+  elif [ -n "$warns" ]; then
+    printf 'Optional suggestions for %s:\n%s\n' "$rel" "$warns" >> "$WARNINGS"
+  fi
+}
+
+# finish_check: wake Claude with blocking findings (exit 2), or pass optional
+# ones along as context.
+finish_check() {
+  if [ -s "$REPORT" ]; then
+    cat "$REPORT" >&2
+    grep -q "has writing issues to fix" "$REPORT" && echo "Revise those passages with minimal changes, unless the user asked to skip checks. Don't reword text you weren't asked to touch just to satisfy a rule if it's quoted, code, or a proper name; say so instead." >&2
     exit 2
   fi
-  if [ -n "$warns" ]; then
-    emit_json "" PostToolUse "scribb.me checker: optional suggestions for $rel (no action needed unless they're clearly right):
-$warns"
+  if [ -s "$WARNINGS" ]; then
+    emit_json "" PostToolUse "scribb.me checker (no action needed unless they're clearly right):
+$(cat "$WARNINGS")"
   fi
+}
+
+new_report() {
+  REPORT="$(mktemp "${TMPDIR:-/tmp}/scribb-report.XXXXXX")"
+  WARNINGS="$(mktemp "${TMPDIR:-/tmp}/scribb-warn.XXXXXX")"
+  trap 'rm -f "$INPUT" "$REPORT" "$WARNINGS"' EXIT
+}
+
+# PostToolUse on Write and Edit: the file the tool wrote.
+check() {
+  if [ -z "$(scribb_engine)" ]; then hook_log "skip: no checker (no Vale, no python3)"; return 0; fi
+  new_report
+  check_file "$(json_get file_path "$INPUT")"
+  touch "$(session_dir)/files-marker" 2>/dev/null
+  finish_check
+}
+
+# PostToolUse on Bash: files a shell command wrote ("echo … > docs/a.md"),
+# which the Write/Edit hook never sees. Finds prose files changed since the
+# last check (through git in a repository, by modification time otherwise).
+check_bash() {
+  local marker next f n=0 list
+  if [ -z "$(scribb_engine)" ]; then return 0; fi
+  marker="$(session_dir)/files-marker"
+  next="$marker.next"
+  touch "$next"
+  if [ ! -f "$marker" ]; then
+    mv "$next" "$marker"
+    return 0
+  fi
+  if git -C "$SCRIBB_PROJECT" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+    list=$(cd "$SCRIBB_PROJECT" && git ls-files -m -o --exclude-standard 2>/dev/null | while IFS= read -r f; do
+      [ -f "$f" ] && [ "$f" -nt "$marker" ] && printf '%s/%s\n' "$SCRIBB_PROJECT" "$f"
+    done)
+  else
+    list=$(find "$SCRIBB_PROJECT" \( -name node_modules -o -name .git -o -name .scribb -o -name dist -o -name build -o -name vendor \) -prune -o \
+      -type f \( -name '*.md' -o -name '*.mdx' -o -name '*.tsx' -o -name '*.jsx' \) -newer "$marker" -print 2>/dev/null | head -n 50)
+  fi
+  mv "$next" "$marker"
+  [ -n "$list" ] || return 0
+  new_report
+  while IFS= read -r f; do
+    [ -n "$f" ] || continue
+    [ -n "$(content_type_for "$f")" ] || continue
+    n=$((n + 1))
+    [ "$n" -gt 10 ] && break
+    check_file "$f"
+  done <<EOF
+$list
+EOF
+  finish_check
 }
 
 # --- Stop: lint chat-only pieces during /scribb:write --------------------------------------
@@ -256,7 +350,7 @@ stop() {
   freedom=$(cfg write_freedom)
   [ -n "$freedom" ] || freedom=$(freedom_for "$ct")
   blocks=""
-  if [ -n "$msg" ] && [ "$tries" -lt "$MAX_RETRIES" ] && command -v vale >/dev/null 2>&1; then
+  if [ -n "$msg" ] && [ "$tries" -lt "$MAX_RETRIES" ] && [ -n "$(scribb_engine)" ]; then
     tmpf="$(session_dir)/reply.md"
     [ "$ct" = ux-microcopy ] && tmpf="$(session_dir)/reply.jsx"
     printf '%s\n' "$msg" > "$tmpf"
@@ -287,6 +381,7 @@ case "$event" in
   prompt) prompt_capture ;;
   post-edit) post_edit ;;
   check) check ;;
+  check-bash) check_bash ;;
   stop) stop ;;
   *) echo "scribb-hook: unknown event '$event'" >&2 ;;
 esac

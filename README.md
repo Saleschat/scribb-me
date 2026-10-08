@@ -14,10 +14,10 @@ The same plugin works in three Claude apps. Each one loads a different part of i
 | Install from | `/plugin` in Claude Code | Your claude.ai account (Customize > Plugins) | Your claude.ai account (Customize > Plugins) |
 | Write and review (`/scribb:write`, `/scribb:review`) | ✓ | ✓ | ✓ |
 | Rules applied whenever you ask for docs, UI copy or a newsletter | ✓ | ✓ | ✓ |
-| Checker | Vale, after every file edit | Vale if installed, after every file edit | Built-in checker, when code execution is on |
+| Checker, after every file edit | ✓ (Vale, or the built-in checker) | ✓ (your Vale, or the built-in checker) | Built-in checker on drafts, when code execution is on |
 | Fresh-context reviewer agent | ✓ | ✓ | Self-review pass in the same chat |
 | Corrections captured automatically | ✓ | ✓ | Offered when you correct a word |
-| Memories (saved preferences) | Files for you or your team | Files in the folder you work on | A line for your Project instructions |
+| Memories (saved preferences) | Files for you or your team | Same files as Claude Code; carry over between tasks | A line for your Project instructions |
 | Learn a style from samples | ✓ saved as a style pack | ✓ saved as a style pack | ✓ handed back as a skill to upload |
 | Team setup, contributing fixes upstream | ✓ | ✓ | ✗ |
 
@@ -44,7 +44,7 @@ You can use more than one. Plugins you add on claude.ai appear in Cowork and als
 
 Then run `/reload-plugins` (or start a new session) and just write. There's no setup step; run `/scribb:setup` when you want team defaults.
 
-For the checks after each edit, install [Vale](https://vale.sh/docs/install) (`brew install vale` on macOS). Without Vale, everything else still works.
+The checks after each edit work out of the box with scribb's built-in checker, which needs `python3`. [Vale](https://vale.sh/docs/install) (`brew install vale` on macOS) gives the same findings and adds editor and CI integration (`/scribb:setup --ci`); scribb uses it when it's installed.
 
 ### Cowork
 
@@ -52,7 +52,7 @@ For the checks after each edit, install [Vale](https://vale.sh/docs/install) (`b
 2. Start a new Cowork task. Plugins load when a task starts.
 3. Use it as in Claude Code: `/scribb:write`, `/scribb:review`, or just ask for docs, UI copy or a newsletter.
 
-Not yet tested in Cowork: whether Vale is available in Cowork's environment (without it, the after-edit check is skipped), and whether personal settings and memories outside the folder you work on carry over between tasks. [Report](https://github.com/Saleschat/scribb-me/issues/new?template=bug.yml) what you find.
+Tested in Cowork in the desktop app: Cowork runs on your computer, so it uses your installed Vale (or scribb's built-in checker if you don't have Vale) and the same personal settings and memories as Claude Code, which carry over between tasks. The checks after each edit, the reviewer agent, nudges and scribb's questions all work as in Claude Code. If something looks off, run `/scribb:style doctor` and [report](https://github.com/Saleschat/scribb-me/issues/new?template=bug.yml) what it shows.
 
 ### claude.ai chat
 
@@ -70,7 +70,7 @@ Chat runs skills only, so these stay in Claude Code and Cowork: checks after eve
 ## What it does
 
 - **At session start**, it gives Claude a short summary of the rules, the active style and your approved preferences.
-- **After Claude edits a file of a known content type** (below), the checker (Vale with scribb's rules) runs in the background. If it finds a blocking issue, Claude gets the findings and revises, at most twice per file.
+- **After Claude edits a file of a known content type** (below), the checker (Vale, or scribb's built-in checker when Vale isn't installed) runs in the background. That includes files Claude writes with a shell command instead of its editing tools. If it finds a blocking issue, Claude gets the findings and revises, at most twice per file.
 - **After a big prose edit** (about 150+ words of docs or newsletter prose, or 5+ UI strings), Claude asks a reviewer agent with fresh context to check the passage.
 - **When you correct Claude's wording** ("don't say account, we call it a workspace"), scribb offers to remember it for you or your team.
 

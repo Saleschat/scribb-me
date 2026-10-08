@@ -38,6 +38,14 @@ Status: decided, needs implementation
 - `scribb-check` output is `file:line:col:action:severity:rule:message` (`action` is block, warn or suggest, from the freedom table). Exit 1 means something blocks.
 - Severity map: Vale `error` = hard, `warning` = convention, `suggestion` = preference.
 - **Changed:** at runtime the Vale config is generated in a temp folder for each run, so a zero-config install writes nothing into the repo. `scribb-check --export .scribb/checker` writes a standalone `vale.ini` plus rules for CI and editor extensions (offered by `/scribb:setup --ci`). This answers the root-symlink question: point the editor at `.scribb/checker/vale.ini`.
-- Machine-local state (session flags, retry counts) lives in the plugin data dir (`${CLAUDE_PLUGIN_DATA}`, else `~/.cache/scribb`), not `.scribb/local/`. `.scribb/local/` holds only the inbox, local config, memories and ratings, and writes a self-ignoring `.gitignore` when it's created.
+- Machine-local state (session flags, retry counts, the hook log) lives in `~/.cache/scribb` (`$XDG_CACHE_HOME/scribb`, or `$SCRIBB_STATE_DIR`), not `.scribb/local/`. Not in `${CLAUDE_PLUGIN_DATA}`: hooks get that variable but commands Claude runs through Bash don't, so session settings made by skills (such as `/scribb:style off` for a session, or `/scribb:write`'s write session) never reached the hooks. Found with `/scribb:style doctor` in a Cowork test, 2026-10-08. `.scribb/local/` holds only the inbox, local config, memories and ratings, and writes a self-ignoring `.gitignore` when it's created.
 - `vocab.txt` in any scope lists accepted terms (product names); they become a Vale vocabulary.
 - The brief stays prose-only; file-pattern sections only map paths to content types.
+
+## Built-in checker fallback (2026-10-08)
+- `checker: vale` (the default) uses Vale when it's installed, and otherwise the built-in Python checker that ships with the skills (`plugin/skills/write/scripts/check.py`, generated; see 018). `checker: builtin` always uses the built-in one. `checker: none` turns checks off.
+- The built-in checker gives the same findings as Vale (`tests/chat/parity.py`, 160/160), so "Vale isn't installed" no longer means "no checks". It needs only `python3`. The install-Vale nudge now appears only when neither Vale nor `python3` is available.
+- The built-in checker loads rules promoted from memories (user, project and local rules packs) with `--rules-dir`. `--export` (a config for editors and CI) still needs Vale.
+- Rules promoted from a user-scope memory go in `~/.config/scribb/packs/rules/` and apply in every repo; before this, only project and local rules packs existed, and the remember skill offered "every repo" rules it couldn't deliver (found in a Cowork test).
+- Why: Cowork's environment may not have Vale, and many Claude Code users never install it.
+

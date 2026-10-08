@@ -158,6 +158,11 @@ for jqmode in jq nojq; do
   assert "prompt: local dir ignores itself" [ -z "$(git status --porcelain)" ]
   out=$(run_hook prompt '{"session_id":"s1","cwd":"'"$T/proj"'","prompt":"Add a retry to the upload function"}')
   assert "prompt: ignores ordinary prompts" [ -z "$out" ]
+  out=$(run_hook prompt '{"session_id":"s1","cwd":"'"$T/proj"'","prompt":"Using a shell command, not the file editor, create docs/test.md. Don'"'"'t use the Write tool."}')
+  assert "prompt: tool instructions aren't style corrections" [ -z "$out" ]
+  out=$(run_hook prompt '{"session_id":"s1","cwd":"'"$T/proj"'","prompt":"scribb.me checker: docs/a.md has writing issues to fix:\ndocs/a.md:3:1:block:convention:ScribbDocs.Exclamation:Don'"'"'t use exclamation marks in docs. Too formal."}')
+  assert "prompt: scribb's own feedback isn't captured" [ -z "$out" ]
+  assert "prompt: only the real correction reached the inbox" [ "$(find .scribb/local/inbox -name '*.md' | wc -l | tr -d ' ')" = 1 ]
   mkdir -p .scribb && echo "capture: off" > .scribb/config.yaml
   out=$(run_hook prompt '{"session_id":"s1","cwd":"'"$T/proj"'","prompt":"too formal, rewrite it"}')
   assert "prompt: capture off" [ -z "$out" ]
@@ -186,6 +191,19 @@ for jqmode in jq nojq; do
   "$PLUGIN/scripts/scribb-config" on --repo >/dev/null
   out=$(run_hook session-start '{"session_id":"s8","cwd":"'"$T/proj"'"}')
   assert "on again" [ -n "$out" ]
+  teardown
+
+  # --- hooks and helpers agree on the state folder ---
+  # Hooks get CLAUDE_PLUGIN_DATA, commands Claude runs through Bash don't.
+  setup
+  unset SCRIBB_STATE_DIR
+  export XDG_CACHE_HOME="$T/cache"
+  ( unset CLAUDE_PLUGIN_DATA; "$PLUGIN/scripts/scribb-config" off --session s30 >/dev/null )
+  out=$(CLAUDE_PLUGIN_DATA="$T/plugin-data" run_hook post-edit "$(edit_input s30 "$T/proj/docs/a.md")")
+  assert "state: a session setting from a skill reaches the hooks" [ -z "$out" ]
+  CLAUDE_PLUGIN_DATA="$T/plugin-data" run_hook post-edit "$(edit_input s31 "$T/proj/docs/a.md")" >/dev/null
+  assert "state: doctor sees the hooks' log" contains "$( unset CLAUDE_PLUGIN_DATA; "$PLUGIN/scripts/scribb-config" doctor)" "edit: docs/a.md"
+  unset XDG_CACHE_HOME
   teardown
 
   # --- config ---
@@ -264,6 +282,76 @@ for jqmode in jq nojq; do
     refute "export: and Docs rules stay out of it" contains "$out" "ScribbDocs."
     vale --config=.scribb/checker/vale.ini docs/good.md >/dev/null 2>&1
     assert "export: config runs in plain Vale" [ $? -eq 0 ]
+
+    # --- files written by shell commands (PostToolUse on Bash) ---
+    bash_input() { printf '{"session_id":"%s","cwd":"%s","hook_event_name":"PostToolUse","tool_name":"Bash","tool_input":{"command":"x"}}' "$1" "$T/proj"; }
+    run_hook session-start '{"session_id":"s40","cwd":"'"$T/proj"'","source":"startup"}' >/dev/null
+    sleep 1
+    printf '%s\n' "$BAD_DOC" > docs/by-shell.md
+    err=$(run_hook check-bash "$(bash_input s40)" 2>&1 >/dev/null)
+    rc=$?
+    assert "bash: a prose file written by a shell command is checked" [ $rc -eq 2 ]
+    assert "bash: the findings name the file" contains "$err" "docs/by-shell.md:"
+    run_hook check-bash "$(bash_input s40)" >/dev/null 2>&1
+    assert "bash: nothing new, nothing to report" [ $? -eq 0 ]
+    printf 'print("hi")\n' > tool.py
+    run_hook check-bash "$(bash_input s40)" >/dev/null 2>&1
+    assert "bash: non-prose files are ignored" [ $? -eq 0 ]
+    # Outside a git repository (a Cowork session folder, for example)
+    plain="$T/plain"
+    mkdir -p "$plain/notes"
+    (
+      export CLAUDE_PROJECT_DIR="$plain"
+      cd "$plain" || exit 1
+      printf '{"session_id":"s41","cwd":"%s","source":"startup"}' "$plain" | "$HOOK" session-start >/dev/null
+      sleep 1
+      printf '%s\n' "$BAD_DOC" > notes/draft.md
+      printf '{"session_id":"s41","cwd":"%s","tool_name":"Bash","tool_input":{"command":"x"}}' "$plain" | "$HOOK" check-bash >/dev/null 2>&1
+      echo "rc=$?"
+    ) > "$T/plain.out"
+    assert "bash: works outside a git repository" contains "$(cat "$T/plain.out")" "rc=2"
+
+    # --- the built-in checker (no Vale) ---
+    mkdir -p .scribb && echo "checker: builtin" > .scribb/config.yaml
+    out=$("$PLUGIN/scripts/scribb-check" docs/bad.md)
+    assert "builtin: bad doc blocks" [ $? -eq 1 ]
+    assert "builtin: same findings as Vale" [ "$out" = "$(printf 'checker: vale\n' > .scribb/config.yaml; "$PLUGIN/scripts/scribb-check" docs/bad.md)" ]
+    echo "checker: builtin" > .scribb/config.yaml
+    "$PLUGIN/scripts/scribb-check" docs/good.md >/dev/null
+    assert "builtin: good doc passes" [ $? -eq 0 ]
+    assert "builtin: JSX text in .tsx" contains "$("$PLUGIN/scripts/scribb-check" B.tsx)" "B.tsx:3:14:block:convention:ScribbUI.Oops"
+    assert "builtin: --text" contains "$("$PLUGIN/scripts/scribb-check" --content-type newsletter --text "We are thrilled to announce it.")" "text:1:"
+    # Rules promoted from memories: user scope applies in every repo, for both checkers.
+    rp="$HOME/.config/scribb/packs/rules"
+    mkdir -p "$rp/checks/vale/ScribbUser"
+    printf 'id: rules\nkind: memory-rules\nversion: 0.1.0\ntagline: Rules promoted from memories\nlicense: MIT\n' > "$rp/pack.yaml"
+    printf 'extends: substitution\nmessage: "Use %%s, not %%s."\nlevel: warning\nignorecase: true\nswap:\n  dashboard: board\n' > "$rp/checks/vale/ScribbUser/Board.yml"
+    printf '# Boards\n\nOpen your dashboard.\n' > docs/term.md
+    for engine in vale builtin; do
+      echo "checker: $engine" > .scribb/config.yaml
+      assert "rules ($engine): a user-scope rule applies" contains "$("$PLUGIN/scripts/scribb-check" docs/term.md)" "ScribbUser.Board"
+    done
+    pr=".scribb/packs/rules"
+    mkdir -p "$pr/checks/vale/ScribbProject"
+    cp "$rp/pack.yaml" "$pr/pack.yaml"
+    printf 'extends: existence\nmessage: "Say studio, not %%s."\nlevel: warning\nignorecase: true\ntokens:\n  - workspace\n' > "$pr/checks/vale/ScribbProject/Studio.yml"
+    printf '# Studios\n\nOpen your workspace.\n' > docs/term2.md
+    assert "rules (builtin): a project rule applies" contains "$("$PLUGIN/scripts/scribb-check" docs/term2.md)" "ScribbProject.Studio"
+    rm -rf "$rp" "$pr"
+    rm -f .scribb/config.yaml
+    # Fall back when Vale isn't on PATH (as in an environment without it).
+    shim="$T/shim"
+    mkdir -p "$shim"
+    ln -sf "$(command -v python3)" "$shim/python3"
+    nopath="$shim:/usr/bin:/bin"
+    out=$(PATH="$nopath" "$PLUGIN/scripts/scribb-check" docs/bad.md 2>&1)
+    assert "fallback: checks run without Vale" contains "$out" "ScribbBase.AIVocabulary"
+    err=$(run_hook_path() { printf '%s' "$1" | PATH="$nopath" "$HOOK" check; }; run_hook_path "$(edit_input s20 "$T/proj/docs/bad.md")" 2>&1 >/dev/null)
+    assert "fallback: the check hook still wakes Claude" contains "$err" "has writing issues to fix"
+    out=$(PATH="/usr/bin:/bin" "$PLUGIN/scripts/scribb-check" docs/bad.md 2>&1)
+    if ! PATH="/usr/bin:/bin" command -v python3 >/dev/null 2>&1; then
+      assert "no engine: says checks are skipped" contains "$out" "neither Vale nor python3"
+    fi
 
     # --- stop hook ---
     stop_input() { printf '{"session_id":"s9","cwd":"%s","hook_event_name":"Stop","stop_hook_active":%s,"last_assistant_message":"%s"}' "$T/proj" "$1" "$2"; }
