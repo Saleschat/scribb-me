@@ -56,5 +56,5 @@ Status: decided, needs implementation
 - Claude Code loads a marketplace install over a synced copy with the same name, so adding scribb on claude.ai doesn't load it twice.
 - Skill names stay as they are (write, review, learn…). A separate chat plugin with `scribb-*` names was tried and dropped: it duplicates the plugin and isn't how other plugins handle it. Instead, the README and the on-by-default notice teach `/scribb`, which lists every scribb skill in both apps (chat's `/` menu filters by plugin name). Wordplay names (scribble, inscribb, transcribb…) were considered and set aside.
 - Chat sections use a stricter self-review (read cold, one habit at a time, quote passages) and offer to save a wording correction with `remember`, in place of the reviewer agent and the capture hook.
-- Verified on claude.ai (upload of this branch): install, skills in chat, `check.py` running in the sandbox. Still to confirm: that typing `/scribb` lists the skills.
+- Verified on claude.ai (upload of this branch, 2026-10-08): install, skills in chat, `check.py` running in the sandbox, `/scribb` listing every skill, and the offer to remember a correction.
 
