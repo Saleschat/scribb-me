@@ -33,7 +33,7 @@ If the arguments don't say, list the candidates and let the user pick (AskUserQu
 ## 2. Decide whether it's general
 Apply the two-writers test to each item: would two excellent writers of this kind both follow it?
 - **Yes, for all writing**: a candidate for `base`. Be strict here; base rules apply everywhere.
-- **Yes, for one kind of writing**: a candidate for that content type (`product-docs`, `developer-docs`, `ux-microcopy`, `newsletter`, `website`).
+- **Yes, for one kind of writing**: a candidate for that content type (`product-docs`, `developer-docs`, `ux-microcopy`, `newsletter`, `website`, `sales`).
 - **No, it's taste, or it's about this product** (names, internal terms, a house voice): tell the user it should stay local, say why in one line, and stop for that item. Offer `/scribb:learn` if they want to share a whole style; a style needs its own pack and licence review.
 
 Say the verdict for each item and let the user overrule it.

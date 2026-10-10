@@ -48,7 +48,10 @@ Status: decided, needs implementation
 - `newsletter` no longer defaults to `newsletter/*` and `newsletters/*`. Like developer docs, newsletters live in folders with any name (`emails/`, `issues/`, `content/newsletter/`), so a guessed default only helped repos that happened to use it. A newsletter is chosen from the request, from `scribb-content-type: newsletter` frontmatter, or from `paths_newsletter`, which `/scribb:setup` proposes after reading the repo.
 - Trade-off, as for developer docs: until setup runs or a file has the frontmatter, a newsletter written as Markdown gets the product-docs rules from the after-edit check.
 
-## New content type: website and sales pages (2026-10-10)
-- `website` (`medium: marketing`, label "Website and sales pages"): landing, feature, pricing and about pages, case studies, sales one-pagers and sales decks. Default freedom expressive, as 005 planned for marketing. No default folder, like newsletters and developer docs: chosen from the request, `scribb-content-type: website` frontmatter, or `paths_website` mapped by `/scribb:setup`.
-- The first of the founder-facing content types. Built first so scribb's own README intro (landing-page copy) can be written with it, which also tests it on a real page. `evals/quality/landing-page/` measures it with and without scribb.
-
+## New content types: website pages and sales materials (2026-10-10)
+- `website` (label "Website pages", `medium: marketing`): landing, feature, pricing and about pages, and case studies. Public pages a stranger decides on in seconds, with no one there to explain. Default freedom expressive.
+- `sales` (label "Sales materials", `medium: marketing`): sales decks, one-pagers, proposals and follow-ups for a known prospect, often with a presenter. A story arc (the strategic narrative: the old game, the stakes, the objective, the obstacles, how you overcome them), tailoring to the prospect, and a concrete next step. Default freedom balanced, because a prospect holds you to the claims.
+- Built as one content type first, then split: the two-writers test separates them (different reader, setting, shape and goal). Proposals are pre-sale, so they're in sales; implementation plans stay with the future client-documents content type (022).
+- Both have no default folder: chosen from the request, `scribb-content-type:` frontmatter, or `paths_website` / `paths_sales` mapped by `/scribb:setup`.
+- Grounded in, and credited as inspiration (our own words, no text reused): Mailchimp's content style guide, 37signals' Getting Real, Julian Shapiro, Harry Dry, April Dunford, Paul Graham, Kevin Hale (Y Combinator), Sequoia Capital, and Andy Raskin's strategic narrative (Lenny's Newsletter).
+- Built first so scribb's own README intro (landing-page copy) can be written with `website`. `evals/quality/landing-page/` and `evals/quality/sales-one-pager/` measure them with and without scribb.

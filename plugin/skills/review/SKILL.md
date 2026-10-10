@@ -1,6 +1,6 @@
 ---
 name: review
-description: Review existing prose with scribb.me (pasted text, a file, a folder or a git diff) against the base anti-AI-writing rules, the content type, the active style and memories. Reports findings; rewrites only if asked. Use when the user asks to review, check, lint or proofread docs, a README, release notes, UI copy, a newsletter, or a website or sales page.
+description: Review existing prose with scribb.me (pasted text, a file, a folder or a git diff) against the base anti-AI-writing rules, the content type, the active style and memories. Reports findings; rewrites only if asked. Use when the user asks to review, check, lint or proofread docs, a README, release notes, UI copy, a newsletter, a website page, or sales materials such as a deck or proposal.
 argument-hint: "<file | folder | diff | text> [--fix] [--freedom <level>]"
 allowed-tools: Bash(${CLAUDE_PLUGIN_ROOT}/scripts/scribb-config *) Bash(${CLAUDE_PLUGIN_ROOT}/scripts/scribb-guide *) Bash(${CLAUDE_PLUGIN_ROOT}/scripts/scribb-check *) Bash(${CLAUDE_PLUGIN_ROOT}/scripts/scribb-nudge *) Read(/${CLAUDE_PLUGIN_ROOT}/**) Bash(git diff *)
 ---
@@ -40,7 +40,7 @@ Don't edit anything during a plain review. If a finding looks like a false posit
 ## In chat
 The references, all relative to this skill's folder:
 - `references/base/guide.md` (always), `references/base/summary.md`
-- `references/content-types/<id>/guide.md`, `summary.md`, `sample.md`, `formats/<format>.md`, and for UI copy `roles/shadcn.yaml`. Content types: `product-docs`, `developer-docs`, `ux-microcopy`, `newsletter`, `website`; each `pack.yaml` has its tagline and default freedom.
+- `references/content-types/<id>/guide.md`, `summary.md`, `sample.md`, `formats/<format>.md`, and for UI copy `roles/shadcn.yaml`. Content types: `product-docs`, `developer-docs`, `ux-microcopy`, `newsletter`, `website`, `sales`; each `pack.yaml` has its tagline and default freedom.
 - `references/styles/<id>/guide.md`, `summary.md`, `sample.md`. Styles: `direct-developer-docs`, `crisp-product-ui`.
 
 1. **Target:** pasted text or an uploaded file. Work out the content type from the request and the text (UI strings in code are UI copy; an API reference is developer docs).

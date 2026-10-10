@@ -1,0 +1,43 @@
+# Example CONTENT TYPE: what kind of writing. It holds the conventions every good
+# writer of this kind follows, whatever their voice. Exactly one per piece.
+# Sales materials are written for one known prospect, and every claim is one they'll hold you to.
+id: sales
+kind: content-type
+version: 0.1.0
+tagline: Decks, one-pagers, proposals and follow-ups for a prospect you know, for founders, consultants and services teams.
+license: MIT
+label: Sales materials
+match_order: 35
+review_threshold: words 150
+traits:
+  medium: marketing
+  source_type: original
+freedom: balanced
+paths: []
+extends: null
+sources:
+  - name: 'Andy Raskin with Lenny Rachitsky, "The Power of Strategic Narrative", Lenny''s Newsletter (2023)'
+    url: https://www.lennysnewsletter.com/p/the-power-of-strategic-narrative
+    license: all rights reserved
+    use: inspiration only; our own words
+  - name: 'Kevin Hale, Y Combinator, "How to Design a Better Pitch Deck"'
+    url: https://www.ycombinator.com/blog/how-to-design-a-better-pitch-deck
+    license: all rights reserved
+    use: inspiration only; our own words
+  - name: 'Sequoia Capital, "Writing a Business Plan"'
+    url: https://www.sequoiacap.com/article/writing-a-business-plan/
+    license: all rights reserved
+    use: inspiration only; our own words
+  - name: 'April Dunford, "A Quickstart Guide to Positioning"'
+    url: https://www.aprildunford.com/post/a-quickstart-guide-to-positioning
+    license: all rights reserved
+    use: inspiration only; our own words
+  - name: 'Harry Dry, Marketing Examples, "17 tips for great copywriting"'
+    url: https://marketingexamples.com/copywriting/tips
+    license: all rights reserved
+    use: inspiration only; our own words
+  - name: 'Paul Graham, "Write Simply"'
+    url: https://paulgraham.com/simply.html
+    license: all rights reserved
+    use: inspiration only; our own words
+tags: [sales, deck, proposal, one-pager, founders, consultants]

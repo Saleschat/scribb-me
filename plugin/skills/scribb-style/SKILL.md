@@ -1,6 +1,6 @@
 ---
 name: scribb-style
-description: Background writing guidance from scribb.me. Use whenever you write or substantially revise prose for people to read, such as documentation, READMEs, guides, how-tos, release notes, changelogs, error messages, empty states, dialogs, toasts, button labels and other UI copy, newsletters and product-update emails, website and landing pages, sales one-pagers and decks, or a written piece in chat. Applies the base anti-AI-writing rules, the content type's conventions, the active style and approved memories.
+description: Background writing guidance from scribb.me. Use whenever you write or substantially revise prose for people to read, such as documentation, READMEs, guides, how-tos, release notes, changelogs, error messages, empty states, dialogs, toasts, button labels and other UI copy, newsletters and product-update emails, website and landing pages, sales decks, one-pagers, proposals and follow-ups, or a written piece in chat. Applies the base anti-AI-writing rules, the content type's conventions, the active style and approved memories.
 user-invocable: false
 allowed-tools: Bash(${CLAUDE_PLUGIN_ROOT}/scripts/scribb-config *) Bash(${CLAUDE_PLUGIN_ROOT}/scripts/scribb-guide *) Bash(${CLAUDE_PLUGIN_ROOT}/scripts/scribb-check *) Bash(${CLAUDE_PLUGIN_ROOT}/scripts/scribb-nudge *) Read(/${CLAUDE_PLUGIN_ROOT}/**)
 ---
@@ -19,7 +19,7 @@ Look at this path: `${CLAUDE_PLUGIN_ROOT}/scripts`.
 
 If the setup above says scribb is off, stop here and write normally.
 
-1. **Pick the content type.** Product docs (`product-docs`) for getting started, how-tos, help articles, READMEs and release notes: technical enough to be exact, no more. Developer docs (`developer-docs`) for API, SDK and CLI reference and integration guides, for a reader who writes code. Decide by what the page is for, not its folder; a `scribb-content-type:` frontmatter key settles it. UI copy (`ux-microcopy`) for strings in an interface; Newsletter (`newsletter`) for newsletter issues, product updates and welcome emails. Website and sales pages (`website`) for landing, feature, pricing and about pages, case studies, sales one-pagers and decks. The file path usually settles it; for a piece drafted in chat, the request does.
+1. **Pick the content type.** Product docs (`product-docs`) for getting started, how-tos, help articles, READMEs and release notes: technical enough to be exact, no more. Developer docs (`developer-docs`) for API, SDK and CLI reference and integration guides, for a reader who writes code. Decide by what the page is for, not its folder; a `scribb-content-type:` frontmatter key settles it. UI copy (`ux-microcopy`) for strings in an interface; Newsletter (`newsletter`) for newsletter issues, product updates and welcome emails. Website pages (`website`) for landing, feature, pricing and about pages and case studies: public pages read by strangers. Sales materials (`sales`) for decks, one-pagers, proposals and follow-ups written for a known prospect. The file path usually settles it; for a piece drafted in chat, the request does.
 2. **Get the guidance** before a piece longer than a few sentences, in one call: `"${CLAUDE_PLUGIN_ROOT}/scripts/scribb-guide" --content-type <ct> --session ${CLAUDE_SESSION_ID}`, adding `--format <id>` if a format fits (`--format list` lists them). It prints the base, content type, format and style guides, the UI role map for UI copy, and the approved memories.
 3. **Follow the memories** in the session-start note. They're approved by the user or team and beat the style.
 4. **Write at the active freedom.** Strict: conventional, no flourishes. Balanced: one good version. Expressive: freer, and offer 2–3 options for short strings.
@@ -30,7 +30,7 @@ After you write to a matching file, the checker may send findings back; fix them
 ## In chat
 The references, all relative to this skill's folder:
 - `references/base/guide.md` (always), `references/base/summary.md`
-- `references/content-types/<id>/guide.md`, `summary.md`, `sample.md`, `formats/<format>.md`, and for UI copy `roles/shadcn.yaml`. Content types: `product-docs`, `developer-docs`, `ux-microcopy`, `newsletter`, `website`; each `pack.yaml` has its tagline and default freedom.
+- `references/content-types/<id>/guide.md`, `summary.md`, `sample.md`, `formats/<format>.md`, and for UI copy `roles/shadcn.yaml`. Content types: `product-docs`, `developer-docs`, `ux-microcopy`, `newsletter`, `website`, `sales`; each `pack.yaml` has its tagline and default freedom.
 - `references/styles/<id>/guide.md`, `summary.md`, `sample.md`. Styles: `direct-developer-docs`, `crisp-product-ui`.
 
 Before a piece longer than a few sentences, read `references/base/guide.md`, the content type's `guide.md`, a matching format, and the style's guide if the user named a style. For short pieces, the `summary.md` files are enough. Then write as described in steps 3–5 above. For a checked and reviewed draft, suggest asking for `/scribb:write` (or "write this with scribb").

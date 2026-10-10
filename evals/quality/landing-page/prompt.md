@@ -1,5 +1,5 @@
 ---
-description: Website and sales pages. A landing page for a small product; the new website content type should keep it plain, specific and free of hype.
+description: Website pages. A landing page for a small product; the new website content type should keep it plain, specific and free of hype.
 tags: [website]
 plugins: ["../../../plugin"]
 max_turns: 15

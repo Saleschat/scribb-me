@@ -16,9 +16,18 @@ scribb.me is MIT-licensed (see `LICENSE` at the repository root). The packs in `
 | [sam-paech/slop-score](https://github.com/sam-paech/slop-score) | MIT | Inspiration for the `ScribbBase.NotJustButAlso` patterns. |
 | [tbhb/vale-ai-tells](https://github.com/tbhb/vale-ai-tells) (the Vale hub "ai-tells" package), [krishnasunkam/vale-ai-tells](https://github.com/krishnasunkam/vale-ai-tells) ("AiTells"), [JMill/deslop](https://github.com/JMill/deslop), [jdkato/voices](https://github.com/jdkato/voices) | MIT | Reviewed for which tells are worth checking. Our rules are written from scratch. |
 | [errata-ai/Google](https://github.com/errata-ai/Google), [errata-ai/Microsoft](https://github.com/errata-ai/Microsoft) | MIT | Reviewed for rule mechanics. Not copied. |
+| [Mailchimp Content Style Guide](https://styleguide.mailchimp.com/), by Mailchimp | [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/) | Inspiration for `website`. No text is reused; the NC licence isn't compatible with reusing text under MIT. |
+| [37signals, Getting Real, "Copywriting is Interface Design"](https://basecamp.com/gettingreal/09.7-copywriting-is-interface-design) | All rights reserved | Inspiration for `website`. Our own words, never quoted. |
+| [Julian Shapiro, "Landing Page Copywriting"](https://www.julian.com/guide/growth/landing-pages) | All rights reserved (no licence stated) | Inspiration for `website`. Our own words, never quoted. |
+| [Harry Dry, Marketing Examples, "17 tips for great copywriting"](https://marketingexamples.com/copywriting/tips) | All rights reserved (no licence stated) | Inspiration for `website` and `sales`. Our own words, never quoted. |
+| [April Dunford, "A Quickstart Guide to Positioning"](https://www.aprildunford.com/post/a-quickstart-guide-to-positioning) | All rights reserved | Inspiration for `website` and `sales`. Our own words, never quoted. |
+| [Paul Graham, "Write Simply"](https://paulgraham.com/simply.html) | All rights reserved (no licence stated) | Inspiration for `website` and `sales`. Our own words, never quoted. |
+| [Andy Raskin with Lenny Rachitsky, "The Power of Strategic Narrative"](https://www.lennysnewsletter.com/p/the-power-of-strategic-narrative), Lenny's Newsletter (May 2023) | All rights reserved | Inspiration for the narrative arc in `sales`. Our own words, never quoted. |
+| [Kevin Hale, Y Combinator, "How to Design a Better Pitch Deck"](https://www.ycombinator.com/blog/how-to-design-a-better-pitch-deck) | All rights reserved (no licence stated) | Inspiration for the slide rules in `sales`. Our own words, never quoted. |
+| [Sequoia Capital, "Writing a Business Plan"](https://www.sequoiacap.com/article/writing-a-business-plan/) | All rights reserved (no licence stated) | Inspiration for `sales` (one-sentence description, why now). Our own words, never quoted. |
 
 The `newsletter` pack is original writing and draws on no external source.
 
-The `website` pack (website and sales pages) is original writing and draws on no external source.
+The `website` and `sales` packs are written in our own words, drawing on the sources marked for them above.
 
 Sources we deliberately don't use: the Red Hat supplementary style guide and the GitLab documentation style guide are CC BY-SA 4.0, so their text isn't used in the packs.

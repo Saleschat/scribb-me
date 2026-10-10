@@ -1,0 +1,15 @@
+extends: existence
+message: "'%s' is a claim the reader can't check. Say what the product does, or prove it."
+level: warning
+ignorecase: true
+tokens:
+  - revolutionar(?:y|ize|izes|izing)
+  - cutting[- ]edge
+  - best[- ]in[- ]class
+  - world[- ]class
+  - next[- ]gen(?:eration)?
+  - industry[- ]leading
+  - synerg(?:y|ies|ize|istic)
+  - paradigm shift
+  - empowers? (?:you|teams|organizations|businesses|users|people) to
+  - (?:turnkey|end-to-end|innovative|holistic) solutions?

@@ -1,12 +1,12 @@
 # Example CONTENT TYPE: what kind of writing. It holds the conventions every good
 # writer of this kind follows, whatever their voice. Exactly one per piece.
-# A page that sells needs one idea, proof and one next step, in any voice.
+# A public page has to tell a stranger what you sell, and why it matters to them, in seconds.
 id: website
 kind: content-type
-version: 0.1.0
-tagline: Pages that sell without sounding like a brochure, for founders, consultants and teams writing websites, sales pages and decks.
+version: 0.2.0
+tagline: Public pages that win a stranger over in seconds, for founders, consultants and teams writing their website.
 license: MIT
-label: Website and sales pages
+label: Website pages
 match_order: 30
 review_threshold: words 150
 traits:
@@ -15,5 +15,29 @@ traits:
 freedom: expressive
 paths: []
 extends: null
-sources: []
-tags: [website, landing-page, sales, marketing, founders]
+sources:
+  - name: Mailchimp Content Style Guide
+    url: https://styleguide.mailchimp.com/
+    license: CC-BY-NC-4.0
+    use: inspiration only; our own words
+  - name: '37signals, Getting Real, "Copywriting is Interface Design"'
+    url: https://basecamp.com/gettingreal/09.7-copywriting-is-interface-design
+    license: all rights reserved
+    use: inspiration only; our own words
+  - name: 'Julian Shapiro, "Landing Page Copywriting"'
+    url: https://www.julian.com/guide/growth/landing-pages
+    license: all rights reserved
+    use: inspiration only; our own words
+  - name: 'Harry Dry, Marketing Examples, "17 tips for great copywriting"'
+    url: https://marketingexamples.com/copywriting/tips
+    license: all rights reserved
+    use: inspiration only; our own words
+  - name: 'April Dunford, "A Quickstart Guide to Positioning"'
+    url: https://www.aprildunford.com/post/a-quickstart-guide-to-positioning
+    license: all rights reserved
+    use: inspiration only; our own words
+  - name: 'Paul Graham, "Write Simply"'
+    url: https://paulgraham.com/simply.html
+    license: all rights reserved
+    use: inspiration only; our own words
+tags: [website, landing-page, marketing, founders]

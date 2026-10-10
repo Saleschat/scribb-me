@@ -36,8 +36,10 @@ Status: decided, needs implementation
 ## To do: run the quality evals in CI
 `.github/workflows/quality-evals.yml` (manual) needs an `ANTHROPIC_API_KEY` repository secret before it can run.
 
-## Landing page case (2026-10-10, for the new website content type)
+## Landing page and sales one-pager cases (2026-10-10, for the website and sales content types)
 - `evals/quality/landing-page/`: Claude writes a landing page for a made-up product from a short brief. First run, 2 runs per arm, $0.61: 1.00 with and without scribb, so Δ 0.
 - The pages differed in ways the graders don't measure. With scribb: a benefit headline ("Get paid for the design work you already logged"), the price and one call to action at the top, and `scribb-content-type: website` frontmatter; but no problem section. Without: the product name as the headline, one "not X" framing, and a strong problem paragraph.
 - Next: sharper graders (the headline states a benefit rather than only the product name; a problem section is present; one call to action above the fold), and the website guide could push harder for the problem section.
+- After the split and the research, rerun (2 runs per arm): landing page still 1.00 with and without ($0.64).
+- `evals/quality/sales-one-pager/` (a leave-behind for a fictional prospect): **1.00 with scribb, 0.75 without (Δ +0.25)**, $0.64. Both arms used the prospect's facts, invented nothing and ended with a concrete next step; the version without scribb failed the judged quality check in both runs. The clearest difference: 206 words with scribb against 357 without, for the same facts. The first run had failed both arms on derived arithmetic ("more than 300 hours a year"); the rubric now allows arithmetic on the given figures and meeting logistics, but not new results, customers, quotes or guarantees.
 
