@@ -1,6 +1,6 @@
 - Lead every section with the action or the answer. Context comes after, if at all.
 - Keep sentences under about 20 words. One idea per sentence.
-- Use the shortest common word: "use", not "utilize" or "leverage"; "to", not "in order to"; "can", not "is able to".
+- Use the shortest common word: "use", not "utilize" or "leverage"; "before", not "prior to".
 - Cut throat-clearing: "Note that", "It's important to", "Keep in mind that".
 - Prefer a code block or a table to a paragraph that describes one.
 - No marketing adjectives. Say what it does and give numbers.

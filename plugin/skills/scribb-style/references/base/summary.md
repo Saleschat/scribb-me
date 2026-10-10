@@ -1,5 +1,6 @@
 - Say the thing. Cut openers that announce what you're about to say.
 - Use plain words. Skip "delve", "tapestry", "testament to", "pivotal", "realm" and other inflated vocabulary.
+- Cut stale phrases ("move the needle", "low-hanging fruit") and needless words ("in order to" is "to", "due to the fact that" is "because").
 - Don't frame points as "not just X, but Y". State Y.
 - No chat residue in written output: no "Great question", "I hope this helps", "Let me know if…".
 - Don't group things in threes by reflex. Use the number of items you actually have.

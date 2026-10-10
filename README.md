@@ -165,12 +165,13 @@ Type `/scribb` to list them all, in any of the three apps. In chat, `/scribb:set
 
 ## Styles
 
-With no style set, scribb uses a neutral house style. Two starter styles ship with the plugin, mainly as examples of what a style is:
+With no style set, scribb uses a neutral house style. Three starter styles ship with the plugin:
 
 | Style | Tagline |
 |---|---|
 | `direct-developer-docs` | Short sentences, the imperative, and nothing the reader has to skip. |
 | `crisp-product-ui` | Plain, compact interface copy that never makes people read twice. |
+| `short-and-plain` | Short sentences, concrete words and strong verbs. Nothing the reader has to wade through. |
 
 Pick one with `/scribb:style list`, or [create your own](#create-your-own-style).
 

@@ -55,3 +55,7 @@ Status: decided, needs implementation
 - Both have no default folder: chosen from the request, `scribb-content-type:` frontmatter, or `paths_website` / `paths_sales` mapped by `/scribb:setup`.
 - Grounded in, and credited as inspiration (our own words, no text reused): Mailchimp's content style guide, 37signals' Getting Real, Julian Shapiro, Harry Dry, April Dunford, Paul Graham, Kevin Hale (Y Combinator), Sequoia Capital, and Andy Raskin's strategic narrative (Lenny's Newsletter).
 - Built first so scribb's own README intro (landing-page copy) can be written with `website`. `evals/quality/landing-page/` and `evals/quality/sales-one-pager/` measure them with and without scribb.
+
+## New starter style: short-and-plain (2026-10-10)
+- `short-and-plain` ("Short sentences, concrete words and strong verbs. Nothing the reader has to wade through."), good for docs, marketing and email. Inspired by Hemingway's plain style, Orwell and Strunk; named by traits, as built-in styles must be. Rules at suggestion level: `Qualifiers` (very, really, quite…; `rather` but not `rather than`) and `PlainWords` (commence → start, facilitate → help…).
+- It gives the style picker a real voice next to the two example styles. `ShortAndPlain.Qualifiers` is the first rule with a regex lookahead; Vale and the built-in checker agree on it (parity test).

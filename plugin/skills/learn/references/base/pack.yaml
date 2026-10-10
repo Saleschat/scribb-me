@@ -2,7 +2,7 @@
 # Only universal habits go here (anti-AI-writing tells); they never relax.
 id: base
 kind: base
-version: 0.1.0
+version: 0.2.0
 tagline: Universal rules against AI writing habits. Always on.
 license: MIT
 traits:
@@ -24,4 +24,12 @@ sources:
     url: https://github.com/sam-paech/slop-score
     license: MIT
     use: inspiration for the "not X, but Y" patterns
+  - name: 'George Orwell, "Politics and the English Language" (1946)'
+    url: https://www.orwellfoundation.com/the-orwell-foundation/orwell/essays-and-other-works/politics-and-the-english-language/
+    license: public domain in some countries; all rights reserved in others
+    use: inspiration only; the "Before you send it" questions are our own words, never quoted
+  - name: William Strunk Jr., The Elements of Style (1918 edition)
+    url: https://www.gutenberg.org/ebooks/37134
+    license: public domain (1918 edition)
+    use: inspiration for NeedlessWords ("omit needless words"); our own words
 tags: [anti-ai]

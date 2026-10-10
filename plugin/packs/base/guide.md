@@ -44,10 +44,26 @@ Text meant for a page sometimes keeps the habits of a chat reply.
 - Stacked hedges ("may potentially help to some extent") read as evasive. Pick one, or none.
 - Hype adjectives read as marketing. Docs and UI copy need neither.
 
+## Stale phrases and needless words
+- Business clichés stopped meaning anything long ago: `move the needle`, `low-hanging fruit`, `at the end of the day`, `boil the ocean`, `think outside the box`. Say the specific thing instead: "raise sign-ups from 4% to 6%", not "move the needle".
+- Cut the padding around a short word: `in order to` is "to", `due to the fact that` is "because", `at this point in time` is "now", `is able to` is "can". The shorter version is never less polite.
+
 ## Em dashes
 Models use em dashes far more than most writers. One or two in a page is fine. Several per paragraph is a tell.
 
-Base has one rule that isn't hard: `ScribbBase.EmDashes` is a `warning`, because a dash is a normal punctuation mark and only its frequency is the signal. Every other base rule is a fixed phrase and is hard.
+Not every base rule is hard:
+- The AI-writing phrases (`AIVocabulary`, `ChatResidue`, `NotJustButAlso`, `Signposting`) are hard: they never relax.
+- `EmDashes` and `StalePhrases` are conventions (`warning`). A dash is normal punctuation and only its frequency is the signal; a stale phrase is sometimes the right words in a quote or a title.
+- `NeedlessWords` is a preference (`suggestion`): it blocks only at strict freedom, warns at balanced and suggests at expressive, because the longer form is sometimes kept for rhythm.
+
+## Before you send it
+Six questions to ask of any piece, after George Orwell's rules for plain English:
+1. Is there an image or phrase here you've seen a hundred times? Find a fresher way to say it, or say it plainly.
+2. Is there a long word where a short one works? Use the short one.
+3. Can a word come out without losing anything? Take it out.
+4. Is a sentence passive where the active voice would be clearer? Say who does what.
+5. Is there jargon, or a foreign or technical term, where an everyday word would do? Use the everyday word, unless your reader expects the term.
+6. Would following one of these make a sentence awkward? Then break the rule. Clear beats correct.
 
 ## Don't over-correct
 Removing tells shouldn't make the writing stiff.
@@ -57,4 +73,4 @@ Removing tells shouldn't make the writing stiff.
 - Keep the author's voice and the style's habits. The goal is writing a person would sign.
 
 ## What the checker covers
-The checker (`ScribbBase.*`) catches fixed phrases: inflated vocabulary, chat residue, signposting, "not just X, but Y", and em-dash density. The reviewer covers the rest of this page: rhythm, rule of three, empty claims, hedging and formatting.
+The checker (`ScribbBase.*`) catches fixed phrases: inflated vocabulary, chat residue, signposting, "not just X, but Y", stale phrases, needless words and em-dash density. The reviewer covers the rest of this page: rhythm, rule of three, empty claims, hedging, the passive voice, formatting and the questions in "Before you send it".

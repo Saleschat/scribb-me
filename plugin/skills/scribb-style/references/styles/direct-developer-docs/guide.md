@@ -28,10 +28,10 @@ Good for: Docs.
 
 ## Before and after
 Before:
-> In order to make sure that your application is able to utilize the cache, it's important to note that you'll need to enable it first.
+> To make sure that your application can utilize the cache, it's important to note that you'll need to enable it first.
 
 After:
 > Enable the cache before your app can use it: set `cache.enabled` to `true`.
 
 ## Checker rules (suggestions)
-`DirectDeveloperDocs.WordyPhrases` suggests shorter forms for "in order to", "is able to", "utilize", "leverage", "a number of" and "at this point in time".
+`DirectDeveloperDocs.WordyPhrases` suggests shorter forms for "utilize", "leverage", "a number of" and "prior to". Generic wordy phrases such as `in order to` and `is able to` are flagged for every piece by the base pack (`ScribbBase.NeedlessWords`).

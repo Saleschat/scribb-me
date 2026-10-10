@@ -2,12 +2,11 @@ extends: substitution
 message: "Consider '%s' instead of '%s'."
 level: suggestion
 ignorecase: true
+# Generic wordy phrases ("in order to", "is able to", "at this point in time")
+# are in base (ScribbBase.NeedlessWords); this style keeps the ones that are
+# a matter of its taste.
 swap:
-  in order to: to
-  is able to: can
-  are able to: can
   utiliz(?:e|es|ed|ing): use
   leverag(?:e|es|ed|ing): use
   a number of: some (or the number)
-  at this point in time: now
   prior to: before

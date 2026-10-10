@@ -1,0 +1,6 @@
+- Most sentences under about 20 words. One idea per sentence, one idea per paragraph.
+- Lead with the point and end on it. No closing line that repeats it.
+- Concrete nouns and strong verbs: "decide", not "make a decision".
+- Everyday words: start, help, try, about, buy, end.
+- Cut qualifiers (very, really, quite, somewhat, extremely, rather), or replace them with a fact.
+- Short serves clear. Keep a long sentence or a technical term when the reader needs it.
