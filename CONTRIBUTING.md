@@ -77,17 +77,9 @@ The repository is MIT. Everything in the packs must be our own writing.
 
 ## Development setup
 
-```
-brew install vale shellcheck      # or see vale.sh for other systems
-claude --plugin-dir plugin        # try your changes in a session
-python3 tools/build-chat.py       # rebuild the chat bundles after editing packs
-evals/rules/run.sh                # rule tests
-python3 tests/chat/parity.py      # chat checker vs. Vale
-tests/hooks/run.sh                # hook and script tests
-shellcheck -x plugin/scripts/* plugin/hooks/scribb-hook plugin/lib/*.sh
-```
+See [DEVELOPMENT.md](DEVELOPMENT.md) for the repository layout and the build and test commands.
 
-Scripts must run on bash 3.2 (the macOS default) and must not depend on `jq`. The chat checker (`tools/chat/check.py`) uses only the Python standard library, because that's what claude.ai's sandbox has. Don't edit anything under `plugin/skills/*/references/` or `plugin/skills/*/scripts/`; it's generated from the packs.
+Scripts must run on bash 3.2 (the macOS default) and must not depend on `jq`. The chat checker (`tools/chat/check.py`) uses only the Python standard library, because that's what claude.ai's sandbox has. Don't edit anything under `plugin/skills/*/references/` or `plugin/skills/*/scripts/`; `tools/build-chat.py` generates it from the packs.
 
 ## Pull requests
 

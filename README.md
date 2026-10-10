@@ -1,12 +1,48 @@
 # scribb.me
 
-scribb.me is a writing-style plugin for Claude. It makes the docs, UI copy and newsletters Claude writes read like a careful human wrote them: no AI writing habits, your team's conventions, and optionally a style you pick or teach it.
+## Sound like yourself, even when AI writes for you
 
-It's one plugin that works in Claude Code, Cowork and claude.ai chat. Codex and other tools are planned (see [docs/open-items](docs/open-items/)).
+scribb.me is a free, open-source plugin for Claude that keeps your writing in your own voice. It works in Claude Code, Cowork and claude.ai chat.
+
+Your customers get to know you through what you write. The landing page a founder wrote at midnight, the newsletter a marketer sent on Monday, the release note a product manager shipped this morning, the proposal a consultant tailored for one client: each carries a voice your customers learn to recognize and trust. That voice is your identity, and it's worth keeping when Claude writes the first draft.
+
+Here's what scribb does for each of you:
+
+- **Founders:** launch notes and newsletters that read like you wrote them yourself.
+- **Marketers:** website pages that make one clear point and say it your way.
+- **Content writers and creators:** newsletters in a voice your readers recognize from the first line.
+- **Product managers:** onboarding guides, help pages, release notes and in-app copy that answer the question and stop.
+- **Consultants and sellers:** proposals and pitch decks built around the client's own words.
+- **Engineers:** API references and developer guides that stay inside their scope.
+- **Journalists:** your own style, learned from your published work, on every draft.
+
+Every piece comes out clear and to the point. scribb removes the habits readers have learned to spot (inflated words, reflexive lists, tidy one-line morals, a dash in every other sentence) and keeps each piece to what its reader needs. Run `/scribb:learn` on your best writing and scribb picks up your style, so a first draft needs editing, not rewriting. Save your terms and your team's rules as memories, and every piece after that follows them, for one person or a whole team.
+
+### What scribb covers today
+
+- **Website pages:** landing, feature or service, pricing and about pages, case studies
+- **Sales materials:** proposals, pitch decks, one-pagers and follow-ups
+- **Newsletters:** regular issues, announcements, welcome emails
+- **Product docs:** onboarding guides, how-tos, help articles, release notes
+- **Developer docs:** API, SDK and CLI reference, integration guides
+- **UI copy:** the words in your app or dashboard
+- **Your own style,** learned from your writing with `/scribb:learn`
+
+### Coming next
+
+LinkedIn and other social posts, emails, and client documents such as implementation plans. [Tell us what you need](https://github.com/Saleschat/scribb-me/issues/new?template=new-content-type.yml).
+
+### Get started
+
+```
+/plugin install scribb --marketplace Saleschat/scribb-me
+```
+
+That's for Claude Code. For Cowork and claude.ai chat, see [Install](#install).
 
 ## Install
 
-scribb works in Claude Code, Cowork and claude.ai chat. Not sure which to use? See [Choose where to use it](#choose-where-to-use-it) at the end.
+Not sure which app to use? See [Choose where to use it](#choose-where-to-use-it) below.
 
 ### Claude Code
 
@@ -59,6 +95,8 @@ Chat runs skills only, so these stay in Claude Code and Cowork: checks after eve
 - **After Claude edits a file of a known content type** (below), the checker (Vale, or scribb's built-in checker when Vale isn't installed) runs in the background. That includes files Claude writes with a shell command instead of its editing tools. If it finds a blocking issue, Claude gets the findings and revises, at most twice per file.
 - **After a big prose edit** (about 150+ words of docs or newsletter prose, or 5+ UI strings), Claude asks a reviewer agent with fresh context to check the passage.
 - **When you correct Claude's wording** ("don't say account, we call it a workspace"), scribb offers to remember it for you or your team.
+
+Everything stays on your machine or in your repo. scribb sends no telemetry.
 
 
 ## How scribb thinks about writing
@@ -142,6 +180,8 @@ Teach scribb a voice from writing you like: your own posts, your company's best 
 
 In claude.ai chat, `/scribb:learn` gives you the style as a file to upload in **Customize > Skills**.
 
+Brand or product names with their own casing (like scribb.me): add them to `.scribb/vocab.txt`, one per line, so the checker leaves them alone.
+
 ## Turning it off
 
 scribb is on by default. You can turn it off at any level:
@@ -156,32 +196,6 @@ scribb is on by default. You can turn it off at any level:
 | Kill switch | `SCRIBB_DISABLE=1` in the environment |
 
 You can also switch off parts of it with `/scribb:style`: the reviewer (`reviewer: off`), nudges (`nudges: off`), correction capture (`capture: off`) or the session-start summary (`inject: off`).
-
-## Where things live
-
-| Scope | Path | Committed |
-|---|---|---|
-| Built-in | the plugin's `packs/` (`base/`, `content-types/`, `styles/`) | — |
-| User | `~/.config/scribb/` (settings, memories, styles you create) | no |
-| Project | `.scribb/` (settings, memories, `vocab.txt`, team styles) | yes |
-| Local | `.scribb/local/` | no (it ignores itself) |
-
-Product names that keep their own casing go in `vocab.txt`, one per line, so the checker accepts them. Captured corrections stay in `.scribb/local/inbox/` on your machine. scribb sends no telemetry.
-
-## Development
-
-```
-evals/rules/run.sh     # every checker rule fires on bad text and stays quiet on good text
-tests/hooks/run.sh     # hook and helper tests
-evals/quality/run.sh   # with/without-scribb quality evals; uses your Claude credentials and costs money
-claude --plugin-dir plugin   # try the plugin locally
-```
-
-To improve the built-in packs, see [CONTRIBUTING.md](CONTRIBUTING.md). The design and its open questions are in [docs/open-items](docs/open-items/); the pack format is in [docs/pack-format.md](docs/pack-format.md).
-
-## Licence
-
-MIT. Built-in packs are our own writing; [plugin/NOTICE.md](plugin/NOTICE.md) credits the style guides and rule sets they drew on.
 
 ## Choose where to use it
 
@@ -206,3 +220,7 @@ The same plugin works in three Claude apps. Each one loads a different part of i
 - **You draft or review in a conversation,** or don't use Claude Code: use **claude.ai chat**. You get the guides, the built-in checker and a review pass, but nothing runs automatically between messages.
 
 You can use more than one. Plugins you add on claude.ai appear in Cowork and also sync into Claude Code. If you've installed scribb in Claude Code from the marketplace too, Claude Code uses that copy and skips the synced one, so it never loads twice.
+
+## Open source
+
+scribb.me is MIT-licensed. Its built-in packs are our own writing, and [plugin/NOTICE.md](plugin/NOTICE.md) credits the style guides they drew on. [DEVELOPMENT.md](DEVELOPMENT.md) explains how it's built and tested, and [CONTRIBUTING.md](CONTRIBUTING.md) explains how to improve the packs.
