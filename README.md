@@ -1,40 +1,48 @@
 # scribb.me
 
-**Sound like yourself, even when AI writes for you.**
+## Sound like yourself, even when AI writes for you
 
-People choose a voice they recognize. The founder who explains things plainly. The consultant whose proposals get to the point. The journalist whose sentences you'd know without the byline.
+scribb.me is a free, open-source plugin for Claude that keeps your writing in your own voice. It works in Claude Code, Cowork and claude.ai chat.
 
-That voice is the first thing to go when AI drafts for you. What comes back is fluent and interchangeable, and you can feel it everywhere:
+Your customers get to know you through what you write. The landing page a founder wrote at midnight, the newsletter a marketer sent on Monday, the release note a product manager shipped this morning, the proposal a consultant tailored for one client: each carries a voice your customers learn to recognize and trust. That voice is your identity, and it's worth keeping when Claude writes the first draft.
 
-- The LinkedIn post that sounds like a thousand others, and gets the reach to match.
-- The email that opens with a pleasantry and buries the ask.
-- The pitch deck that needs three slides to say what used to take one.
-- The client implementation plan nobody on either side finishes reading.
-- The product doc that answers every question except the one you had.
-- The technical spec that solves problems nobody raised.
-- The dashboard with twelve charts when you needed two numbers.
+Here's what scribb does for each of you:
 
-Padding and sameness didn't arrive with AI. AI made them free.
+- **Founders:** launch notes and newsletters that read like you wrote them yourself.
+- **Marketers:** website pages that make one clear point and say it your way.
+- **Content writers and creators:** newsletters in a voice your readers recognize from the first line.
+- **Product managers:** onboarding guides, help pages, release notes and in-app copy that answer the question and stop.
+- **Consultants and sellers:** proposals and pitch decks built around the client's own words.
+- **Engineers:** API references and developer guides that stay inside their scope.
+- **Journalists:** your own style, learned from your published work, on every draft.
 
-scribb.me is a plugin for Claude that writes the other way: plainer, and in your voice. It removes the tells that make text sound machine-made, keeps each piece to what its reader came for, and learns how you write from your own work, along with your terms and your team's rules.
-
-It's built for people whose writing is part of what they sell: founders, journalists, writers, consultants, business owners and services companies.
+Every piece comes out clear and to the point. scribb removes the habits readers have learned to spot (inflated words, reflexive lists, tidy one-line morals, a dash in every other sentence) and keeps each piece to what its reader needs. Run `/scribb:learn` on your best writing and scribb picks up your style, so a first draft needs editing, not rewriting. Save your terms and your team's rules as memories, and every piece after that follows them, for one person or a whole team.
 
 ### What scribb covers today
-- **Product docs:** onboarding guides, how-tos, help articles, READMEs, release notes
+
+- **Website pages:** landing, feature or service, pricing and about pages, case studies
+- **Sales materials:** proposals, pitch decks, one-pagers and follow-ups
+- **Newsletters:** regular issues, announcements, welcome emails
+- **Product docs:** onboarding guides, how-tos, help articles, release notes
 - **Developer docs:** API, SDK and CLI reference, integration guides
-- **UI copy:** the words in your product and dashboards, such as buttons, errors and empty states
-- **Newsletters:** issues, product updates, welcome emails
+- **UI copy:** the words in your app or dashboard
 - **Your own style,** learned from your writing with `/scribb:learn`
 
 ### Coming next
-LinkedIn and other social posts, emails, website and sales pages, and client documents such as proposals and implementation plans. [Tell us what you need](https://github.com/Saleschat/scribb-me/issues/new?template=new-content-type.yml).
 
-It works in Claude Code, Cowork and claude.ai chat.
+LinkedIn and other social posts, emails, and client documents such as implementation plans. [Tell us what you need](https://github.com/Saleschat/scribb-me/issues/new?template=new-content-type.yml).
+
+### Get started
+
+```
+/plugin install scribb --marketplace Saleschat/scribb-me
+```
+
+That's for Claude Code. For Cowork and claude.ai chat, see [Install](#install).
 
 ## Install
 
-scribb works in Claude Code, Cowork and claude.ai chat. Not sure which to use? See [Choose where to use it](#choose-where-to-use-it) below.
+Not sure which app to use? See [Choose where to use it](#choose-where-to-use-it) below.
 
 ### Claude Code
 
