@@ -1,0 +1,19 @@
+# Example CONTENT TYPE: what kind of writing. It holds the conventions every good
+# writer of this kind follows, whatever their voice. Exactly one per piece.
+# A page that sells needs one idea, proof and one next step, in any voice.
+id: website
+kind: content-type
+version: 0.1.0
+tagline: Pages that sell without sounding like a brochure, for founders, consultants and teams writing websites, sales pages and decks.
+license: MIT
+label: Website and sales pages
+match_order: 30
+review_threshold: words 150
+traits:
+  medium: marketing
+  source_type: original
+freedom: expressive
+paths: []
+extends: null
+sources: []
+tags: [website, landing-page, sales, marketing, founders]

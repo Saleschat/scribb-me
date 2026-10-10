@@ -48,3 +48,7 @@ Status: decided, needs implementation
 - `newsletter` no longer defaults to `newsletter/*` and `newsletters/*`. Like developer docs, newsletters live in folders with any name (`emails/`, `issues/`, `content/newsletter/`), so a guessed default only helped repos that happened to use it. A newsletter is chosen from the request, from `scribb-content-type: newsletter` frontmatter, or from `paths_newsletter`, which `/scribb:setup` proposes after reading the repo.
 - Trade-off, as for developer docs: until setup runs or a file has the frontmatter, a newsletter written as Markdown gets the product-docs rules from the after-edit check.
 
+## New content type: website and sales pages (2026-10-10)
+- `website` (`medium: marketing`, label "Website and sales pages"): landing, feature, pricing and about pages, case studies, sales one-pagers and sales decks. Default freedom expressive, as 005 planned for marketing. No default folder, like newsletters and developer docs: chosen from the request, `scribb-content-type: website` frontmatter, or `paths_website` mapped by `/scribb:setup`.
+- The first of the founder-facing content types. Built first so scribb's own README intro (landing-page copy) can be written with it, which also tests it on a real page. `evals/quality/landing-page/` measures it with and without scribb.
+

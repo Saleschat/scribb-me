@@ -525,5 +525,66 @@
   ],
   "tagline": "Short, specific interface copy that tells people what happened and what to do.",
   "version": "0.1.0"
+ },
+ "website": {
+  "freedom": "expressive",
+  "kind": "content-type",
+  "label": "Website and sales pages",
+  "rules": [
+   {
+    "extends": "existence",
+    "id": "ScribbWebsite.Buzzwords",
+    "ignorecase": true,
+    "level": "warning",
+    "message": "'%s' is a claim the reader can't check. Say what the product does, or prove it.",
+    "tokens": [
+     "revolutionar(?:y|ize|izes|izing)",
+     "cutting[- ]edge",
+     "best[- ]in[- ]class",
+     "world[- ]class",
+     "next[- ]gen(?:eration)?",
+     "industry[- ]leading",
+     "synerg(?:y|ies|ize|istic)",
+     "paradigm shift",
+     "empowers? (?:you|teams|organizations|businesses|users|people) to",
+     "(?:turnkey|end-to-end|innovative|holistic) solutions?"
+    ]
+   },
+   {
+    "extends": "existence",
+    "id": "ScribbWebsite.ExclamationStack",
+    "level": "warning",
+    "message": "Use one exclamation mark at most, not '%s'.",
+    "nonword": true,
+    "scope": "sentence",
+    "tokens": [
+     "!{2,}"
+    ]
+   },
+   {
+    "extends": "existence",
+    "id": "ScribbWebsite.LinkText",
+    "ignorecase": true,
+    "level": "warning",
+    "message": "Use link text that says what happens next, not '%s'.",
+    "nonword": true,
+    "scope": "raw",
+    "tokens": [
+     "\\[(?:here|click here|learn more|read more|more|this link|link)\\]\\("
+    ]
+   },
+   {
+    "extends": "existence",
+    "id": "ScribbWebsite.SelfCongratulation",
+    "ignorecase": true,
+    "level": "warning",
+    "message": "'%s' is about you, not the reader. Lead with what they get.",
+    "tokens": [
+     "(?:we're|we are) (?:so |very |really |incredibly )?(?:excited|thrilled|proud|delighted|honored|honoured) to"
+    ]
+   }
+  ],
+  "tagline": "Pages that sell without sounding like a brochure, for founders, consultants and teams writing websites, sales pages and decks.",
+  "version": "0.1.0"
  }
 }

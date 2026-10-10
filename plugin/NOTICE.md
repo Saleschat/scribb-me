@@ -19,4 +19,6 @@ scribb.me is MIT-licensed (see `LICENSE` at the repository root). The packs in `
 
 The `newsletter` pack is original writing and draws on no external source.
 
+The `website` pack (website and sales pages) is original writing and draws on no external source.
+
 Sources we deliberately don't use: the Red Hat supplementary style guide and the GitLab documentation style guide are CC BY-SA 4.0, so their text isn't used in the packs.

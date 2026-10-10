@@ -1,0 +1,10 @@
+- One idea per page. If you need two, write two pages.
+- The headline says what the reader gets, in plain words.
+- Describe the problem the way the reader would, before you describe the product.
+- Make one specific promise, then back it with proof: numbers, names, real quotes. Never invent proof.
+- Say who it's for, and who it isn't for.
+- One main call to action that says what happens next. Not "Learn more".
+- Sound like a person, ideally the founder. Personality is welcome; hype and superlatives aren't.
+- Every feature earns its place with the benefit it brings.
+- Short paragraphs and clear sections. Most readers scan before they read.
+- Decks: one message per slide, a headline that states the point, about 30 words of body at most.

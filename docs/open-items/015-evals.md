@@ -35,3 +35,9 @@ Status: decided, needs implementation
 
 ## To do: run the quality evals in CI
 `.github/workflows/quality-evals.yml` (manual) needs an `ANTHROPIC_API_KEY` repository secret before it can run.
+
+## Landing page case (2026-10-10, for the new website content type)
+- `evals/quality/landing-page/`: Claude writes a landing page for a made-up product from a short brief. First run, 2 runs per arm, $0.61: 1.00 with and without scribb, so Δ 0.
+- The pages differed in ways the graders don't measure. With scribb: a benefit headline ("Get paid for the design work you already logged"), the price and one call to action at the top, and `scribb-content-type: website` frontmatter; but no problem section. Without: the product name as the headline, one "not X" framing, and a strong problem paragraph.
+- Next: sharper graders (the headline states a benefit rather than only the product name; a problem section is present; one call to action above the fold), and the website guide could push harder for the problem section.
+
