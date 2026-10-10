@@ -1,0 +1,12 @@
+extends: substitution
+message: "Use '%s' instead of '%s'."
+level: suggestion
+ignorecase: true
+swap:
+  commenc(?:e|es|ed|ing): start
+  facilitat(?:e|es|ed|ing): help
+  endeavou?r(?:s|ed|ing)?: try
+  approximately: about
+  purchas(?:e|es|ed|ing): buy
+  terminat(?:e|es|ed|ing): end
+  assist(?:s|ed|ing)?: help

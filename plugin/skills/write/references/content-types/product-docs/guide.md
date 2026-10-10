@@ -60,7 +60,7 @@ People often meet the project through the files in its repository. Treat each on
 
 ## Example
 Before:
-> In order to get started, simply click here and you will easily be able to configure the cache!
+> To get started, simply click here and you will easily be able to configure the cache!
 
 After:
 > To configure the cache, open **Settings** > **Cache** and set **TTL** to the number of seconds to keep entries. See [Cache settings](cache.md).

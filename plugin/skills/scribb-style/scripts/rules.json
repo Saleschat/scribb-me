@@ -56,6 +56,27 @@
     "token": "—"
    },
    {
+    "extends": "substitution",
+    "id": "ScribbBase.NeedlessWords",
+    "ignorecase": true,
+    "level": "suggestion",
+    "message": "Use '%s' instead of '%s'.",
+    "swap": {
+     "are able to": "can",
+     "at the present time": "now",
+     "at this point in time": "now",
+     "due to the fact that": "because",
+     "for the purpose of": "to (or for)",
+     "has the ability to": "can",
+     "in order to": "to",
+     "in spite of the fact that": "although",
+     "in the event that": "if",
+     "in the near future": "soon",
+     "is able to": "can",
+     "owing to the fact that": "because"
+    }
+   },
+   {
     "extends": "existence",
     "id": "ScribbBase.NotJustButAlso",
     "ignorecase": true,
@@ -81,10 +102,31 @@
      "without further ado",
      "buckle up"
     ]
+   },
+   {
+    "extends": "existence",
+    "id": "ScribbBase.StalePhrases",
+    "ignorecase": true,
+    "level": "warning",
+    "message": "'%s' is a stale phrase. Say what you mean in plain words.",
+    "tokens": [
+     "move the needle",
+     "low[- ]hanging fruit",
+     "at the end of the day",
+     "boil(?:ing)? the ocean",
+     "think(?:ing)? outside (?:the|of the) box",
+     "take (?:it|this|things|your \\w+) to the next level",
+     "hit(?:s|ting)? the ground running",
+     "level(?:s|ing)? the playing field",
+     "drink(?:ing)? from (?:a|the) fire ?hose",
+     "peel(?:ing)? back the (?:layers of the )?onion",
+     "(?:a )?win[- ]win situation",
+     "push(?:ing)? the envelope"
+    ]
    }
   ],
   "tagline": "Universal rules against AI writing habits. Always on.",
-  "version": "0.1.0"
+  "version": "0.2.0"
  },
  "crisp-product-ui": {
   "freedom": null,
@@ -246,10 +288,6 @@
     "message": "Consider '%s' instead of '%s'.",
     "swap": {
      "a number of": "some (or the number)",
-     "are able to": "can",
-     "at this point in time": "now",
-     "in order to": "to",
-     "is able to": "can",
      "leverag(?:e|es|ed|ing)": "use",
      "prior to": "before",
      "utiliz(?:e|es|ed|ing)": "use"
@@ -257,7 +295,7 @@
    }
   ],
   "tagline": "Short sentences, the imperative, and nothing the reader has to skip.",
-  "version": "0.1.0"
+  "version": "0.2.0"
  },
  "newsletter": {
   "freedom": "balanced",
@@ -522,6 +560,46 @@
    }
   ],
   "tagline": "Decks, one-pagers, proposals and follow-ups for a prospect you know, for founders, consultants and services teams.",
+  "version": "0.1.0"
+ },
+ "short-and-plain": {
+  "freedom": null,
+  "kind": "style",
+  "label": null,
+  "rules": [
+   {
+    "extends": "substitution",
+    "id": "ShortAndPlain.PlainWords",
+    "ignorecase": true,
+    "level": "suggestion",
+    "message": "Use '%s' instead of '%s'.",
+    "swap": {
+     "approximately": "about",
+     "assist(?:s|ed|ing)?": "help",
+     "commenc(?:e|es|ed|ing)": "start",
+     "endeavou?r(?:s|ed|ing)?": "try",
+     "facilitat(?:e|es|ed|ing)": "help",
+     "purchas(?:e|es|ed|ing)": "buy",
+     "terminat(?:e|es|ed|ing)": "end"
+    }
+   },
+   {
+    "extends": "existence",
+    "id": "ShortAndPlain.Qualifiers",
+    "ignorecase": true,
+    "level": "suggestion",
+    "message": "Cut '%s', or replace it with a fact.",
+    "tokens": [
+     "very",
+     "really",
+     "quite",
+     "somewhat",
+     "extremely",
+     "rather(?! than)"
+    ]
+   }
+  ],
+  "tagline": "Short sentences, concrete words and strong verbs. Nothing the reader has to wade through.",
   "version": "0.1.0"
  },
  "ux-microcopy": {

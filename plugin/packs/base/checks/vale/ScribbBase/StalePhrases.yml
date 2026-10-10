@@ -1,0 +1,17 @@
+extends: existence
+message: "'%s' is a stale phrase. Say what you mean in plain words."
+level: warning
+ignorecase: true
+tokens:
+  - move the needle
+  - low[- ]hanging fruit
+  - at the end of the day
+  - boil(?:ing)? the ocean
+  - think(?:ing)? outside (?:the|of the) box
+  - take (?:it|this|things|your \w+) to the next level
+  - hit(?:s|ting)? the ground running
+  - level(?:s|ing)? the playing field
+  - drink(?:ing)? from (?:a|the) fire ?hose
+  - peel(?:ing)? back the (?:layers of the )?onion
+  - (?:a )?win[- ]win situation
+  - push(?:ing)? the envelope

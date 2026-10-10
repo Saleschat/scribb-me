@@ -1,1 +1,1 @@
-To deploy, use the CLI.
+To deploy, use the CLI before merging.

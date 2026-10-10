@@ -1,0 +1,11 @@
+extends: existence
+message: "Cut '%s', or replace it with a fact."
+level: suggestion
+ignorecase: true
+tokens:
+  - very
+  - really
+  - quite
+  - somewhat
+  - extremely
+  - rather(?! than)

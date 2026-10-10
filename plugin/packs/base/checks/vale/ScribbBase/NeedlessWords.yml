@@ -1,0 +1,17 @@
+extends: substitution
+message: "Use '%s' instead of '%s'."
+level: suggestion
+ignorecase: true
+swap:
+  due to the fact that: because
+  owing to the fact that: because
+  in spite of the fact that: although
+  in order to: to
+  at this point in time: now
+  at the present time: now
+  in the event that: if
+  for the purpose of: to (or for)
+  is able to: can
+  are able to: can
+  in the near future: soon
+  has the ability to: can

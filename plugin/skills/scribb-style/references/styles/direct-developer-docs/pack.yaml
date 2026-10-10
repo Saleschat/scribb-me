@@ -3,7 +3,7 @@
 # On a conflict, the content type wins.
 id: direct-developer-docs
 kind: style
-version: 0.1.0
+version: 0.2.0
 tagline: Short sentences, the imperative, and nothing the reader has to skip.
 license: MIT
 traits:

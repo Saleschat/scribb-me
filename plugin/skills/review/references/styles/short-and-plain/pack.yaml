@@ -1,0 +1,29 @@
+# Example STYLE: who it sounds like. It holds taste that good writers disagree on.
+# Optional, at most one per piece, layered on any content type in good_for.
+# On a conflict, the content type wins.
+id: short-and-plain
+kind: style
+version: 0.1.0
+tagline: Short sentences, concrete words and strong verbs. Nothing the reader has to wade through.
+license: MIT
+traits:
+  formality: neutral
+  density: terse
+  person: you
+  source_type: original
+  good_for: [docs, marketing, email]
+extends: null
+sources:
+  - name: Ernest Hemingway's plain style (short sentences, concrete detail)
+    url: https://en.wikipedia.org/wiki/Iceberg_theory
+    license: not applicable (a way of writing, no text reused)
+    use: inspiration only; our own words
+  - name: 'George Orwell, "Politics and the English Language" (1946)'
+    url: https://www.orwellfoundation.com/the-orwell-foundation/orwell/essays-and-other-works/politics-and-the-english-language/
+    license: public domain in some countries; all rights reserved in others
+    use: inspiration only; our own words, never quoted
+  - name: William Strunk Jr., The Elements of Style (1918 edition)
+    url: https://www.gutenberg.org/ebooks/37134
+    license: public domain (1918 edition)
+    use: inspiration only; our own words
+tags: [plain, terse]

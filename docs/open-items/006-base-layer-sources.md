@@ -31,3 +31,8 @@ Rule: only sources with an open license that allows redistribution can be shippe
 - Google developer docs style guide: CC BY 4.0, credited in `plugin/NOTICE.md`.
 - No Wikipedia text is quoted anywhere, so no CC BY-SA data file is needed yet.
 - The a16z crypto post is Stephanie Zinn, "Habits of AI writing, and what to do about them" (https://a16zcrypto.com/posts/article/ai-writing-hallmarks-for-founders/, dated 24 August 2026 on the site; also on the a16z crypto Substack). It states no licence, so it stays inspiration only: reworded, never quoted. Credited in `plugin/packs/base/pack.yaml` and `plugin/NOTICE.md` (2026-10-08).
+
+## Plain-writing tradition (2026-10-10)
+- Base pack 0.2.0 adds a "Before you send it" checklist after Orwell's six rules ("Politics and the English Language", 1946), `ScribbBase.StalePhrases` (warning: stale business phrases such as `move the needle`) and `ScribbBase.NeedlessWords` (suggestion: `in order to` → to, after Strunk's "omit needless words", 1918 edition, public domain). Active voice stays with the reviewer: too imprecise for a checker rule.
+- The generic wordy phrases moved from `direct-developer-docs` into base, so nothing is flagged twice.
+- All cited as inspiration; our own words, nothing quoted. E.B. White's later revisions of *The Elements of Style* aren't used.
