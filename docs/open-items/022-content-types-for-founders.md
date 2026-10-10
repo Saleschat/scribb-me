@@ -1,9 +1,9 @@
-# 022 — Content types for founders, consultants and services companies
+# 022 — Content types for founders, journalists, consultants and services companies
 
 Status: open
 
 ## Context
-scribb.me's audience is founders, writers, business owners, consultants and services companies: people whose writing is part of what they sell, and who lose their identity when AI writes for them (README intro, 2026-10-10). Their problems span more kinds of writing than scribb covers today (product docs, developer docs, UI copy, newsletters). The README lists these as "Coming next".
+scribb.me's audience is founders, journalists, writers, consultants, business owners and services companies: people whose writing is part of what they sell, and who lose their identity when AI writes for them (README intro, 2026-10-10). Their problems span more kinds of writing than scribb covers today (product docs, developer docs, UI copy, newsletters). The README lists these as "Coming next".
 
 ## Content types to add
 - **Social posts, LinkedIn first:** hooks that aren't clickbait, one idea per post, the writer's own voice, no engagement-bait endings.

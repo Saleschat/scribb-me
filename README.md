@@ -1,23 +1,24 @@
 # scribb.me
 
-**Keep your voice when AI writes for you.**
+**Sound like yourself, even when AI writes for you.**
 
-Your identity is the biggest thing that sets you apart. It's why clients pick you and why people read what you write. It's also the first thing that disappears when AI does the writing.
+People choose a voice they recognize. The founder who explains things plainly. The consultant whose proposals get to the point. The journalist whose sentences you'd know without the byline.
 
-You've probably seen it happen:
-- Your LinkedIn posts read like everyone else's, and stop getting traction.
-- Your emails get skimmed, then ignored.
-- Your website and sales decks lose the simplicity that made people get it in ten seconds.
-- Client implementation documents grow long and complicated, for your team and for theirs.
-- Product docs try to answer every question at once.
-- Technical docs go far beyond what anyone asked for.
-- Dashboards fill up with more components and numbers than anyone reads.
+That voice is the first thing to go when AI drafts for you. What comes back is fluent and interchangeable, and you can feel it everywhere:
 
-None of this started with AI. People wrote padded, generic prose long before. AI made it effortless, and made everyone sound the same.
+- The LinkedIn post that sounds like a thousand others, and gets the reach to match.
+- The email that opens with a pleasantry and buries the ask.
+- The pitch deck that needs three slides to say what used to take one.
+- The client implementation plan nobody on either side finishes reading.
+- The product doc that answers every question except the one you had.
+- The technical spec that solves problems nobody raised.
+- The dashboard with twelve charts when you needed two numbers.
 
-scribb.me is a writing-style plugin for Claude that pushes the other way. It strips out the habits that make writing sound machine-made, keeps each piece to what its reader needs, and writes in your voice: learned from your own writing, with your terms and your team's rules.
+Padding and sameness didn't arrive with AI. AI made them free.
 
-It's for founders, writers, business owners, consultants and services companies: anyone whose writing is part of what they sell.
+scribb.me is a plugin for Claude that writes the other way: plainer, and in your voice. It removes the tells that make text sound machine-made, keeps each piece to what its reader came for, and learns how you write from your own work, along with your terms and your team's rules.
+
+It's built for people whose writing is part of what they sell: founders, journalists, writers, consultants, business owners and services companies.
 
 ### What scribb covers today
 - **Product docs:** onboarding guides, how-tos, help articles, READMEs, release notes
