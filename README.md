@@ -1,5 +1,9 @@
 # scribb.me
 
+**To be, or not to be… you.**
+
+Hand Aristotle, Shakespeare, Tolstoy and Orwell the same AI, and by Friday they'd all post the same LinkedIn update. Two thousand years of different voices, gone in a week. Their voices are what made them. Yours is what makes you.
+
 ## Sound like yourself, even when AI writes for you
 
 scribb.me is a free, open-source plugin for Claude that keeps your writing in your own voice. It works in Claude Code, Cowork and claude.ai chat.
