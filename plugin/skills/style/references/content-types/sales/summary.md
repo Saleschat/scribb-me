@@ -1,0 +1,10 @@
+- Write for one known prospect. Use their situation, their numbers and the words they used on the call.
+- Decks tell one story: the old way, what's at stake, the new destination, what's in the way, and how you get them past it.
+- One message per slide. The headline states the takeaway as a sentence; the body stays around 30 words.
+- A stranger should get each slide at a glance. A one-pager has to work with nobody there to explain it.
+- Proposals restate the prospect's problem in their words, then scope, outcomes, price and the next step. No padding.
+- Follow-ups recap what was agreed and name one next step.
+- Every claim is one they'll hold you to. Be precise, and never invent proof; use proof from their industry where you have it.
+- Name the alternatives they're weighing, including doing nothing, and answer objections openly.
+- End on a concrete next step with a date, not "Questions?" or a vague request for thoughts.
+- No buzzwords, self-congratulation or sales clichés.

@@ -46,7 +46,7 @@ Pick the case from the arguments, or from what the user asked:
 
 **`doctor`**: run `scribb-config doctor` and show its output. Explain the last hook runs in one or two lines: whether hooks ran at all, and why a file was skipped if it was.
 
-**`content-type`**: show which files map to each content type (from the status above) and change them with `scribb-config set paths_<id> "<globs>" --scope project` if asked: `paths_docs`, `paths_ui`, `paths_newsletter`.
+**`content-type`**: show which files map to each content type (from the status above) and change them with `scribb-config set paths_<id> "<globs>" --scope project` if asked: `paths_docs`, `paths_ui`, `paths_newsletter`, `paths_website`, `paths_sales`.
 
 **`add <git-url | path>`**: install a style pack.
 1. Clone (shallow) or copy it into a temp folder.

@@ -108,6 +108,11 @@ for jqmode in jq nojq; do
   assert "content type: newsletters have no default folder" [ "$(ct newsletter/2026/issue-12.md)" = product-docs ]
   printf -- '---\nscribb-content-type: newsletter\n---\n# Issue 12\n' > docs/issue.md
   assert "content type: frontmatter picks Newsletter" [ "$(ct docs/issue.md)" = newsletter ]
+  assert "content type: website pages have no default folder" [ "$(ct site/index.md)" = product-docs ]
+  printf -- '---\nscribb-content-type: website\n---\n# Tally\n' > docs/landing.md
+  assert "content type: frontmatter picks Website" [ "$(ct docs/landing.md)" = website ]
+  printf -- '---\nscribb-content-type: sales\n---\n# Proposal for Acme\n' > docs/proposal.md
+  assert "content type: frontmatter picks Sales" [ "$(ct docs/proposal.md)" = sales ]
   assert "content type: other files have none" [ -z "$(ct src/a.py)" ]
   mkdir -p .scribb && echo "paths_newsletter: emails/*" > .scribb/config.yaml && mkdir -p emails
   assert "content type: paths_newsletter maps a folder" [ "$(ct emails/welcome.md)" = newsletter ]
@@ -291,6 +296,12 @@ for jqmode in jq nojq; do
     out=$("$PLUGIN/scripts/scribb-check" newsletter/i12.md)
     assert "newsletter: its rules run on newsletter/ files" contains "$out" "ScribbNewsletter.EmailCliches"
     refute "newsletter: Docs rules don't" contains "$out" "ScribbDocs."
+    out=$("$PLUGIN/scripts/scribb-check" --content-type website --text "We're thrilled to announce our revolutionary, best-in-class platform.")
+    assert "website: its rules run" contains "$out" "ScribbWebsite."
+    assert "website: expressive freedom by default (conventions warn, not block)" contains "$out" ":warn:convention:ScribbWebsite."
+    out=$("$PLUGIN/scripts/scribb-check" --content-type sales --text "Just checking in to circle back on the revolutionary proposal.")
+    assert "sales: its rules run" contains "$out" "ScribbSales."
+    assert "sales: balanced freedom by default (conventions block)" contains "$out" ":block:convention:ScribbSales."
     "$PLUGIN/scripts/scribb-check" --export .scribb/checker >/dev/null
     assert "export: writes vale.ini" [ -f .scribb/checker/vale.ini ]
     out=$(vale --config=.scribb/checker/vale.ini --output=line newsletter/i12.md 2>&1)

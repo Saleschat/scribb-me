@@ -1,0 +1,10 @@
+- Say plainly what you sell in the first two lines. A slogan the reader has to decode loses them.
+- Open with the tension in the reader's situation, in the words they'd use. Find those words in reviews, sales calls and support tickets.
+- One idea per page, and one specific promise backed by real proof: numbers, names, quotes. Never invent proof.
+- Name what the reader would do instead, even "nothing" or "a spreadsheet", and why you're the better choice.
+- Answer the main objection near the top, before they leave with it.
+- Say who it's for, and who it isn't.
+- One call to action. Start it with a verb and let it finish the page's story ("Start your free trial"). Never a bare "Learn more".
+- Sound like a person, ideally the founder. Personality is welcome; hype and superlatives aren't.
+- Every feature earns its place with what the reader gets from it.
+- Make each line lead to the next, and cut what the reader doesn't need to decide.
