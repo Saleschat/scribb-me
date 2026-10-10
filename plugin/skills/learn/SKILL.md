@@ -40,7 +40,7 @@ Re-learning an existing style: run the same steps, then show a diff against the 
 ## In chat
 The references, all relative to this skill's folder:
 - `references/base/guide.md` (always), `references/base/summary.md`
-- `references/content-types/<id>/guide.md`, `summary.md`, `sample.md`, `formats/<format>.md`, and for UI copy `roles/shadcn.yaml`. Content types: `product-docs`, `developer-docs`, `ux-microcopy`, `newsletter`; each `pack.yaml` has its tagline and default freedom.
+- `references/content-types/<id>/guide.md`, `summary.md`, `sample.md`, `formats/<format>.md`, and for UI copy `roles/shadcn.yaml`. Content types: `product-docs`, `developer-docs`, `ux-microcopy`, `newsletter`, `website`, `sales`; each `pack.yaml` has its tagline and default freedom.
 - `references/styles/<id>/guide.md`, `summary.md`, `sample.md`. Styles: `direct-developer-docs`, `crisp-product-ui`.
 
 - **inbox:** there's no inbox in chat. Corrections are captured only in Claude Code. Say so in one line.

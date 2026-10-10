@@ -1,0 +1,10 @@
+extends: existence
+message: "'%s' is a sales cliché. Say what you need and by when."
+level: warning
+ignorecase: true
+tokens:
+  - circl(?:e|ing) back
+  - touch(?:ing)? base
+  - just (?:checking in|following up|wanted to follow up)
+  - hope (?:this|my) (?:email|message|note) finds you
+  - (?:let me know|i'?d love to hear) your thoughts

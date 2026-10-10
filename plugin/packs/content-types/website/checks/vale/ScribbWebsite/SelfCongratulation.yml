@@ -1,0 +1,6 @@
+extends: existence
+message: "'%s' is about you, not the reader. Lead with what they get."
+level: warning
+ignorecase: true
+tokens:
+  - (?:we're|we are) (?:so |very |really |incredibly )?(?:excited|thrilled|proud|delighted|honored|honoured) to

@@ -449,6 +449,81 @@
   "tagline": "Clear, task-first docs for people using or evaluating the product, from getting started, how-tos and help articles to READMEs, other repo files and release notes.",
   "version": "0.1.0"
  },
+ "sales": {
+  "freedom": "balanced",
+  "kind": "content-type",
+  "label": "Sales materials",
+  "rules": [
+   {
+    "extends": "existence",
+    "id": "ScribbSales.Buzzwords",
+    "ignorecase": true,
+    "level": "warning",
+    "message": "'%s' is a claim the reader can't check. Say what the product does, or prove it.",
+    "tokens": [
+     "revolutionar(?:y|ize|izes|izing)",
+     "cutting[- ]edge",
+     "best[- ]in[- ]class",
+     "world[- ]class",
+     "next[- ]gen(?:eration)?",
+     "industry[- ]leading",
+     "synerg(?:y|ies|ize|istic)",
+     "paradigm shift",
+     "empowers? (?:you|teams|organizations|businesses|users|people) to",
+     "(?:turnkey|end-to-end|innovative|holistic) solutions?"
+    ]
+   },
+   {
+    "extends": "existence",
+    "id": "ScribbSales.ExclamationStack",
+    "level": "warning",
+    "message": "Use one exclamation mark at most, not '%s'.",
+    "nonword": true,
+    "scope": "sentence",
+    "tokens": [
+     "!{2,}"
+    ]
+   },
+   {
+    "extends": "existence",
+    "id": "ScribbSales.LinkText",
+    "ignorecase": true,
+    "level": "warning",
+    "message": "Use link text that says what happens next, not '%s'.",
+    "nonword": true,
+    "scope": "raw",
+    "tokens": [
+     "\\[(?:here|click here|learn more|read more|more|this link|link)\\]\\("
+    ]
+   },
+   {
+    "extends": "existence",
+    "id": "ScribbSales.SalesCliches",
+    "ignorecase": true,
+    "level": "warning",
+    "message": "'%s' is a sales cliché. Say what you need and by when.",
+    "tokens": [
+     "circl(?:e|ing) back",
+     "touch(?:ing)? base",
+     "just (?:checking in|following up|wanted to follow up)",
+     "hope (?:this|my) (?:email|message|note) finds you",
+     "(?:let me know|i'?d love to hear) your thoughts"
+    ]
+   },
+   {
+    "extends": "existence",
+    "id": "ScribbSales.SelfCongratulation",
+    "ignorecase": true,
+    "level": "warning",
+    "message": "'%s' is about you, not the reader. Lead with what they get.",
+    "tokens": [
+     "(?:we're|we are) (?:so |very |really |incredibly )?(?:excited|thrilled|proud|delighted|honored|honoured) to"
+    ]
+   }
+  ],
+  "tagline": "Decks, one-pagers, proposals and follow-ups for a prospect you know, for founders, consultants and services teams.",
+  "version": "0.1.0"
+ },
  "ux-microcopy": {
   "freedom": "strict",
   "kind": "content-type",
@@ -525,5 +600,66 @@
   ],
   "tagline": "Short, specific interface copy that tells people what happened and what to do.",
   "version": "0.1.0"
+ },
+ "website": {
+  "freedom": "expressive",
+  "kind": "content-type",
+  "label": "Website pages",
+  "rules": [
+   {
+    "extends": "existence",
+    "id": "ScribbWebsite.Buzzwords",
+    "ignorecase": true,
+    "level": "warning",
+    "message": "'%s' is a claim the reader can't check. Say what the product does, or prove it.",
+    "tokens": [
+     "revolutionar(?:y|ize|izes|izing)",
+     "cutting[- ]edge",
+     "best[- ]in[- ]class",
+     "world[- ]class",
+     "next[- ]gen(?:eration)?",
+     "industry[- ]leading",
+     "synerg(?:y|ies|ize|istic)",
+     "paradigm shift",
+     "empowers? (?:you|teams|organizations|businesses|users|people) to",
+     "(?:turnkey|end-to-end|innovative|holistic) solutions?"
+    ]
+   },
+   {
+    "extends": "existence",
+    "id": "ScribbWebsite.ExclamationStack",
+    "level": "warning",
+    "message": "Use one exclamation mark at most, not '%s'.",
+    "nonword": true,
+    "scope": "sentence",
+    "tokens": [
+     "!{2,}"
+    ]
+   },
+   {
+    "extends": "existence",
+    "id": "ScribbWebsite.LinkText",
+    "ignorecase": true,
+    "level": "warning",
+    "message": "Use link text that says what happens next, not '%s'.",
+    "nonword": true,
+    "scope": "raw",
+    "tokens": [
+     "\\[(?:here|click here|learn more|read more|more|this link|link)\\]\\("
+    ]
+   },
+   {
+    "extends": "existence",
+    "id": "ScribbWebsite.SelfCongratulation",
+    "ignorecase": true,
+    "level": "warning",
+    "message": "'%s' is about you, not the reader. Lead with what they get.",
+    "tokens": [
+     "(?:we're|we are) (?:so |very |really |incredibly )?(?:excited|thrilled|proud|delighted|honored|honoured) to"
+    ]
+   }
+  ],
+  "tagline": "Public pages that win a stranger over in seconds, for founders, consultants and teams writing their website.",
+  "version": "0.2.0"
  }
 }
