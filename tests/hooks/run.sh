@@ -104,7 +104,14 @@ for jqmode in jq nojq; do
   assert "content type: unknown frontmatter value is ignored" [ "$(ct docs/odd.md)" = product-docs ]
   printf -- '# Not frontmatter\n\nscribb-content-type: developer-docs\n' > docs/body.md
   assert "content type: the key only counts in frontmatter" [ "$(ct docs/body.md)" = product-docs ]
-  assert "content type: *.tsx is UI copy" [ "$(ct src/A.tsx)" = ux-microcopy ]
+  mct() { bash -c '. "$1/lib/scribb.sh"; SCRIBB_PROJECT=$(scribb_project_dir); content_types_in "$2" | tr "\t\n" ":," ' _ "$PLUGIN" "$1"; }
+  mkdir -p src
+  printf 'export const A = () => <p>Save changes</p>;\n' > src/A.tsx
+  assert "content type: JSX text is UI copy" [ "$(mct src/A.tsx)" = "ui-text:ux-microcopy," ]
+  printf 'export const total = (a: number) => a + 1;\n' > src/util.ts
+  assert "content type: code without JSX or comments has no content type" [ -z "$(mct src/util.ts)" ]
+  printf '<p>Save</p>\n' > src/page.html
+  assert "content type: a file's extension alone doesn't make it UI copy" [ "$(mct src/page.html)" != "ui-text:ux-microcopy," ]
   assert "content type: newsletters have no default folder" [ "$(ct newsletter/2026/issue-12.md)" = product-docs ]
   printf -- '---\nscribb-content-type: newsletter\n---\n# Issue 12\n' > docs/issue.md
   assert "content type: frontmatter picks Newsletter" [ "$(ct docs/issue.md)" = newsletter ]
@@ -271,6 +278,39 @@ for jqmode in jq nojq; do
     out=$("$PLUGIN/scripts/scribb-check" B.tsx)
     assert "scribb-check: lints JSX text in .tsx" contains "$out" "B.tsx:3:"
     assert "scribb-check: reports the .tsx path, not the copy" contains "$out" "B.tsx:3:14:block:convention:ScribbUI.Oops"
+    # Blocks: one file, several content types. A project content type that
+    # covers comments stands in for the built-in one.
+    mkdir -p .scribb/packs/content-types/test-comments/checks/vale/TestComments
+    printf 'id: test-comments\nkind: content-type\nlabel: Test comments\nfreedom: balanced\npaths: []\nblock: comments\nmatch_order: 45\nreview_threshold: none\n' > .scribb/packs/content-types/test-comments/pack.yaml
+    printf 'extends: existence\nmessage: "History: %%s"\nlevel: warning\nignorecase: true\ntokens:\n  - updated to\n' > .scribb/packs/content-types/test-comments/checks/vale/TestComments/History.yml
+    printf 'import React from "react";\n/**\n * Shows the card.\n * Updated to use the new cache.\n */\nexport function C() {\n  return <h2>Oops! No projects yet</h2>; // updated to drop props\n}\n' > M.tsx
+    out=$("$PLUGIN/scripts/scribb-check" M.tsx)
+    assert "blocks: UI text in a mixed file is UI copy" contains "$out" "M.tsx:7:14:block:convention:ScribbUI.Oops"
+    assert "blocks: a doc comment is checked as a comment" contains "$out" "M.tsx:4:4:block:convention:TestComments.History"
+    assert "blocks: a trailing comment keeps its column" contains "$out" "M.tsx:7:45:block:convention:TestComments.History"
+    refute "blocks: comment rules stay out of UI text" contains "$out" "M.tsx:7:14:block:convention:TestComments"
+    refute "blocks: UI rules stay out of comments" contains "$out" "M.tsx:4:4:block:convention:ScribbUI"
+    printf '#!/usr/bin/env python3\n"""Runs the job."""\nx = "# updated to nothing"  # updated to use x\n' > tool
+    out=$("$PLUGIN/scripts/scribb-check" tool)
+    assert "blocks: a shebang picks the comment syntax" contains "$out" "tool:3:"
+    refute "blocks: text in strings isn't a comment" contains "$out" "tool:3:7:"
+    printf '# Setup\n\nRun it.\n\n~~~python\nrun()  # updated to the new API\n~~~\n' > docs/fence.md
+    out=$("$PLUGIN/scripts/scribb-check" docs/fence.md)
+    assert "blocks: comments in a Markdown code fence are comments" contains "$out" "docs/fence.md:6:"
+    "$PLUGIN/scripts/scribb-config" set test_comments off --scope project >/dev/null
+    refute "blocks: a content type can be turned off (project)" contains "$("$PLUGIN/scripts/scribb-check" M.tsx)" "TestComments"
+    "$PLUGIN/scripts/scribb-config" set test_comments on --scope local >/dev/null
+    assert "blocks: local beats project" contains "$("$PLUGIN/scripts/scribb-check" M.tsx)" "TestComments"
+    "$PLUGIN/scripts/scribb-config" unset test_comments --scope local >/dev/null
+    "$PLUGIN/scripts/scribb-config" unset test_comments --scope project >/dev/null
+    printf 'package x\n\n// Old is updated to keep it.\nfunc Old() {}\n' > old.go
+    git add old.go && git -c user.email=t@t -c user.name=t commit -qm old
+    printf 'package x\n\n// Old is updated to keep it.\nfunc Old() {}\n\n// New is updated to add it.\nfunc New() {}\n' > old.go
+    out=$("$PLUGIN/scripts/scribb-check" --changed old.go)
+    assert "blocks: --changed reports new comments" contains "$out" "old.go:6:"
+    refute "blocks: --changed leaves old comments alone" contains "$out" "old.go:3:"
+    assert "blocks: without --changed, every comment counts" contains "$("$PLUGIN/scripts/scribb-check" old.go)" "old.go:3:"
+    rm -rf .scribb/packs M.tsx tool docs/fence.md old.go
     run_hook check "$(edit_input s1 "$T/proj/docs/good.md")" >/dev/null 2>&1
     assert "check hook: clean file exits 0" [ $? -eq 0 ]
     for i in 1 2; do

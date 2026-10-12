@@ -22,6 +22,7 @@ How scribb.me is laid out, where it keeps things, and how to build and test it. 
 |---|---|
 | `plugin/` | The plugin: skills, agents, hooks, helper scripts and packs |
 | `plugin/packs/` | Built-in base, content types and styles ([pack format](docs/pack-format.md)) |
+| `plugin/lib/blocks.py` | Splits a file into prose, UI text and comments, so each block is checked as its own content type |
 | `tools/build-chat.py`, `tools/chat/` | Build the chat bundles: guides and the built-in checker copied into each chat-capable skill |
 | `evals/rules/` | A bad/good test pair for every checker rule |
 | `evals/quality/` | With/without-scribb quality evals (`claude plugin eval`) |
@@ -35,7 +36,7 @@ brew install vale shellcheck     # Vale is optional for users, needed for the pa
 claude --plugin-dir plugin       # try the plugin locally
 python3 tools/build-chat.py      # rebuild the chat bundles after editing packs
 evals/rules/run.sh               # every checker rule fires on bad text and stays quiet on good text
-python3 tests/chat/parity.py     # the built-in checker gives the same findings as Vale
+python3 tests/chat/parity.py     # the built-in checker gives the same findings as Vale, block by block on tests/chat/fixtures
 tests/hooks/run.sh               # hook and helper tests
 shellcheck -x plugin/scripts/* plugin/hooks/scribb-hook plugin/lib/*.sh
 evals/quality/run.sh             # quality evals; uses your Claude credentials and costs money

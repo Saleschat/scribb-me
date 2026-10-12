@@ -407,6 +407,7 @@ content_type_for() {
   fi
   while IFS= read -r ct; do
     [ -n "$ct" ] || continue
+    [ -n "$(ct_block "$ct")" ] && continue # picked by block, not by path
     if match_globs "$rel" "$(ct_paths "$ct")"; then
       echo "$ct"
       return 0
@@ -414,6 +415,92 @@ content_type_for() {
   done <<EOF
 $(content_type_ids)
 EOF
+}
+
+# --- Blocks: one file, several content types ------------------------------------------
+# A file is split into blocks by their nature (lib/blocks.py): prose, UI text
+# and comments. Prose gets the file's document type (content_type_for above).
+# A content type whose pack.yaml says "block: ui-text" or "block: comments"
+# covers that kind of block wherever it appears; its paths, if any, narrow it.
+
+# ct_block ID: the block kind a content type covers, or nothing for prose.
+ct_block() {
+  local d
+  d=$(pack_dir "$1") || return 0
+  pack_field "$d" block 2>/dev/null || true
+}
+
+# ct_enabled ID: false when a scope turns the content type off
+# ("code_comments: off"; the setting is the id with underscores).
+ct_enabled() {
+  ! is_off "$(cfg "$(printf '%s' "$1" | tr '-' '_')")"
+}
+
+blocks_py() {
+  printf '%s\n' "$(scribb_plugin_root)/lib/blocks.py"
+}
+
+# file_kinds FILE: the block kinds in FILE, one per line. Without python3,
+# Markdown is prose and JSX files are UI text.
+file_kinds() {
+  if command -v python3 >/dev/null 2>&1; then
+    python3 "$(blocks_py)" --list "$1" 2>/dev/null
+    return 0
+  fi
+  case "$1" in
+    *.jsx | *.tsx) echo ui-text ;;
+    *) echo prose ;;
+  esac
+}
+
+# block_content_type KIND FILE: the content type for one kind of block in FILE.
+block_content_type() {
+  local kind="$1" file rel ct paths
+  file=$(abs_path "$2")
+  rel="${file#"$SCRIBB_PROJECT"/}"
+  if [ "$kind" = prose ]; then
+    ct=$(content_type_for "$file")
+    if [ -n "$ct" ] && ct_enabled "$ct"; then echo "$ct"; fi
+    return 0
+  fi
+  while IFS= read -r ct; do
+    [ -n "$ct" ] || continue
+    [ "$(ct_block "$ct")" = "$kind" ] || continue
+    ct_enabled "$ct" || continue
+    paths=$(ct_paths "$ct")
+    if [ -n "$paths" ] && ! match_globs "$rel" "$paths"; then continue; fi
+    echo "$ct"
+    return 0
+  done <<EOF
+$(content_type_ids)
+EOF
+}
+
+# content_types_in FILE: "kind<TAB>content type" for each block in FILE that a
+# content type covers. Nothing for ignored files or files outside the project.
+# The first line is the file's main content type.
+content_types_in() {
+  local file rel kind ct tab
+  tab=$(printf '\t')
+  file=$(abs_path "$1")
+  case "$file" in
+    "$SCRIBB_PROJECT"/*) rel="${file#"$SCRIBB_PROJECT"/}" ;;
+    *) return 0 ;;
+  esac
+  match_globs "$rel" "$(cfg paths_ignore)" && return 0
+  while IFS= read -r kind; do
+    [ -n "$kind" ] || continue
+    ct=$(block_content_type "$kind" "$file")
+    [ -n "$ct" ] && printf '%s%s%s\n' "$kind" "$tab" "$ct"
+  done <<EOF
+$(if [ -f "$file" ]; then file_kinds "$file"; else echo prose; fi)
+EOF
+  return 0
+}
+
+# main_content_type FILE: the content type of FILE's first block, or nothing.
+main_content_type() {
+  content_types_in "$1" | head -n 1 | cut -f2
 }
 
 content_type_label() {
