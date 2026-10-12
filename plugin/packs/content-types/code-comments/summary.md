@@ -1,0 +1,10 @@
+- Lead with a summary sentence that makes sense on its own: a verb phrase about what the code does.
+- Say what the code does and why, never how. The body shows how.
+- Don't repeat the name, the signature or the types the language already declares.
+- Add parameter, return and error tags only when they say something the signature can't.
+- Link to related code with the language's link syntax instead of explaining it again.
+- Inline comments explain a why the code can't show. Never comment the obvious.
+- No history ("updated to…", "previously…") and no notes to the reviewer. Those belong in the commit.
+- Delete commented-out code.
+- Follow the language's own conventions: Javadoc and KDoc, TSDoc and JSDoc, Go doc comments, PEP 257 docstrings, rustdoc.
+- Match the conventions the file already uses.

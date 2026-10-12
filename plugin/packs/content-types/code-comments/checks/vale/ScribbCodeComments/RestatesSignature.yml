@@ -1,0 +1,8 @@
+extends: existence
+message: "Start with what it does ('Returns…', 'Parses…') instead of '%s'."
+level: suggestion
+ignorecase: true
+tokens:
+  - this (?:function|method|class|helper|module|hook|component) (?:is used to|is responsible for|will)
+  - this is an? (?:function|method|class|helper|utility) (?:that|which|to)
+  - (?:a |the )?(?:function|method) (?:that|which) is used to

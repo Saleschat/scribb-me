@@ -28,6 +28,7 @@ Every piece comes out clear and to the point. scribb removes the habits readers 
 - **Product docs:** onboarding guides, how-tos, help articles, release notes
 - **Developer docs:** API, SDK and CLI reference, integration guides
 - **UI copy:** the words in your app or dashboard
+- **Code comments:** doc comments and docstrings that follow each language's best practice
 - **Your own style,** learned from your writing with `/scribb:learn`
 
 ### Coming next
@@ -136,6 +137,7 @@ Content types and styles are **independent**. Neither is built from the other. A
 | Product docs | People using or evaluating the product: getting started, how-tos, help articles, READMEs and other repo files, release notes | Any Markdown file (`*.md`, `*.mdx`) |
 | Developer docs | People writing code against the product: API, SDK and CLI reference, integration guides | The page is about that, or its frontmatter says `scribb-content-type: developer-docs`, or `/scribb:setup` mapped those folders |
 | UI copy | Product designers and engineers writing interface strings | Text a user reads in a JSX interface, in any file. The rest of the file (its comments, say) is checked as its own kind of writing |
+| Code comments | Engineers: doc comments, docstrings and inline comments, in Javadoc, TSDoc, Go, Python, Rust and other conventions | Comments in any source file, and in code fences in Markdown. Only the comments a change touches are checked |
 | Newsletter | Founders and creators: issues, product updates, welcome emails | The request says it's a newsletter, or its frontmatter says `scribb-content-type: newsletter`, or `/scribb:setup` mapped those folders |
 | Website pages | Founders and teams writing public pages that win a stranger over in seconds: landing, feature, pricing and about pages, case studies | The request says it's a website page, or its frontmatter says `scribb-content-type: website`, or `/scribb:setup` mapped those folders |
 | Sales materials | Founders, consultants and services teams writing for a known prospect: sales decks, one-pagers, proposals, follow-ups | The request says it's a deck, one-pager, proposal or follow-up, or its frontmatter says `scribb-content-type: sales`, or `/scribb:setup` mapped those folders |
@@ -198,7 +200,7 @@ scribb is on by default. You can turn it off at any level:
 | Everywhere, for you | `/scribb:style off --everywhere` |
 | Kill switch | `SCRIBB_DISABLE=1` in the environment |
 
-You can also switch off parts of it with `/scribb:style`: the reviewer (`reviewer: off`), nudges (`nudges: off`), correction capture (`capture: off`) or the session-start summary (`inject: off`).
+You can also switch off parts of it with `/scribb:style`: the reviewer (`reviewer: off`), nudges (`nudges: off`), correction capture (`capture: off`) or the session-start summary (`inject: off`). Each content type has its own switch too: `code_comments: off` stops checking code comments, in whichever scope you set it.
 
 ## Choose where to use it
 

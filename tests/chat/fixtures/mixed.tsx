@@ -2,7 +2,7 @@ import React from "react";
 
 /**
  * Shows the empty state for a project list.
- * This is a crucial component that leverages the cache.
+ * Updated to use the project cache.
  */
 export function Empty({ n }: { n: number }): JSX.Element {
   // Click here only appears in comments, so it isn't UI copy.

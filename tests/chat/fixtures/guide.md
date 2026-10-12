@@ -3,5 +3,5 @@
 Run the job once a day to delve into the queue.
 
 ```python
-run()  # this delves into the queue
+run()  # updated to use the new queue
 ```

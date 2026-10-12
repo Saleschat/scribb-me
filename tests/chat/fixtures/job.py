@@ -8,4 +8,4 @@ s = "# a tapestry of strings is not a comment"
 
 def run():
     """Returns nothing."""
-    return None  # leverages the queue
+    return None  # previously returned the count
