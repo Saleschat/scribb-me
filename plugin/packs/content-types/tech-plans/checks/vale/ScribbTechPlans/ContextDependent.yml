@@ -1,0 +1,13 @@
+extends: existence
+message: "'%s' assumes the reader was there. Name the thing and link it."
+level: warning
+ignorecase: true
+tokens:
+  - as (?:we )?discussed
+  - as (?:mentioned|noted|agreed|described) (?:earlier|above|before)
+  - earlier in (?:this|the) (?:conversation|chat|thread|session)
+  - the existing (?:helper|function|util|utility|pattern|approach|logic|code)
+  - the usual (?:pattern|approach|way|place)
+  - same as before
+  - like before
+  - see above

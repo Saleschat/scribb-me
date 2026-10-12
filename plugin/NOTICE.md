@@ -28,15 +28,18 @@ scribb.me is MIT-licensed (see `LICENSE` at the repository root). The packs in `
 | [Andy Raskin with Lenny Rachitsky, "The Power of Strategic Narrative"](https://www.lennysnewsletter.com/p/the-power-of-strategic-narrative), Lenny's Newsletter (May 2023) | All rights reserved | Inspiration for the narrative arc in `sales`. Our own words, never quoted. |
 | [Kevin Hale, Y Combinator, "How to Design a Better Pitch Deck"](https://www.ycombinator.com/blog/how-to-design-a-better-pitch-deck) | All rights reserved (no licence stated) | Inspiration for the slide rules in `sales`. Our own words, never quoted. |
 | [Sequoia Capital, "Writing a Business Plan"](https://www.sequoiacap.com/article/writing-a-business-plan/) | All rights reserved (no licence stated) | Inspiration for `sales` (one-sentence description, why now). Our own words, never quoted. |
-| [Oracle, "How to Write Doc Comments for the Javadoc Tool"](https://www.oracle.com/technical-resources/articles/java/javadoc-tool.html) | All rights reserved | Inspiration for `code-comments` (the summary sentence, tags, linking). Our own words, never quoted. |
+| [Oracle, "How to Write Doc Comments for the Javadoc Tool"](https://www.oracle.com/technical-resources/articles/java/javadoc-tool.html) | All rights reserved | Inspiration for `code-comments` (the summary sentence, tags, linking) and for the linking idea in `tech-plans`. Our own words, never quoted. |
 | [Go Doc Comments](https://go.dev/doc/comment), by the Go authors | CC BY 4.0 | Inspiration for the Go section of `code-comments`. Our own words. |
 | [TSDoc](https://tsdoc.org) | MIT | Inspiration for the TypeScript section of `code-comments`. |
 | [PEP 257, Docstring Conventions](https://peps.python.org/pep-0257/) | Public domain | Inspiration for the Python section of `code-comments`. |
 | [Rust API Guidelines, Documentation](https://rust-lang.github.io/api-guidelines/documentation.html) | MIT or Apache 2.0 | Inspiration for the Rust section of `code-comments`. |
 | [Kotlin documentation, "Document Kotlin code: KDoc"](https://kotlinlang.org/docs/kotlin-doc.html) | Apache 2.0 | Inspiration for the Kotlin notes in `code-comments`. |
+| [Michael Nygard, "Documenting Architecture Decisions"](https://cognitect.com/blog/2011/11/15/documenting-architecture-decisions) | All rights reserved | Inspiration for the ADR format in `tech-plans`. Our own words. |
+| [Rust RFC template](https://github.com/rust-lang/rfcs/blob/master/0000-template.md) | MIT or Apache 2.0 | Inspiration for the design-doc format in `tech-plans`. |
+| [PEP 1, PEP Purpose and Guidelines](https://peps.python.org/pep-0001/) | Public domain | Inspiration for the design-doc format in `tech-plans`. |
 
 The `newsletter` pack is original writing and draws on no external source.
 
-The `website`, `sales` and `code-comments` packs are written in our own words, drawing on the sources marked for them above.
+The `website`, `sales`, `code-comments` and `tech-plans` packs are written in our own words, drawing on the sources marked for them above.
 
 Sources we deliberately don't use: the Red Hat supplementary style guide and the GitLab documentation style guide are CC BY-SA 4.0, so their text isn't used in the packs.

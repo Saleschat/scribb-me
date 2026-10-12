@@ -15,3 +15,4 @@ scribb.me's audience is founders, journalists, writers, consultants, business ow
 - Dashboards: scribb covers their words through UI copy (labels, empty states, errors). Their layout, such as how many components and numbers they show, is a design question outside scribb's scope for now.
 - A founder's own voice comes from a style learned with `/scribb:learn`; each new content type should work with any style.
 - Building these may wait for easier ways to make content types (021).
+- Implementation plans: client-facing ones stay with client documents here. Engineering plans (plan mode, design docs, RFCs, ADRs) are the `tech-plans` content type (024).

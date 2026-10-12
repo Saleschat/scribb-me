@@ -6,6 +6,7 @@
 #   check          PostToolUse on Write|Edit (asyncRewake)  run the checker; exit 2 wakes Claude on blocking findings
 #   check-bash     PostToolUse on Bash (asyncRewake)  the same, for files a shell command wrote
 #   stop           Stop                lint a chat-only reply while a /scribb:write session is active
+#   plan-gate      PreToolUse and PermissionRequest on ExitPlanMode  ask for a cold read of the plan first
 # Synchronous paths use grep, sed, awk and cat only. Every path exits 0 when scribb is off.
 set -u
 
@@ -378,6 +379,67 @@ Revise the piece and show the corrected version. If a finding is wrong (a quote,
   printf '{"decision":"block","reason":"%s"}\n' "$(printf '%s' "$reason" | json_escape)"
 }
 
+# --- ExitPlanMode: a cold read before the plan reaches the user ---------------------------
+# Claude Code documents ExitPlanMode as a permission request, so the gate
+# listens on both PreToolUse and PermissionRequest and keeps one state file:
+#   no state          block, ask for a cold read     -> pending
+#   pending           allow (the cold read happened) -> passed:<hash>
+#   passed:<hash>     allow while the plan is unchanged; block again once it
+#                     changes (a revised plan gets its own cold read)
+
+# plan_for_gate: the plan file being presented, or nothing.
+plan_for_gate() {
+  local f d newest=""
+  f=$(json_get planFilePath "$INPUT")
+  [ -n "$f" ] || f=$(json_get plan_file_path "$INPUT")
+  if [ -n "$f" ] && [ -f "$f" ]; then
+    printf '%s\n' "$f"
+    return 0
+  fi
+  # Otherwise the newest plan written in the last six hours.
+  while IFS= read -r d; do
+    [ -d "$d" ] || continue
+    while IFS= read -r f; do
+      [ -n "$f" ] || continue
+      if [ -z "$newest" ] || [ "$f" -nt "$newest" ]; then newest="$f"; fi
+    done <<FILES
+$(find "$d" -maxdepth 1 -name '*.md' -mmin -360 2>/dev/null)
+FILES
+  done <<EOF
+$(plans_dirs)
+EOF
+  [ -n "$newest" ] && printf '%s\n' "$newest"
+  return 0
+}
+
+plan_gate() {
+  local plan state key cur hash msg
+  if ! pack_dir tech-plans >/dev/null || ! ct_enabled tech-plans || is_off "$(cfg reviewer)"; then return 0; fi
+  plan=$(plan_for_gate)
+  if [ -z "$plan" ]; then hook_log "plan-gate: no plan file found"; return 0; fi
+  key="$(session_dir)/plan-$(path_key "$plan")"
+  state=$(cat "$key" 2>/dev/null)
+  cur=$(cksum < "$plan" | awk '{print $1}')
+  case "$state" in
+    pending)
+      echo "passed:$cur" > "$key"
+      hook_log "plan-gate: allow $plan (cold read done)"
+      return 0 ;;
+    passed:*)
+      hash="${state#passed:}"
+      if [ "$hash" = "$cur" ]; then return 0; fi ;;
+  esac
+  echo pending > "$key"
+  hook_log "plan-gate: block $plan (cold read first)"
+  msg="scribb.me: before you show this plan, get a cold read. Run the scribb-cold-reader agent with the plan file ($plan). It lists the questions an engineer new to this codebase would have to ask. Answer each one in the plan itself (add the link, the one-line summary, the excerpt or the step it's missing), then call ExitPlanMode again. If it returns none, call ExitPlanMode again right away. Skip this only if the user asked for no review."
+  if [ "$(json_get hook_event_name "$INPUT")" = PermissionRequest ]; then
+    printf '{"hookSpecificOutput":{"hookEventName":"PermissionRequest","decision":{"behavior":"deny","message":"%s"}}}\n' "$(printf '%s' "$msg" | json_escape)"
+    return 0
+  fi
+  printf '%s\n' "$msg" >&2
+  exit 2
+}
+
 case "$event" in
   session-start) session_start ;;
   prompt) prompt_capture ;;
@@ -385,6 +447,7 @@ case "$event" in
   check) check ;;
   check-bash) check_bash ;;
   stop) stop ;;
+  plan-gate) plan_gate ;;
   *) echo "scribb-hook: unknown event '$event'" >&2 ;;
 esac
 exit 0

@@ -29,6 +29,7 @@ Every piece comes out clear and to the point. scribb removes the habits readers 
 - **Developer docs:** API, SDK and CLI reference, integration guides
 - **UI copy:** the words in your app or dashboard
 - **Code comments:** doc comments and docstrings that follow each language's best practice
+- **Technical plans:** implementation plans, design docs, RFCs and ADRs that an engineer new to the codebase can follow, with links that open in Obsidian
 - **Your own style,** learned from your writing with `/scribb:learn`
 
 ### Coming next
@@ -138,6 +139,7 @@ Content types and styles are **independent**. Neither is built from the other. A
 | Developer docs | People writing code against the product: API, SDK and CLI reference, integration guides | The page is about that, or its frontmatter says `scribb-content-type: developer-docs`, or `/scribb:setup` mapped those folders |
 | UI copy | Product designers and engineers writing interface strings | Text a user reads in a JSX interface, in any file. The rest of the file (its comments, say) is checked as its own kind of writing |
 | Code comments | Engineers: doc comments, docstrings and inline comments, in Javadoc, TSDoc, Go, Python, Rust and other conventions | Comments in any source file, and in code fences in Markdown. Only the comments a change touches are checked |
+| Technical plans | Engineers: implementation plans (including Claude Code's plan mode), design docs, RFCs, ADRs | Claude Code plan files, or frontmatter `scribb-content-type: tech-plans`, or `/scribb:setup` mapped those folders. Before Claude shows you a plan, a cold reader that sees only the plan lists what a newcomer would have to ask, and Claude answers it in the plan |
 | Newsletter | Founders and creators: issues, product updates, welcome emails | The request says it's a newsletter, or its frontmatter says `scribb-content-type: newsletter`, or `/scribb:setup` mapped those folders |
 | Website pages | Founders and teams writing public pages that win a stranger over in seconds: landing, feature, pricing and about pages, case studies | The request says it's a website page, or its frontmatter says `scribb-content-type: website`, or `/scribb:setup` mapped those folders |
 | Sales materials | Founders, consultants and services teams writing for a known prospect: sales decks, one-pagers, proposals, follow-ups | The request says it's a deck, one-pager, proposal or follow-up, or its frontmatter says `scribb-content-type: sales`, or `/scribb:setup` mapped those folders |
