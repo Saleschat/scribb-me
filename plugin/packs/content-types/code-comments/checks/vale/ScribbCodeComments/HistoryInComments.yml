@@ -1,0 +1,11 @@
+extends: existence
+message: "'%s' describes a change. Say what the code does now; the history belongs in the commit message."
+level: warning
+ignorecase: true
+tokens:
+  - updated to (?:use|call|return|handle|support|fix|work)
+  - now uses
+  - previously (?:returned|used|called|was|did|threw|took)
+  - used to (?:return|call|use|take|throw)
+  - (?:fixed|refactored|replaced|renamed|moved) (?:the|this|it)\b
+  - (?:added|removed) (?:this|the) (?:function|method|check|line|field|parameter)

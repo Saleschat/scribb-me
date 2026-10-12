@@ -131,7 +131,9 @@ if shutil.which("vale"):
         for f in sorted(glob.glob(os.path.join(FIXTURES, "*"))):
             v, b = scribb_check("vale", f, home), scribb_check("builtin", f, home)
             rel = os.path.relpath(f, ROOT)
-            if v == b:
+            if not any(rule.startswith("ScribbCodeComments.") for _, rule in v):
+                fails.append(f"blocks {rel}: no code-comment findings (each fixture has one)")
+            elif v == b:
                 passed += 1
             else:
                 fails.append(f"blocks {rel}: only Vale {sorted(v - b)[:4]} only built-in {sorted(b - v)[:4]}")

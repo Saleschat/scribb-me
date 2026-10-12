@@ -128,6 +128,58 @@
   "tagline": "Universal rules against AI writing habits. Always on.",
   "version": "0.2.0"
  },
+ "code-comments": {
+  "freedom": "balanced",
+  "kind": "content-type",
+  "label": "Code comments",
+  "rules": [
+   {
+    "extends": "existence",
+    "id": "ScribbCodeComments.HistoryInComments",
+    "ignorecase": true,
+    "level": "warning",
+    "message": "'%s' describes a change. Say what the code does now; the history belongs in the commit message.",
+    "tokens": [
+     "updated to (?:use|call|return|handle|support|fix|work)",
+     "now uses",
+     "previously (?:returned|used|called|was|did|threw|took)",
+     "used to (?:return|call|use|take|throw)",
+     "(?:fixed|refactored|replaced|renamed|moved) (?:the|this|it)\\b",
+     "(?:added|removed) (?:this|the) (?:function|method|check|line|field|parameter)"
+    ]
+   },
+   {
+    "extends": "existence",
+    "id": "ScribbCodeComments.RestatesSignature",
+    "ignorecase": true,
+    "level": "suggestion",
+    "message": "Start with what it does ('Returns…', 'Parses…') instead of '%s'.",
+    "tokens": [
+     "this (?:function|method|class|helper|module|hook|component) (?:is used to|is responsible for|will)",
+     "this is an? (?:function|method|class|helper|utility) (?:that|which|to)",
+     "(?:a |the )?(?:function|method) (?:that|which) is used to"
+    ]
+   },
+   {
+    "extends": "existence",
+    "id": "ScribbCodeComments.ReviewerNotes",
+    "ignorecase": true,
+    "level": "warning",
+    "message": "'%s' is a note about the change, not the code. Put it in the pull request.",
+    "tokens": [
+     "as requested",
+     "as you asked",
+     "per your request",
+     "per the review",
+     "for the reviewer",
+     "I (?:added|changed|updated|removed|moved|fixed|made)",
+     "we (?:added|changed|updated|removed|moved|fixed) (?:this|the|it)"
+    ]
+   }
+  ],
+  "tagline": "Doc comments that follow each language's best practice, with a summary sentence, the tags, and nothing the code already says.",
+  "version": "0.1.0"
+ },
  "crisp-product-ui": {
   "freedom": null,
   "kind": "style",

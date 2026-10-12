@@ -1,0 +1,12 @@
+extends: existence
+message: "'%s' is a note about the change, not the code. Put it in the pull request."
+level: warning
+ignorecase: true
+tokens:
+  - as requested
+  - as you asked
+  - per your request
+  - per the review
+  - for the reviewer
+  - I (?:added|changed|updated|removed|moved|fixed|made)
+  - we (?:added|changed|updated|removed|moved|fixed) (?:this|the|it)

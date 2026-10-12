@@ -1,0 +1,43 @@
+# CONTENT TYPE that covers a kind of block rather than whole files: the
+# comments and docstrings in any source file, and in code fences in Markdown.
+id: code-comments
+kind: content-type
+version: 0.1.0
+tagline: Doc comments that follow each language's best practice, with a summary sentence, the tags, and nothing the code already says.
+license: MIT
+traits:
+  medium: code
+freedom: balanced
+paths: []
+block: comments
+export_paths: ["*.go", "*.py", "*.java", "*.kt", "*.rs", "*.rb", "*.swift", "*.c", "*.h", "*.cpp", "*.cs", "*.js", "*.mjs", "*.ts"]
+label: Code comments
+match_order: 40
+review_threshold: none
+extends: null
+sources:
+  - name: How to Write Doc Comments for the Javadoc Tool (Oracle)
+    url: https://www.oracle.com/technical-resources/articles/java/javadoc-tool.html
+    license: proprietary
+    use: inspiration; rules rewritten in our own words
+  - name: Go Doc Comments
+    url: https://go.dev/doc/comment
+    license: CC-BY-4.0
+    use: inspiration; rules rewritten in our own words
+  - name: TSDoc
+    url: https://tsdoc.org
+    license: MIT
+    use: inspiration; rules rewritten in our own words
+  - name: PEP 257, Docstring Conventions
+    url: https://peps.python.org/pep-0257/
+    license: public domain
+    use: inspiration; rules rewritten in our own words
+  - name: Rust API Guidelines, Documentation
+    url: https://rust-lang.github.io/api-guidelines/documentation.html
+    license: MIT OR Apache-2.0
+    use: inspiration; rules rewritten in our own words
+  - name: Kotlin documentation, KDoc
+    url: https://kotlinlang.org/docs/kotlin-doc.html
+    license: Apache-2.0
+    use: inspiration; rules rewritten in our own words
+tags: [code, comments, docstrings, javadoc, godoc, tsdoc]
