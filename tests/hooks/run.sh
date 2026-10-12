@@ -149,6 +149,7 @@ for jqmode in jq nojq; do
   long=$(awk 'BEGIN { for (i = 0; i < 160; i++) printf "word "; }')
   out=$(run_hook post-edit "$(edit_input s4 "$T/proj/docs/b.md" "$long")")
   assert "post-edit: big edit asks for a review" contains "$out" "scribb-reviewer"
+  assert "post-edit: the review request names the plugin root" contains "$out" "plugin root: $PLUGIN"
   out=$(run_hook post-edit "$(edit_input s4 "$T/proj/docs/b.md" "$long")")
   refute "post-edit: review asked once per file per session" contains "$out" "scribb-reviewer"
   teardown
