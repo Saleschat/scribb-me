@@ -109,6 +109,35 @@ if shutil.which("vale"):
 else:
     print("(Vale not installed: skipping the Vale parity pass)")
 
+# 3. Mixed files: scribb-check splits each file into blocks (prose, UI text,
+# comments) and checks each as its own content type. Both engines must agree.
+FIXTURES = os.path.join(ROOT, "tests", "chat", "fixtures")
+CHECK = os.path.join(ROOT, "plugin", "scripts", "scribb-check")
+
+
+def scribb_check(engine, path, home):
+    env = dict(os.environ, HOME=home, SCRIBB_STATE_DIR=os.path.join(home, "state"), CLAUDE_PROJECT_DIR=FIXTURES)
+    env.pop("CLAUDE_PLUGIN_ROOT", None)
+    os.makedirs(os.path.join(home, ".config", "scribb"), exist_ok=True)
+    with open(os.path.join(home, ".config", "scribb", "config.yaml"), "w") as fh:
+        fh.write(f"checker: {engine}\n")
+    out = subprocess.run([CHECK, path], capture_output=True, text=True, cwd=FIXTURES, env=env).stdout
+    return {(int(l.split(":")[1]), l.split(":")[5]) for l in out.splitlines() if l.count(":") >= 6}
+
+
+if shutil.which("vale"):
+    home = tempfile.mkdtemp()
+    try:
+        for f in sorted(glob.glob(os.path.join(FIXTURES, "*"))):
+            v, b = scribb_check("vale", f, home), scribb_check("builtin", f, home)
+            rel = os.path.relpath(f, ROOT)
+            if v == b:
+                passed += 1
+            else:
+                fails.append(f"blocks {rel}: only Vale {sorted(v - b)[:4]} only built-in {sorted(b - v)[:4]}")
+    finally:
+        shutil.rmtree(home)
+
 for f in fails:
     print("FAIL", f)
 print(f"chat checker parity: {passed} passed, {len(fails)} failed")

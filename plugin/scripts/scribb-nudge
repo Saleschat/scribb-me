@@ -41,7 +41,7 @@ case "$cmd" in
     NUDGE_CT=""
     if [ -n "$file" ]; then
       case "$file" in /*) ;; *) file="$PWD/$file" ;; esac
-      NUDGE_CT=$(content_type_for "$file")
+      NUDGE_CT=$(main_content_type "$file")
     fi
     if nudge_pick "$event"; then
       printf '%s\t%s\n' "$NUDGE_CHANNEL" "$NUDGE_TEXT"

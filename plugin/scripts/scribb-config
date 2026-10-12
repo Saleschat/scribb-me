@@ -71,7 +71,13 @@ valid_value() {
     content_type) content_type_ids | grep -qx "$2" && return 0 ;;
     feedbackRate) printf '%s' "$2" | grep -Eq '^(0(\.[0-9]+)?|1(\.0+)?)$' && return 0 ;;
     paths_*) return 0 ;;
-    *) echo "scribb-config: unknown setting '$1'" >&2; return 1 ;;
+    *)
+      # A content type's own on/off switch: "code_comments off".
+      if content_type_ids | grep -qx "$(printf '%s' "$1" | tr '_' '-')"; then
+        case "$2" in on | off) return 0 ;; esac
+      else
+        echo "scribb-config: unknown setting '$1'" >&2; return 1
+      fi ;;
   esac
   echo "scribb-config: '$2' isn't a valid value for $1" >&2
   return 1

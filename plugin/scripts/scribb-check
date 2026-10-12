@@ -4,13 +4,17 @@
 #
 # Usage: scribb-check [options] FILE...
 #        scribb-check [options] --content-type ID --text "TEXT"
-#   --content-type ID   product-docs | developer-docs | ux-microcopy | newsletter | …
-#                       (default: frontmatter, then the file path)
+#   --content-type ID   check the whole file as this content type: product-docs |
+#                       developer-docs | ux-microcopy | newsletter | … (default: split
+#                       each file into prose, UI text and comments, and check each
+#                       block as its own content type)
 #   --freedom LEVEL     strict | balanced | expressive (default: config, then the content type)
 #   --style ID          a style pack id, or none (default: config)
 #   --session ID        read session-scope config too
 #   --text TEXT         check this text instead of files (findings say "text:line");
 #                       lets skills check a draft without writing a file
+#   --changed           report comment findings only on lines changed since the
+#                       last commit (hooks use this)
 #   --export DIR        write a standalone checker config (vale.ini + styles/) to DIR
 #                       for CI and editor integrations, then exit
 #
@@ -25,7 +29,7 @@ SELF_DIR=$(cd "$(dirname "$0")" && pwd)
 # shellcheck source=../lib/scribb.sh
 . "$SELF_DIR/../lib/scribb.sh"
 
-ct_opt="" freedom_opt="" style_opt="" export_dir="" text_opt="" have_text=no
+ct_opt="" freedom_opt="" style_opt="" export_dir="" text_opt="" have_text=no changed_only=no
 SCRIBB_SESSION="${SCRIBB_SESSION:-}"
 while [ $# -gt 0 ]; do
   case "$1" in
@@ -35,7 +39,8 @@ while [ $# -gt 0 ]; do
     --session) SCRIBB_SESSION="$2"; shift 2 ;;
     --export) export_dir="$2"; shift 2 ;;
     --text) text_opt="$2"; have_text=yes; shift 2 ;;
-    -h | --help) sed -n '2,22p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
+    --changed) changed_only=yes; shift ;;
+    -h | --help) sed -n '2,27p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
     --) shift; break ;;
     -*) echo "scribb-check: unknown option $1" >&2; exit 3 ;;
     *) break ;;
@@ -64,69 +69,6 @@ engine=$(scribb_engine)
 if [ -z "$export_dir" ] && [ -z "$engine" ]; then
   echo "scribb-check: neither Vale nor python3 is available, so automatic checks are skipped. Install Vale with 'brew install vale' (see https://vale.sh/docs/install)." >&2
   exit 0
-fi
-
-# --- The built-in checker: Python, no Vale needed --------------------------------
-# Same rules and findings as Vale (tests/chat/parity.py), including rules
-# promoted from memories in the user, project and local rules packs.
-if [ -z "$export_dir" ] && [ "$engine" = builtin ]; then
-  tmpb=$(mktemp -d "${TMPDIR:-/tmp}/scribb-check.XXXXXX") || exit 0
-  trap 'rm -rf "$tmpb"' EXIT
-  vocab=""
-  for f in "$(scribb_user_dir)/vocab.txt" "$SCRIBB_PROJECT/.scribb/vocab.txt" "$SCRIBB_PROJECT/.scribb/local/vocab.txt"; do
-    [ -f "$f" ] || continue
-    while IFS= read -r v; do
-      case "$v" in '' | '#'*) continue ;; esac
-      vocab="${vocab:+$vocab,}$v"
-    done < "$f"
-  done
-  text_file=""
-  if [ "$have_text" = yes ]; then
-    ct_opt=${ct_opt:-product-docs}
-    case "$ct_opt" in ux-microcopy) text_file="$tmpb/text.jsx" ;; *) text_file="$tmpb/text.md" ;; esac
-    printf '%s\n' "$text_opt" > "$text_file"
-    set -- "$text_file"
-  fi
-  set -- "$@" --
-  for d in "$(scribb_user_dir)/packs/rules" "$SCRIBB_PROJECT/.scribb/packs/rules" "$SCRIBB_PROJECT/.scribb/local/packs/rules"; do
-    [ -f "$d/pack.yaml" ] && set -- "$@" --rules-dir "$d"
-  done
-  # Split "$@" back into files and --rules-dir options.
-  files="" rulesargs=""
-  seen_sep=no
-  for a in "$@"; do
-    if [ "$seen_sep" = no ]; then
-      if [ "$a" = -- ]; then seen_sep=yes; else files="$files$a
-"; fi
-    else
-      rulesargs="$rulesargs$a
-"
-    fi
-  done
-  blocked=0
-  while IFS= read -r file; do
-    [ -n "$file" ] || continue
-    [ -f "$file" ] || { echo "scribb-check: $file: no such file" >&2; continue; }
-    ct=${ct_opt:-$(content_type_for "$file")}
-    [ -n "$ct" ] || continue
-    freedom=${freedom_opt:-$(freedom_for "$ct")}
-    set --
-    while IFS= read -r a; do [ -n "$a" ] && set -- "$@" "$a"; done <<RULES
-$rulesargs
-RULES
-    out=$(python3 "$(builtin_checker)" --content-type "$ct" --freedom "$freedom" --style "${style:-none}" --vocab "$vocab" "$@" "$file" 2>/dev/null)
-    rc=$?
-    [ "$rc" -eq 1 ] && blocked=1
-    [ -n "$out" ] || continue
-    if [ "$file" = "$text_file" ]; then
-      printf '%s\n' "$out" | sed "s#^$text_file:#text:#"
-    else
-      printf '%s\n' "$out"
-    fi
-  done <<FILES
-$files
-FILES
-  exit "$blocked"
 fi
 
 TEMPLATE="$(scribb_plugin_root)/lib/vale-line.tmpl"
@@ -234,7 +176,11 @@ if [ -n "$export_dir" ]; then
       old_ifs=$IFS
       IFS=','
       set -f
-      for g in $(ct_paths "$ct"); do
+      globs=$(ct_paths "$ct")
+      # Content types picked by block (UI text, comments) have no paths; Vale's
+      # own config needs globs, so their packs name some for export.
+      [ -n "$globs" ] || globs=$(pack_field "$(pack_dir "$ct")" export_paths 2>/dev/null | sed -E 's/^\[//; s/\]$//; s/"//g')
+      for g in $globs; do
         g=$(printf '%s' "$g" | sed -E 's/^[[:space:]]+//; s/[[:space:]]+$//; s#/\*$#/**#')
         [ -n "$g" ] || continue
         echo
@@ -251,7 +197,12 @@ if [ -n "$export_dir" ]; then
   exit 0
 fi
 
+
 # --- Check mode ---------------------------------------------------------------------
+# Each file is split into blocks by their nature (lib/blocks.py): prose, UI
+# text and comments. Each block is checked as its own content type and the
+# findings come back at the file's own line numbers. --content-type skips the
+# split and checks the whole file as that content type.
 action_for() {
   # $1 freedom, $2 severity
   case "$2" in
@@ -268,6 +219,7 @@ action_for() {
 
 tmp=$(mktemp -d "${TMPDIR:-/tmp}/scribb-check.XXXXXX") || exit 0
 trap 'rm -rf "$tmp"' EXIT
+tab=$(printf '\t')
 
 # --text: write the text to a temp file and check that. UI copy is checked as
 # JSX so text between tags and string literals both count.
@@ -279,12 +231,88 @@ if [ "$have_text" = yes ]; then
   set -- "$text_file"
 fi
 
-blocked=0
-for file in "$@"; do
-  [ -f "$file" ] || { echo "scribb-check: $file: no such file" >&2; continue; }
-  ct=${ct_opt:-$(content_type_for "$file")}
-  [ -n "$ct" ] || continue
-  freedom=${freedom_opt:-$(freedom_for "$ct")}
+# jobs_for FILE: "kind<TAB>content type<TAB>file to lint<TAB>columns file" per block.
+jobs_for() {
+  local file="$1" types blocks kind ct lint cols path
+  if [ -n "$ct_opt" ]; then
+    lint="$file"
+    case "$file" in
+      *.tsx) lint="$tmp/forced-$(path_key "$file").jsx"; cp "$file" "$lint" ;;
+    esac
+    printf 'all\t%s\t%s\t\n' "$ct_opt" "$lint"
+    return 0
+  fi
+  types=$(content_types_in "$file")
+  [ -n "$types" ] || return 0
+  if command -v python3 >/dev/null 2>&1; then
+    blocks=$(python3 "$(blocks_py)" "$file" "$tmp/blocks" 2>/dev/null)
+  else
+    blocks=$(printf 'prose\t%s\t\n' "$file")
+    case "$file" in
+      *.tsx | *.jsx) cp "$file" "$tmp/ui-$(path_key "$file").jsx"; blocks=$(printf 'ui-text\t%s\t\n' "$tmp/ui-$(path_key "$file").jsx") ;;
+    esac
+  fi
+  while IFS="$tab" read -r kind ct; do
+    [ -n "$ct" ] || continue
+    while IFS="$tab" read -r k path cols; do
+      [ "$k" = "$kind" ] && printf '%s\t%s\t%s\t%s\n' "$kind" "$ct" "$path" "$cols"
+    done <<EOF
+$blocks
+EOF
+  done <<EOF
+$types
+EOF
+}
+
+# changed_lines FILE: the lines changed since the last commit, one per line,
+# or "all" (a new file, or no git).
+changed_lines() {
+  local dir base
+  dir=$(dirname "$1") base=$(basename "$1")
+  if ! git -C "$dir" rev-parse --verify -q HEAD >/dev/null 2>&1 || ! git -C "$dir" ls-files --error-unmatch -- "$base" >/dev/null 2>&1; then
+    echo all
+    return 0
+  fi
+  git -C "$dir" diff -U0 --no-color HEAD -- "$base" 2>/dev/null | sed -n 's/^@@ -[0-9,]* +\([0-9]*\)\(,\([0-9]*\)\)\{0,1\} @@.*/\1 \3/p' |
+    while read -r start count; do
+      [ -n "$count" ] || count=1
+      i=0
+      while [ "$i" -lt "$count" ]; do echo $((start + i)); i=$((i + 1)); done
+    done
+}
+
+# Built-in engine setup: accepted terms and promoted-memory rules.
+if [ "$engine" = builtin ]; then
+  vocab=""
+  for f in "$(scribb_user_dir)/vocab.txt" "$SCRIBB_PROJECT/.scribb/vocab.txt" "$SCRIBB_PROJECT/.scribb/local/vocab.txt"; do
+    [ -f "$f" ] || continue
+    while IFS= read -r v; do
+      case "$v" in '' | '#'*) continue ;; esac
+      vocab="${vocab:+$vocab,}$v"
+    done < "$f"
+  done
+  rulesargs=""
+  for d in "$(scribb_user_dir)/packs/rules" "$SCRIBB_PROJECT/.scribb/packs/rules" "$SCRIBB_PROJECT/.scribb/local/packs/rules"; do
+    [ -f "$d/pack.yaml" ] && rulesargs="$rulesargs--rules-dir
+$d
+"
+  done
+fi
+
+# lint CT FREEDOM FILE: findings as "line<TAB>col<TAB>action<TAB>severity<TAB>rule<TAB>message".
+lint() {
+  local ct="$1" freedom="$2" file="$3" ext styles names ini view out lno col level rule msg sev
+  if [ "$engine" = builtin ]; then
+    set --
+    while IFS= read -r a; do [ -n "$a" ] && set -- "$@" "$a"; done <<EOF
+$rulesargs
+EOF
+    python3 "$(builtin_checker)" --content-type "$ct" --freedom "$freedom" --style "${style:-none}" --vocab "$vocab" "$@" "$file" 2>/dev/null |
+      while IFS=: read -r _p lno col act sev rule msg; do
+        [ -n "$rule" ] && printf '%s\t%s\t%s\t%s\t%s\t%s\n' "$lno" "$col" "$act" "$sev" "$rule" "$msg"
+      done
+    return 0
+  fi
   styles="$tmp/styles-$ct"
   if [ ! -d "$styles" ]; then
     names=$(build_styles "$ct" "$styles" link)
@@ -292,17 +320,8 @@ for file in "$@"; do
     build_vocab "$styles" > "$tmp/vocab-$ct"
   fi
   names=$(cat "$tmp/names-$ct")
-  [ -n "$names" ] || continue
+  [ -n "$names" ] || return 0
   ext="${file##*.}"
-  lint="$file"
-  # Vale parses .tsx with the TypeScript grammar, which can't see JSX text
-  # (<h2>Like this</h2>). The JSX grammar can, and skips TypeScript-only
-  # syntax without false findings, so lint a .jsx copy. Lines don't change.
-  if [ "$ext" = tsx ]; then
-    lint="$tmp/tsx-$(path_key "$file").jsx"
-    cp "$file" "$lint"
-    ext=jsx
-  fi
   ini="$tmp/vale-$ct-$ext.ini"
   if [ ! -f "$ini" ]; then
     view=$(view_for_ext "$styles" "$ext")
@@ -317,13 +336,12 @@ for file in "$@"; do
       [ -n "$view" ] && echo "View = $view"
     } > "$ini"
   fi
-  out=$(vale --config="$ini" --output="$TEMPLATE" "$lint" 2>&1)
+  out=$(vale --config="$ini" --output="$TEMPLATE" "$file" 2>&1)
   # Vale exits 1 for error-level findings and 2 for a runtime error.
   if [ $? -ge 2 ]; then
     echo "scribb-check: the checker failed on $file: $(printf '%s' "$out" | tr '\n' ' ' | cut -c1-300)" >&2
-    continue
+    return 0
   fi
-  tab=$(printf '\t')
   while IFS="$tab" read -r _path lno col level rule msg; do
     [ -n "$rule" ] || continue
     case "$level" in
@@ -331,13 +349,42 @@ for file in "$@"; do
       warning) sev=convention ;;
       *) sev=preference ;;
     esac
-    act=$(action_for "$freedom" "$sev")
-    [ "$act" = block ] && blocked=1
-    shown="$file"
-    [ "$file" = "$text_file" ] && shown=text
-    printf '%s:%s:%s:%s:%s:%s:%s\n' "$shown" "$lno" "$col" "$act" "$sev" "$rule" "$msg"
+    printf '%s\t%s\t%s\t%s\t%s\t%s\n' "$lno" "$col" "$(action_for "$freedom" "$sev")" "$sev" "$rule" "$msg"
   done <<EOF
 $out
+EOF
+}
+
+blocked=0
+for file in "$@"; do
+  [ -f "$file" ] || { echo "scribb-check: $file: no such file" >&2; continue; }
+  shown="$file"
+  [ "$file" = "$text_file" ] && shown=text
+  changed=""
+  while IFS="$tab" read -r kind ct lintfile cols; do
+    [ -n "$ct" ] || continue
+    freedom=${freedom_opt:-$(freedom_for "$ct")}
+    # Comments: only the ones this change touched, so editing a file doesn't
+    # mean rewriting every old comment in it.
+    if [ "$kind" = comments ] && [ "$changed_only" = yes ] && [ -z "$changed" ]; then
+      changed=$(changed_lines "$file")
+      [ -n "$changed" ] || changed=none
+    fi
+    while IFS="$tab" read -r lno col act sev rule msg; do
+      [ -n "$rule" ] || continue
+      if [ "$kind" = comments ] && [ "$changed_only" = yes ] && [ "$changed" != all ]; then
+        printf '%s\n' "$changed" | grep -qx "$lno" || continue
+      fi
+      if [ -n "$cols" ]; then
+        col=$((col + $(sed -n "${lno}p" "$cols")))
+      fi
+      [ "$act" = block ] && blocked=1
+      printf '%s:%s:%s:%s:%s:%s:%s\n' "$shown" "$lno" "$col" "$act" "$sev" "$rule" "$msg"
+    done <<EOF
+$(lint "$ct" "$freedom" "$lintfile")
+EOF
+  done <<EOF
+$(jobs_for "$file")
 EOF
 done
 

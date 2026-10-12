@@ -54,7 +54,9 @@ freedom: strict               # content types only: the default freedom
 paths: ["*.md", "*.mdx"]      # content types only: default file patterns
 label: Product docs           # content types only: the user-facing name
 match_order: 90               # content types only: lower is matched first (a mapped newsletter folder at 10 beats "*.md" at 90)
-review_threshold: words 150   # content types only: when the auto reviewer runs ("words N" or "strings N")
+review_threshold: words 150   # content types only: when the auto reviewer runs ("words N", "strings N", or "none" for checker only)
+# block: ui-text              # content types only: cover a kind of block wherever it appears (ui-text or comments) instead of whole files
+# export_paths: ["*.tsx"]     # block content types only: globs for `scribb-check --export`, since Vale's own config needs them
 extends: null                 # styles: another style id@version, or null
 sources:                      # what the pack drew on; text is always our own words
   - name: Google developer documentation style guide
@@ -64,9 +66,24 @@ sources:                      # what the pack drew on; text is always our own wo
 tags: []
 ```
 
-The bash hooks read only flat `key: value` lines and simple `[a, b]` lists from `pack.yaml`, so keep `id`, `kind`, `version`, `tagline`, `license`, `freedom`, `paths`, `label`, `match_order` and `review_threshold` on one line each.
+The bash hooks read only flat `key: value` lines and simple `[a, b]` lists from `pack.yaml`, so keep `id`, `kind`, `version`, `tagline`, `license`, `freedom`, `paths`, `label`, `match_order`, `review_threshold`, `block` and `export_paths` on one line each.
 
-Content types are data. Adding a pack with `kind: content-type` (built in, or in the user or project scope) adds a content type; no code changes. scribb picks a file's content type from the first pack, in `match_order`, whose `paths` match. A piece with no file (a newsletter drafted in chat) gets its content type from the request.
+Content types are data. Adding a pack with `kind: content-type` (built in, or in the user or project scope) adds a content type; no code changes. A piece with no file (a newsletter drafted in chat) gets its content type from the request.
+
+### One file, several content types
+scribb splits each file into blocks by their nature (`plugin/lib/blocks.py`) and checks each block as its own content type:
+
+| Block | Content type |
+|---|---|
+| Prose: a Markdown or plain-text body | the file's document type: its `scribb-content-type:` frontmatter, else the first pack in `match_order` whose `paths` match |
+| UI text: text a user reads in a JSX interface | the pack with `block: ui-text` (UI copy) |
+| Comments: code comments and docstrings, in source files and in Markdown code fences | the pack with `block: comments` |
+
+A file's extension, shebang or code-fence language only tells scribb which comment syntax to look for; it never picks the content type. So a `.tsx` file's JSX text is checked as UI copy and its doc comments as comments, and a `.ts` file with no JSX has no UI text at all. A block content type's `paths`, if set, narrow where it applies.
+
+Every content type has an on/off setting named after its id, with dashes as underscores (`ux_microcopy: off`). It follows the usual scopes: local beats project beats user.
+
+The hooks check only the comments a change touched (`scribb-check --changed`: lines changed since the last commit), so editing a file doesn't mean rewriting every old comment in it.
 
 ## Severity
 Checker rules set Vale's `level`, which maps to scribb's severity:
@@ -108,6 +125,7 @@ Each scope can have a `config.yaml` with flat `key: value` lines. Precedence: se
 | `inject` | `on` · `off` (session-start style summary) | `on` |
 | `nudges` | `on` · `off` | `on` |
 | `paths_docs` | comma-separated globs (Docs) | `*.md, *.mdx` |
-| `paths_ui` | comma-separated globs (UI copy) | `*.tsx, *.jsx` |
+| `paths_ui` | comma-separated globs that narrow where UI copy applies | anywhere JSX text appears |
+| `<id>` (dashes as underscores) | `on` / `off`: turn one content type on or off (`ux_microcopy: off`) | `on` |
 | `paths_<id>` | comma-separated globs for any other content type, dashes as underscores (`paths_newsletter`) | the pack's `paths` |
 | `paths_ignore` | comma-separated globs | see `plugin/lib/scribb.sh` |

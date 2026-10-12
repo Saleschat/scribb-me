@@ -135,7 +135,7 @@ Content types and styles are **independent**. Neither is built from the other. A
 |---|---|---|
 | Product docs | People using or evaluating the product: getting started, how-tos, help articles, READMEs and other repo files, release notes | Any Markdown file (`*.md`, `*.mdx`) |
 | Developer docs | People writing code against the product: API, SDK and CLI reference, integration guides | The page is about that, or its frontmatter says `scribb-content-type: developer-docs`, or `/scribb:setup` mapped those folders |
-| UI copy | Product designers and engineers writing interface strings | `*.tsx`, `*.jsx` |
+| UI copy | Product designers and engineers writing interface strings | Text a user reads in a JSX interface, in any file. The rest of the file (its comments, say) is checked as its own kind of writing |
 | Newsletter | Founders and creators: issues, product updates, welcome emails | The request says it's a newsletter, or its frontmatter says `scribb-content-type: newsletter`, or `/scribb:setup` mapped those folders |
 | Website pages | Founders and teams writing public pages that win a stranger over in seconds: landing, feature, pricing and about pages, case studies | The request says it's a website page, or its frontmatter says `scribb-content-type: website`, or `/scribb:setup` mapped those folders |
 | Sales materials | Founders, consultants and services teams writing for a known prospect: sales decks, one-pagers, proposals, follow-ups | The request says it's a deck, one-pager, proposal or follow-up, or its frontmatter says `scribb-content-type: sales`, or `/scribb:setup` mapped those folders |
