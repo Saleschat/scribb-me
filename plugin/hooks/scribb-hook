@@ -111,7 +111,8 @@ EOF
     # Whole-page types other than the Markdown default, each with its tagline,
     # so Claude can pick one from what a page is about.
     while IFS= read -r ct; do
-      [ -n "$ct" ] && [ "$ct" != "$md_ct" ] || continue
+      [ -n "$ct" ] || continue
+      [ "$ct" != "$md_ct" ] || continue
       [ -z "$(ct_block "$ct")" ] || continue
       piece_lines="$piece_lines
 - $(content_type_label "$ct") ($ct): $(pack_field "$(pack_dir "$ct")" tagline)"
