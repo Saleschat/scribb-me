@@ -90,19 +90,41 @@ session_start() {
   fi
   if ! is_off "$(cfg inject)"; then
     st=$(cfg style)
-    local cts="" ct_line=""
+    local cts="" ct_line="" md_ct="" piece_lines=""
     cts=$(content_type_ids)
     while IFS= read -r ct; do
       [ -n "$ct" ] || continue
       local globs
       globs=$(ct_paths "$ct")
-      ct_line="${ct_line:+$ct_line; }$(content_type_label "$ct") (${globs:-chosen per piece}; freedom $(freedom_for "$ct"))"
+      local where=${globs:-chosen per piece}
+      case "$(ct_block "$ct")" in
+        comments) where="comments in any file" ;;
+        ui-text) where="UI text in any file" ;;
+      esac
+      ct_line="${ct_line:+$ct_line; }$(content_type_label "$ct") ($where; freedom $(freedom_for "$ct"))"
+      if [ -z "$md_ct" ] && match_globs "page.md" "$globs"; then
+        md_ct=$ct
+      fi
     done <<EOF
 $cts
 EOF
+    # Whole-page types other than the Markdown default, each with its tagline,
+    # so Claude can pick one from what a page is about.
+    while IFS= read -r ct; do
+      [ -n "$ct" ] && [ "$ct" != "$md_ct" ] || continue
+      [ -z "$(ct_block "$ct")" ] || continue
+      piece_lines="$piece_lines
+- $(content_type_label "$ct") ($ct): $(pack_field "$(pack_dir "$ct")" tagline)"
+    done <<EOF
+$cts
+EOF
+    local md_line="Pick each Markdown page's content type."
+    [ -z "$md_ct" ] || md_line="Markdown is $(content_type_label "$md_ct") unless the page is another kind of writing."
     ctx="scribb.me (writing style for docs, UI copy and newsletters) is active in this session.
 Content types: $ct_line. A content type with no file pattern, or a piece with no file (a newsletter drafted in chat, say), is chosen from the request.
-Markdown defaults to Product docs. Use Developer docs (developer-docs) when the page is for someone writing code against the product: API, SDK or CLI reference, integration guides. Decide from the page's content and the request, not its folder. A page can also say it in frontmatter: scribb-content-type: developer-docs."
+$md_line Decide from its content and the request, not its folder or file name:$piece_lines
+When a Markdown page is one of these, tell the checker so it applies the same rules: put scribb-content-type: <id> in the page's frontmatter. When a whole folder holds that kind of page, suggest one setting instead, for example /scribb:style set paths_tech_plans \"docs/design/*\" --team (the setting is paths_ plus the id with underscores).
+Choosing a content type is routine. Don't tell the user which one you picked or its freedom level unless they ask or it changes what they get."
     if ! is_off "$st" && sd=$(pack_dir "$st"); then
       ctx="$ctx
 Style: $st — $(pack_field "$sd" tagline)"
