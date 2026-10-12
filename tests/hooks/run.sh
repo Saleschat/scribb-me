@@ -128,6 +128,10 @@ for jqmode in jq nojq; do
   assert "content type: setup can map developer docs folders" [ "$(ct reference/cli.md)" = developer-docs ]
   out=$(run_hook session-start '{"session_id":"s1","cwd":"'"$T/proj"'","source":"startup"}')
   assert "session-start: lists the newsletter content type" contains "$out" "Newsletter (emails/*"
+  assert "session-start: describes per-piece types by tagline" contains "$out" "Technical plans (tech-plans): Implementation plans"
+  assert "session-start: block types apply in any file" contains "$out" "Code comments (comments in any file"
+  assert "session-start: names the Markdown default" contains "$out" "Markdown is Product docs unless"
+  assert "session-start: keeps the choice quiet" contains "$out" "Don't tell the user which one you picked"
   teardown
 
   # --- post-edit: nudges and the reviewer trigger ---
