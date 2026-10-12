@@ -294,7 +294,7 @@ for jqmode in jq nojq; do
     out=$("$PLUGIN/scripts/scribb-check" tool)
     assert "blocks: a shebang picks the comment syntax" contains "$out" "tool:3:"
     refute "blocks: text in strings isn't a comment" contains "$out" "tool:3:7:"
-    printf '# Setup\n\nRun it.\n\n```python\nrun()  # updated to the new API\n```\n' > docs/fence.md
+    printf '# Setup\n\nRun it.\n\n~~~python\nrun()  # updated to the new API\n~~~\n' > docs/fence.md
     out=$("$PLUGIN/scripts/scribb-check" docs/fence.md)
     assert "blocks: comments in a Markdown code fence are comments" contains "$out" "docs/fence.md:6:"
     "$PLUGIN/scripts/scribb-config" set test_comments off --scope project >/dev/null
