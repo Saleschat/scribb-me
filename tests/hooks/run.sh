@@ -445,6 +445,46 @@ for jqmode in jq nojq; do
   fi
 done
 
+# --- technical plans and the cold-read gate ---
+setup
+ct() { bash -c '. "$1/lib/scribb.sh"; SCRIBB_PROJECT=$(scribb_project_dir); content_type_for "$2"' _ "$PLUGIN" "$1"; }
+mkdir -p "$HOME/.claude/plans"
+PLAN="$HOME/.claude/plans/p.md"
+printf '# Plan: x\n\nReuse the existing helper as discussed.\n' > "$PLAN"
+assert "plans: a Claude Code plan is a technical plan" [ "$(ct "$PLAN")" = tech-plans ]
+assert "plans: other files outside the project still aren't" [ -z "$(ct "$HOME/notes.md")" ]
+assert "plans: the checker runs on plans outside the project" contains "$("$PLUGIN/scripts/scribb-check" "$PLAN")" "ScribbTechPlans.ContextDependent"
+mkdir -p .claude docs/plans
+printf '{"plansDirectory": "docs/plans"}\n' > .claude/settings.json
+printf '# Plan\n' > docs/plans/q.md
+assert "plans: a project plans folder counts too" [ "$(ct "$T/proj/docs/plans/q.md")" = tech-plans ]
+rm -rf .claude docs/plans
+plan_input() { printf '{"session_id":"%s","cwd":"%s","hook_event_name":"%s","tool_name":"ExitPlanMode","tool_input":{}}' "$1" "$T/proj" "$2"; }
+err=$(run_hook plan-gate "$(plan_input g1 PreToolUse)" 2>&1 >/dev/null)
+assert "plan gate: the first ExitPlanMode is blocked" [ $? -eq 2 ]
+assert "plan gate: it asks for the cold reader on the plan" contains "$err" "scribb-cold-reader agent with the plan file ($PLAN)"
+run_hook plan-gate "$(plan_input g1 PreToolUse)" >/dev/null 2>&1
+assert "plan gate: allowed after the cold read" [ $? -eq 0 ]
+run_hook plan-gate "$(plan_input g1 PermissionRequest)" >/dev/null 2>&1
+out=$(run_hook plan-gate "$(plan_input g1 PermissionRequest)")
+assert "plan gate: an unchanged plan passes" [ -z "$out" ]
+printf 'More detail.\n' >> "$PLAN"
+run_hook plan-gate "$(plan_input g1 PreToolUse)" >/dev/null 2>&1
+assert "plan gate: a revised plan gets its own cold read" [ $? -eq 2 ]
+out=$(run_hook plan-gate "$(plan_input g2 PermissionRequest)")
+assert "plan gate: as a permission request, it denies with the reason" contains "$out" '"behavior":"deny"'
+assert "plan gate: valid JSON" valid_json "$out"
+"$PLUGIN/scripts/scribb-config" set tech_plans off --scope user >/dev/null
+run_hook plan-gate "$(plan_input g3 PreToolUse)" >/dev/null 2>&1
+assert "plan gate: off with tech_plans off" [ $? -eq 0 ]
+"$PLUGIN/scripts/scribb-config" unset tech_plans --scope user >/dev/null
+SCRIBB_DISABLE=1 run_hook plan-gate "$(plan_input g4 PreToolUse)" >/dev/null 2>&1
+assert "plan gate: off with scribb off" [ $? -eq 0 ]
+rm -f "$PLAN"
+run_hook plan-gate "$(plan_input g5 PreToolUse)" >/dev/null 2>&1
+assert "plan gate: no plan file, no gate" [ $? -eq 0 ]
+teardown
+
 echo
 echo "$pass passed, $fail failed"
 [ "$fail" -eq 0 ]

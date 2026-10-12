@@ -1,0 +1,10 @@
+- Write for an engineer who wasn't in the conversation and has never seen the codebase.
+- Start with the context: the problem, why now, and the outcome.
+- Define each codebase term once, then use the same word every time.
+- Add a codebase primer: every part of the code the plan touches, as a link plus one sentence on what it does.
+- Show the signature or a short excerpt of code you reuse or change, instead of only naming it.
+- Draw one Mermaid diagram when the flow crosses more than two components.
+- Number the steps. Each says what changes, where (linked) and why.
+- Recommend one approach, and say in a line why each alternative lost.
+- End with verification commands and what they should show.
+- Link every file and symbol. No bare paths, and no "as discussed", "the existing helper" or "see above".

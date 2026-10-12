@@ -1,0 +1,33 @@
+# CONTENT TYPE for engineering plans. Picked for Claude Code plan files (the
+# plans folder) and for any page whose frontmatter says so.
+id: tech-plans
+kind: content-type
+version: 0.1.0
+tagline: Implementation plans, design docs, RFCs and ADRs a reader can follow without opening the code.
+license: MIT
+traits:
+  medium: docs
+freedom: balanced
+paths: []
+label: Technical plans
+match_order: 20
+review_threshold: words 300
+extends: null
+sources:
+  - name: Oracle, How to Write Doc Comments for the Javadoc Tool ({@link} and @see)
+    url: https://www.oracle.com/technical-resources/articles/java/javadoc-tool.html
+    license: proprietary
+    use: inspiration; the linking idea applied to plans, in our own words
+  - name: Michael Nygard, Documenting Architecture Decisions
+    url: https://cognitect.com/blog/2011/11/15/documenting-architecture-decisions
+    license: proprietary
+    use: inspiration for the ADR format
+  - name: Rust RFC template
+    url: https://github.com/rust-lang/rfcs/blob/master/0000-template.md
+    license: MIT OR Apache-2.0
+    use: inspiration for the design-doc format (motivation, alternatives, unresolved questions)
+  - name: PEP 1, PEP Purpose and Guidelines
+    url: https://peps.python.org/pep-0001/
+    license: public domain
+    use: inspiration for the design-doc format
+tags: [plans, design-docs, rfc, adr, engineering]

@@ -654,6 +654,43 @@
   "tagline": "Short sentences, concrete words and strong verbs. Nothing the reader has to wade through.",
   "version": "0.1.0"
  },
+ "tech-plans": {
+  "freedom": "balanced",
+  "kind": "content-type",
+  "label": "Technical plans",
+  "rules": [
+   {
+    "extends": "existence",
+    "id": "ScribbTechPlans.BarePath",
+    "level": "suggestion",
+    "message": "Link '%s' so the reader can open it: [path:line](relative/path#Lline).",
+    "nonword": true,
+    "scope": "raw",
+    "tokens": [
+     "(?<![\\[(/])`[\\w.-]+(?:/[\\w.-]+)+\\.(?:sh|py|ts|tsx|js|jsx|go|rs|java|kt|rb|swift|c|h|cpp|cs|md|yml|yaml|json|toml)(?::\\d+)?`(?![\\]\\w])"
+    ]
+   },
+   {
+    "extends": "existence",
+    "id": "ScribbTechPlans.ContextDependent",
+    "ignorecase": true,
+    "level": "warning",
+    "message": "'%s' assumes the reader was there. Name the thing and link it.",
+    "tokens": [
+     "as (?:we )?discussed",
+     "as (?:mentioned|noted|agreed|described) (?:earlier|above|before)",
+     "earlier in (?:this|the) (?:conversation|chat|thread|session)",
+     "the existing (?:helper|function|util|utility|pattern|approach|logic|code)",
+     "the usual (?:pattern|approach|way|place)",
+     "same as before",
+     "like before",
+     "see above"
+    ]
+   }
+  ],
+  "tagline": "Implementation plans, design docs, RFCs and ADRs a reader can follow without opening the code.",
+  "version": "0.1.0"
+ },
  "ux-microcopy": {
   "freedom": "strict",
   "kind": "content-type",

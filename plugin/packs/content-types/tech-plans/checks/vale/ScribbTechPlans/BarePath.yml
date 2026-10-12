@@ -1,0 +1,7 @@
+extends: existence
+message: "Link '%s' so the reader can open it: [path:line](relative/path#Lline)."
+level: suggestion
+scope: raw
+nonword: true
+tokens:
+  - '(?<![\[(/])`[\w.-]+(?:/[\w.-]+)+\.(?:sh|py|ts|tsx|js|jsx|go|rs|java|kt|rb|swift|c|h|cpp|cs|md|yml|yaml|json|toml)(?::\d+)?`(?![\]\w])'

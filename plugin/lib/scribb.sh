@@ -388,12 +388,49 @@ frontmatter_content_type() {
     }' "$1"
 }
 
+# plans_dirs: folders that hold Claude Code plan files, one per line: the
+# user's (~/.claude/plans) and the project's own when its settings name one.
+plans_dirs() {
+  printf '%s\n' "${CLAUDE_CONFIG_DIR:-$HOME/.claude}/plans"
+  local f d
+  for f in "$SCRIBB_PROJECT/.claude/settings.local.json" "$SCRIBB_PROJECT/.claude/settings.json"; do
+    [ -f "$f" ] || continue
+    d=$(json_get plansDirectory "$f")
+    [ -n "$d" ] || continue
+    case "$d" in
+      /*) printf '%s\n' "$d" ;;
+      \~/*) printf '%s\n' "$HOME/${d#??}" ;;
+      *) printf '%s\n' "$SCRIBB_PROJECT/${d#./}" ;;
+    esac
+  done
+}
+
+# is_plan_file FILE: true for a Markdown file in a plans folder.
+is_plan_file() {
+  local d f
+  case "$1" in *.md) ;; *) return 1 ;; esac
+  f=$(abs_path "$1")
+  while IFS= read -r d; do
+    [ -n "$d" ] || continue
+    d=$(abs_path "${d%/}/x")
+    case "$f" in "${d%/x}"/*) return 0 ;; esac
+  done <<EOF
+$(plans_dirs)
+EOF
+  return 1
+}
+
 # content_type_for FILE: the content type a file belongs to, or nothing.
 # Order: the ignore list, then the file's frontmatter, then the first content
 # type (in match_order) whose paths match.
 content_type_for() {
   local file rel ct
   file=$(abs_path "$1")
+  # Claude Code plans are technical plans, even outside the project.
+  if is_plan_file "$file" && pack_dir tech-plans >/dev/null; then
+    echo tech-plans
+    return 0
+  fi
   case "$file" in
     "$SCRIBB_PROJECT"/*) rel="${file#"$SCRIBB_PROJECT"/}" ;;
     /*) return 0 ;; # outside the project: leave it alone
@@ -485,9 +522,9 @@ content_types_in() {
   file=$(abs_path "$1")
   case "$file" in
     "$SCRIBB_PROJECT"/*) rel="${file#"$SCRIBB_PROJECT"/}" ;;
-    *) return 0 ;;
+    *) is_plan_file "$file" || return 0; rel="$file" ;;
   esac
-  match_globs "$rel" "$(cfg paths_ignore)" && return 0
+  if ! is_plan_file "$file" && match_globs "$rel" "$(cfg paths_ignore)"; then return 0; fi
   while IFS= read -r kind; do
     [ -n "$kind" ] || continue
     ct=$(block_content_type "$kind" "$file")
