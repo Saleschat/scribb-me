@@ -42,6 +42,8 @@ shellcheck -x plugin/scripts/* plugin/hooks/scribb-hook plugin/lib/*.sh
 evals/quality/run.sh             # quality evals; uses your Claude credentials and costs money
 ```
 
+Bump `version` in `plugin/.claude-plugin/plugin.json` whenever a release changes the plugin. Claude Code keeps its cached copy until the version changes, so without a bump, `/plugin marketplace update` doesn't reach installed users.
+
 CI runs everything except the quality evals on every pull request. Scripts must run on bash 3.2 (the macOS default) and must not depend on `jq`. The built-in checker uses only the Python standard library.
 
 ## Licence

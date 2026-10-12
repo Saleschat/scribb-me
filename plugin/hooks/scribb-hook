@@ -223,7 +223,7 @@ EOF
       local st
       st=$(cfg style)
       ctx="${ctx:+$ctx
-}scribb.me: this edit wrote $words in $rel. Unless the user asked to skip review, run the scribb-reviewer agent on the passage you changed (file: $file; content type: $ct; freedom: $(freedom_for "$ct"); style: $st), then apply the findings it marks as confident and tell the user in one line what changed. Finish the user's actual request first if you're mid-task."
+}scribb.me: this edit wrote $words in $rel. Unless the user asked to skip review, run the scribb-reviewer agent on the passage you changed (file: $file; content type: $ct; freedom: $(freedom_for "$ct"); style: $st; plugin root: $PLUGIN_ROOT), then apply the findings it marks as confident and tell the user in one line what changed. Finish the user's actual request first if you're mid-task."
     fi
   fi
   emit_json "$sys" PostToolUse "$ctx"
