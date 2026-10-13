@@ -143,6 +143,7 @@ Content types and styles are **independent**. Neither is built from the other. A
 | Newsletter | Founders and creators: issues, product updates, welcome emails | The request says it's a newsletter, or its frontmatter says `scribb-content-type: newsletter`, or `/scribb:setup` mapped those folders |
 | Website pages | Founders and teams writing public pages that win a stranger over in seconds: landing, feature, pricing and about pages, case studies | The request says it's a website page, or its frontmatter says `scribb-content-type: website`, or `/scribb:setup` mapped those folders |
 | Sales materials | Founders, consultants and services teams writing for a known prospect: sales decks, one-pagers, proposals, follow-ups | The request says it's a deck, one-pager, proposal or follow-up, or its frontmatter says `scribb-content-type: sales`, or `/scribb:setup` mapped those folders |
+| Chat replies | Anyone asking Claude to explain a design, a decision or a trade-off | Claude's own replies in the conversation, never files. Its rules come with the session-start context: answer first, one recommendation, what's built versus only decided, and end with the one thing Claude needs from you. Nothing checks replies yet |
 
 Developer docs and newsletters have no default folder, because every repo is laid out differently (a GitBook repo looks nothing like a Docusaurus one, and newsletters live in `emails/`, `issues/` or anywhere else). `/scribb:setup` reads your real layout, including GitBook's `SUMMARY.md`, and asks which folders hold developer docs or newsletters. Until then, a Markdown file counts as product docs unless its frontmatter says otherwise.
 
@@ -202,7 +203,7 @@ scribb is on by default. You can turn it off at any level:
 | Everywhere, for you | `/scribb:style off --everywhere` |
 | Kill switch | `SCRIBB_DISABLE=1` in the environment |
 
-You can also switch off parts of it with `/scribb:style`: the reviewer (`reviewer: off`), nudges (`nudges: off`), correction capture (`capture: off`) or the session-start summary (`inject: off`). Each content type has its own switch too: `code_comments: off` stops checking code comments, in whichever scope you set it.
+You can also switch off parts of it with `/scribb:style`: the reviewer (`reviewer: off`), nudges (`nudges: off`), correction capture (`capture: off`) or the session-start summary (`inject: off`). Each content type has its own switch too: `code_comments: off` stops checking code comments and `chat_replies: off` drops the reply rules, in whichever scope you set it.
 
 ## Choose where to use it
 

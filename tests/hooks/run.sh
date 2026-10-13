@@ -132,6 +132,13 @@ for jqmode in jq nojq; do
   assert "session-start: block types apply in any file" contains "$out" "Code comments (comments in any file"
   assert "session-start: names the Markdown default" contains "$out" "Markdown is Product docs unless"
   assert "session-start: keeps the choice quiet" contains "$out" "Don't tell the user which one you picked"
+  assert "session-start: chat replies cover replies, not files" contains "$out" "Chat replies (your replies in this conversation"
+  assert "session-start: injects the chat-replies rules" contains "$out" "Lead with the answer or the recommendation"
+  refute "session-start: chat replies aren't a Markdown page type" contains "$out" "Chat replies (chat-replies):"
+  refute "content type: chat replies never match a file" [ "$(ct notes/reply.md)" = chat-replies ]
+  echo "chat_replies: off" >> .scribb/config.yaml
+  out=$(run_hook session-start '{"session_id":"s1b","cwd":"'"$T/proj"'","source":"startup"}')
+  refute "session-start: chat_replies off drops its rules" contains "$out" "Lead with the answer or the recommendation"
   teardown
 
   # --- post-edit: nudges and the reviewer trigger ---

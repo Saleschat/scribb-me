@@ -1,0 +1,19 @@
+# CONTENT TYPE for Claude's own replies in the conversation. It covers no
+# files: "block: chat" keeps it out of file matching, and the session-start
+# context carries its summary so every longer reply can follow it.
+id: chat-replies
+kind: content-type
+version: 0.1.0
+tagline: Replies that explain a design, a decision or a trade-off to the person who asked, in the conversation itself.
+license: MIT
+traits:
+  medium: chat
+freedom: balanced
+paths: []
+block: chat
+label: Chat replies
+match_order: 50
+review_threshold: none
+extends: null
+sources: []
+tags: [chat, replies, design-discussion, decisions]

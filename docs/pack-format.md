@@ -55,7 +55,7 @@ paths: ["*.md", "*.mdx"]      # content types only: default file patterns
 label: Product docs           # content types only: the user-facing name
 match_order: 90               # content types only: lower is matched first (a mapped newsletter folder at 10 beats "*.md" at 90)
 review_threshold: words 150   # content types only: when the auto reviewer runs ("words N", "strings N", or "none" for checker only)
-# block: ui-text              # content types only: cover a kind of block wherever it appears (ui-text or comments) instead of whole files
+# block: ui-text              # content types only: cover a kind of block wherever it appears (ui-text or comments) instead of whole files; chat covers Claude's replies and no files
 # export_paths: ["*.tsx"]     # block content types only: globs for `scribb-check --export`, since Vale's own config needs them
 extends: null                 # styles: another style id@version, or null
 sources:                      # what the pack drew on; text is always our own words
@@ -78,6 +78,8 @@ scribb splits each file into blocks by their nature (`plugin/lib/blocks.py`) and
 | Prose: a Markdown or plain-text body | the file's document type: its `scribb-content-type:` frontmatter, else the first pack in `match_order` whose `paths` match |
 | UI text: text a user reads in a JSX interface | the pack with `block: ui-text` (UI copy) |
 | Comments: code comments and docstrings, in source files and in Markdown code fences | the pack with `block: comments` |
+
+A pack with `block: chat` (Chat replies) covers Claude's own replies in the conversation. It never matches a file; its summary is added to the session-start context instead.
 
 A file's extension, shebang or code-fence language only tells scribb which comment syntax to look for; it never picks the content type. So a `.tsx` file's JSX text is checked as UI copy and its doc comments as comments, and a `.ts` file with no JSX has no UI text at all. A block content type's `paths`, if set, narrow where it applies.
 

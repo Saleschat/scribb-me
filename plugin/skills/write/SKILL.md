@@ -56,7 +56,7 @@ Then run `scribb-nudge should-rate --session ${CLAUDE_SESSION_ID}`. If it exits 
 ## In chat
 The references, all relative to this skill's folder:
 - `references/base/guide.md` (always), `references/base/summary.md`
-- `references/content-types/<id>/guide.md`, `summary.md`, `sample.md`, `formats/<format>.md`, and for UI copy `roles/shadcn.yaml`. Content types: `product-docs`, `developer-docs`, `ux-microcopy`, `code-comments`, `tech-plans`, `newsletter`, `website`, `sales`; each `pack.yaml` has its tagline and default freedom.
+- `references/content-types/<id>/guide.md`, `summary.md`, `sample.md`, `formats/<format>.md`, and for UI copy `roles/shadcn.yaml`. Content types: `product-docs`, `developer-docs`, `ux-microcopy`, `code-comments`, `tech-plans`, `newsletter`, `website`, `sales`, `chat-replies`; each `pack.yaml` has its tagline and default freedom.
 - `references/styles/<id>/guide.md`, `summary.md`, `sample.md`. Styles: `direct-developer-docs`, `crisp-product-ui`.
 
 1. **Brief.** Infer it as in step 1, from the request alone: content type, format, audience, length, freedom (the content type's default unless the user says otherwise) and style (only if the user names one). Show the brief as one line and go on unless the user corrects it.
