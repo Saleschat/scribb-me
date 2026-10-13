@@ -1,6 +1,6 @@
 # 025 — Chat replies
 
-Status: pack and session-start rules done (branch `feat/chat-replies`, 2026-10-13); checking replies open
+Status: pack and session-start rules done (PR #19, merged 2026-10-13); checking replies open
 
 ## Context
 scribb's rules reached Claude's replies only loosely. The session-start context told Claude to follow the base rules for "a written piece in chat", and design discussions in the conversation weren't clearly one. The `tech-plans` guide (024) applied only to plan files and design docs. Nothing checked a reply: the `Stop` hook lints `last_assistant_message` only while `/scribb:write` has set `write_session: on` (011).
