@@ -100,6 +100,7 @@ session_start() {
       case "$(ct_block "$ct")" in
         comments) where="comments in any file" ;;
         ui-text) where="UI text in any file" ;;
+        chat) where="your replies in this conversation" ;;
       esac
       ct_line="${ct_line:+$ct_line; }$(content_type_label "$ct") ($where; freedom $(freedom_for "$ct"))"
       if [ -z "$md_ct" ] && match_globs "page.md" "$globs"; then
@@ -147,6 +148,13 @@ $(cat "$d/summary.md")"
 
 Style rules ($st):
 $(cat "$sd/summary.md")"
+    fi
+    # Replies aren't files, so no hook checks them: the rules ride along here.
+    if d=$(pack_dir chat-replies) && ct_enabled chat-replies && [ -f "$d/summary.md" ]; then
+      ctx="$ctx
+
+Chat replies (when a reply explains a design, a decision or a trade-off; turn off with chat_replies: off):
+$(cat "$d/summary.md")"
     fi
     local mem
     mem=$(memories_block)

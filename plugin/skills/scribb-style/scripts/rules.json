@@ -128,6 +128,14 @@
   "tagline": "Universal rules against AI writing habits. Always on.",
   "version": "0.2.0"
  },
+ "chat-replies": {
+  "freedom": "balanced",
+  "kind": "content-type",
+  "label": "Chat replies",
+  "rules": [],
+  "tagline": "Replies that explain a design, a decision or a trade-off to the person who asked, in the conversation itself.",
+  "version": "0.1.0"
+ },
  "code-comments": {
   "freedom": "balanced",
   "kind": "content-type",
