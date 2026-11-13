@@ -1,9 +1,9 @@
 - One main point per issue. Put it in the subject line and the first two sentences.
 - Subject lines say what's inside. No clickbait, no ALL CAPS, at most one emoji.
 - Preview text adds to the subject line instead of repeating it.
-- Get to the point fast: updates open with the news; an essay may open on a short scene, with the point clear by the second paragraph. Never open with pleasantries or a recap of last week.
+- Get to the point fast: updates open with the news; an essay opens with the point, or a hello and the point. Never open with pleasantries or a recap of last week.
 - Write to one reader, as "you". Sound like a person, not a press release.
-- Updates and multi-item issues: short paragraphs and descriptive section headings, so they can be skimmed. A single-story essay can use longer story paragraphs and no headings.
+- Updates and multi-item issues: short paragraphs and descriptive section headings, so they can be skimmed. An essay can use slightly longer paragraphs and, when long, 3–6 plain question headings.
 - One clear call to action per section, with link text that says where it goes.
 - No hype (`thrilled to announce`), and no more than one exclamation mark in a row or two in a paragraph.
 - End when you're done: a short sign-off with a name, not a summary of what you just said.

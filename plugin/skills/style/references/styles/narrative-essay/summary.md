@@ -1,9 +1,9 @@
-- Open on a moment: a person, a date and a place, or a plain admission from the writer. Reach the point by the end of the second paragraph.
-- Tell one story with turns in it. Each turn is a "But", a short fact on its own line, or a real question.
-- Alternate story and argument: tell a concrete episode first, then say in a sentence or two what it means.
-- Mix paragraph lengths. A long story paragraph can sit next to a one-line turn. Argument paragraphs stay short.
-- Mix sentence lengths widely: some under eight words, a few long ones that carry a whole scene.
-- Write as "I". Give judgements as yours ("I think", "I suspect"), and admit what you got wrong.
+- Open with the point, or a direct hello and the point. The reader knows what the issue is about within two or three sentences. No suspense openings.
+- Sound like a founder talking to a smart friend: first person, plain words, honest about what went wrong.
+- Tell real stories as short examples inside the argument, story first and meaning after.
+- In longer issues, use 3–6 plain headings, often questions the reader would ask. Short issues need none.
+- Mix paragraph and sentence lengths: a one-line turn next to a fuller paragraph. Explaining paragraphs stay short.
+- Give judgements as yours ("I think", "I suspect"), and take the strongest objection seriously.
 - Be specific: dates, places, amounts and counts. Give a number with something to compare it to, and name the source in the sentence.
-- Use few or no headings. Use a list only for things you'd really number.
-- End on a callback to the opening or on what happens next. Don't end on a summary or a moral. Then a short sign-off.
+- Use a list only for things you'd really number.
+- End on what happens next or the one thing you want the reader to do, not a summary or a moral. Then a short sign-off.
