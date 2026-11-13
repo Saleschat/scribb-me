@@ -125,7 +125,11 @@ case "$cmd" in
       [ -d "$dir" ] && n=$((n + $(find "$dir" -maxdepth 1 -name '*.md' | wc -l)))
     done
     inbox=0
-    [ -d "$SCRIBB_PROJECT/.scribb/local/inbox" ] && inbox=$(find "$SCRIBB_PROJECT/.scribb/local/inbox" -maxdepth 1 -name '*.md' | wc -l | awk '{print $1}')
+    while IFS= read -r d; do
+      [ -n "$d" ] && inbox=$((inbox + $(find "$d" -maxdepth 1 -name '*.md' | wc -l)))
+    done <<INBOXES
+$(scribb_inbox_dirs "$SCRIBB_PROJECT")
+INBOXES
     echo "Memories: $n; inbox: $inbox pending"
     ;;
   get)
@@ -184,16 +188,23 @@ case "$cmd" in
     ;;
   approver) scribb_approver ;;
   inbox)
-    dir="$SCRIBB_PROJECT/.scribb/local/inbox"
     rej="$SCRIBB_PROJECT/.scribb/local/rejected.txt"
     n=0
-    for f in "$dir"/*.md; do
-      [ -f "$f" ] || continue
-      n=$((n + 1))
-      printf '===== %s =====\n' "${f#"$SCRIBB_PROJECT"/}"
-      cat "$f"
-      echo
-    done
+    while IFS= read -r dir; do
+      [ -n "$dir" ] || continue
+      for f in "$dir"/*.md; do
+        [ -f "$f" ] || continue
+        n=$((n + 1))
+        case "$f" in
+          "$SCRIBB_PROJECT"/*) printf '===== %s =====\n' "${f#"$SCRIBB_PROJECT"/}" ;;
+          *) printf '===== %s (captured outside this project; delete it by this full path) =====\n' "$f" ;;
+        esac
+        cat "$f"
+        echo
+      done
+    done <<INBOXES
+$(scribb_inbox_dirs "$SCRIBB_PROJECT")
+INBOXES
     [ "$n" -eq 0 ] && echo "The inbox is empty."
     if [ -s "$rej" ]; then
       echo "===== already rejected (don't suggest again) ====="

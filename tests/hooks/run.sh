@@ -194,6 +194,35 @@ for jqmode in jq nojq; do
   assert "prompt: capture off" [ -z "$out" ]
   teardown
 
+  # --- prompt capture: relayed messages and loose matches (#21) ---
+  setup
+  out=$(run_hook prompt '{"session_id":"s1","cwd":"'"$T/proj"'","prompt":"<agent-message from=\"a1\">[Subagent hand-back] The page reads like marketing. Use \"plan\" instead of \"tier\". No em dash.</agent-message>"}')
+  assert "prompt: relayed subagent report isn't captured" [ -z "$out" ]
+  out=$(run_hook prompt '{"session_id":"s1","cwd":"'"$T/proj"'","prompt":"<task-notification>agent finished: too wordy</task-notification>"}')
+  assert "prompt: task notification isn't captured" [ -z "$out" ]
+  out=$(run_hook prompt '{"session_id":"s1","cwd":"'"$T/proj"'","prompt":"The second shot starts with her looking sideways and stays sideways for too long."}')
+  assert "prompt: a tone word about something else isn't captured" [ -z "$out" ]
+  out=$(run_hook prompt '{"session_id":"s1","cwd":"'"$T/proj"'","prompt":"Use the queue rather than the crowd in this scene."}')
+  assert "prompt: plain rather than isn't captured" [ -z "$out" ]
+  out=$(run_hook prompt '{"session_id":"s1","cwd":"'"$T/proj"'","prompt":"This paragraph is too long and too formal."}')
+  assert "prompt: a tone word about writing is captured" contains "$out" "/scribb:remember"
+  out=$(run_hook prompt '{"session_id":"s1","cwd":"'"$T/proj"'","prompt":"Say \"workspace\" rather than \"account\" everywhere."}')
+  assert "prompt: a quoted rather than is captured" contains "$out" "/scribb:remember"
+  teardown
+
+  # --- inbox found from a different folder (#22) ---
+  setup
+  mkdir -p "$T/ws/repo"
+  git -C "$T/ws/repo" init -q
+  unset CLAUDE_PROJECT_DIR
+  out=$(run_hook prompt '{"session_id":"s1","cwd":"'"$T/ws"'","prompt":"Don'"'"'t say \"account\", we call it a workspace"}')
+  assert "inbox: the hook captured in the session folder" [ -n "$(find "$T/ws/.scribb/local/inbox" -name '*.md' 2>/dev/null)" ]
+  cd "$T/ws/repo" || exit 1
+  assert "inbox: scribb-config counts it from inside the repo" contains "$("$PLUGIN/scripts/scribb-config" status)" "inbox: 1 pending"
+  assert "inbox: scribb-config lists it with its full path" contains "$("$PLUGIN/scripts/scribb-config" inbox)" "captured outside this project"
+  export CLAUDE_PROJECT_DIR="$T/proj"
+  teardown
+
   # --- kill switches ---
   setup
   out=$(SCRIBB_DISABLE=1 run_hook post-edit "$(edit_input s1 "$T/proj/docs/a.md")")

@@ -75,6 +75,31 @@ scribb_ensure_local_dir() {
   printf '%s\n' "$dir"
 }
 
+# The capture hook resolves the project from the session's folder, while the
+# helpers run from the shell's current folder; when a session starts in a
+# workspace root and works inside one repo, the two differ (#22). The hook
+# registers every project it writes an inbox in, and readers look at the
+# current project's inbox plus any registered one above or below it.
+scribb_register_inbox() {
+  local reg
+  reg="$(scribb_state_dir)/inbox-projects"
+  mkdir -p "$(dirname "$reg")" 2>/dev/null || return 0
+  grep -qxF "$1" "$reg" 2>/dev/null || printf '%s\n' "$1" >> "$reg"
+}
+
+# scribb_inbox_dirs PROJECT: every inbox folder that belongs to PROJECT, one per line.
+scribb_inbox_dirs() {
+  local proj="$1" reg p
+  [ -d "$proj/.scribb/local/inbox" ] && printf '%s\n' "$proj/.scribb/local/inbox"
+  reg="$(scribb_state_dir)/inbox-projects"
+  [ -f "$reg" ] || return 0
+  while IFS= read -r p; do
+    [ -n "$p" ] && [ "$p" != "$proj" ] && [ -d "$p/.scribb/local/inbox" ] || continue
+    case "$proj/" in "$p"/*) printf '%s\n' "$p/.scribb/local/inbox"; continue ;; esac
+    case "$p/" in "$proj"/*) printf '%s\n' "$p/.scribb/local/inbox" ;; esac
+  done < "$reg"
+}
+
 # --- JSON (hook input) ---------------------------------------------------------
 
 # json_get KEY [FILE]: the first string value for KEY, unescaped. Reads stdin if
