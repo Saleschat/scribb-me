@@ -20,6 +20,8 @@ sections:
     length: "one line with a real name and role"
 ---
 <!-- Example FORMAT: a task template inside a content type. It fixes the structure of one kind of page; the content type's rules still apply. -->
+- Open with the news. Paragraphs of one to three sentences; a descriptive heading for each item when there is more than one, so the issue can be skimmed.
+
 **Subject:** You can now export to CSV
 
 **Preview:** Any table, any filter, one select.

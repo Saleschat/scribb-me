@@ -1,0 +1,38 @@
+# Example STYLE: who it sounds like. It holds taste that good writers disagree on.
+# Optional, at most one per piece, layered on any content type in good_for.
+# On a conflict, the content type wins. For newsletters, pair it with the essay format.
+id: narrative-essay
+kind: style
+version: 0.1.0
+tagline: Issues that read like a story with an argument inside it, told in the first person, with real names and numbers.
+license: MIT
+traits:
+  formality: conversational
+  density: balanced
+  person: I
+  source_type: original
+  good_for: [email]
+confidence: medium
+extends: null
+sources:
+  - name: Not Boring (Packy McCormick), free posts read through its RSS feed on 2026-11-13
+    url: https://www.notboring.co/feed
+    license: all rights reserved
+    use: inspiration only; style described in our own words, no text reused
+  - name: The Generalist (Mario Gabriele), free posts read through its RSS feed on 2026-11-13
+    url: https://www.generalist.com/feed
+    license: all rights reserved
+    use: inspiration only; style described in our own words, no text reused
+  - name: One Useful Thing (Ethan Mollick), free posts read through its RSS feed on 2026-11-13
+    url: https://www.oneusefulthing.org/feed
+    license: all rights reserved
+    use: inspiration only; style described in our own words, no text reused
+  - name: Lenny's Newsletter, free posts read through its RSS feed on 2026-11-13
+    url: https://www.lennysnewsletter.com/feed
+    license: all rights reserved
+    use: inspiration only (how numbers and sources are handled); no text reused
+  - name: The Pragmatic Engineer (Gergely Orosz), free posts read through its RSS feed on 2026-11-13
+    url: https://newsletter.pragmaticengineer.com/feed
+    license: all rights reserved
+    use: inspiration only (how numbers and sources are handled); no text reused
+tags: [narrative, essay, founder, first-person]

@@ -1,0 +1,9 @@
+- Open on a moment: a person, a date and a place, or a plain admission from the writer. Reach the point by the end of the second paragraph.
+- Tell one story with turns in it. Each turn is a "But", a short fact on its own line, or a real question.
+- Alternate story and argument: tell a concrete episode first, then say in a sentence or two what it means.
+- Mix paragraph lengths. A long story paragraph can sit next to a one-line turn. Argument paragraphs stay short.
+- Mix sentence lengths widely: some under eight words, a few long ones that carry a whole scene.
+- Write as "I". Give judgements as yours ("I think", "I suspect"), and admit what you got wrong.
+- Be specific: dates, places, amounts and counts. Give a number with something to compare it to, and name the source in the sentence.
+- Use few or no headings. Use a list only for things you'd really number.
+- End on a callback to the opening or on what happens next. Don't end on a summary or a moral. Then a short sign-off.
