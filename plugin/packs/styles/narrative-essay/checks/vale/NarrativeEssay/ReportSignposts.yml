@@ -1,0 +1,10 @@
+extends: existence
+message: "'%s' frames the issue as a report. Open with the scene or the point instead."
+level: suggestion
+ignorecase: true
+tokens:
+  - in (?:today's|this) (?:issue|edition|newsletter)
+  - here's what (?:we'll|I'll|you'll) (?:cover|learn)
+  - key takeaways?
+  - tl;dr
+  - let's get (?:to|into) it

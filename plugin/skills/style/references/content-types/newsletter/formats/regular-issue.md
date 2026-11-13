@@ -17,6 +17,8 @@ sections:
     length: "one line with a real name; an optional one-line P.S."
 ---
 <!-- Example FORMAT: a task template inside a content type. It fixes the structure of one kind of page; the content type's rules still apply. -->
+- Open with the news. Paragraphs of one to three sentences; a descriptive heading for each item when there is more than one, so the issue can be skimmed.
+
 **Subject:** What we learned from 40 pricing pages
 
 **Preview:** Three patterns that made plans easier to compare.

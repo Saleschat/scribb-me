@@ -1,0 +1,11 @@
+extends: existence
+message: "'%s' reads like a report. Try 'But', 'So', 'Still', or no connector."
+level: suggestion
+ignorecase: true
+tokens:
+  - furthermore
+  - moreover
+  - additionally
+  - in conclusion
+  - in summary
+  - to summari[sz]e

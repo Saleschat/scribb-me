@@ -357,6 +357,44 @@
   "tagline": "Short sentences, the imperative, and nothing the reader has to skip.",
   "version": "0.2.0"
  },
+ "narrative-essay": {
+  "freedom": null,
+  "kind": "style",
+  "label": null,
+  "rules": [
+   {
+    "extends": "existence",
+    "id": "NarrativeEssay.EssayConnectors",
+    "ignorecase": true,
+    "level": "suggestion",
+    "message": "'%s' reads like a report. Try 'But', 'So', 'Still', or no connector.",
+    "tokens": [
+     "furthermore",
+     "moreover",
+     "additionally",
+     "in conclusion",
+     "in summary",
+     "to summari[sz]e"
+    ]
+   },
+   {
+    "extends": "existence",
+    "id": "NarrativeEssay.ReportSignposts",
+    "ignorecase": true,
+    "level": "suggestion",
+    "message": "'%s' frames the issue as a report. Open with the scene or the point instead.",
+    "tokens": [
+     "in (?:today's|this) (?:issue|edition|newsletter)",
+     "here's what (?:we'll|I'll|you'll) (?:cover|learn)",
+     "key takeaways?",
+     "tl;dr",
+     "let's get (?:to|into) it"
+    ]
+   }
+  ],
+  "tagline": "Issues that read like a story with an argument inside it, told in the first person, with real names and numbers.",
+  "version": "0.1.0"
+ },
  "newsletter": {
   "freedom": "balanced",
   "kind": "content-type",
