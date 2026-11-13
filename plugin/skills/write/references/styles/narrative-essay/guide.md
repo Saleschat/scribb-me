@@ -29,7 +29,7 @@ A typical issue moves through these steps, each often under its own heading:
 5. **The complication**: the strongest reason you might be wrong, taken seriously.
 6. **What's next**, and the one thing you'd like the reader to do.
 
-Mark a turn with a short paragraph: a fact on its own line, or a question you answer next ("Here's the thing I keep coming back to."). Don't stack rhetorical questions.
+Mark a turn with a short paragraph: a fact on its own line, or a question you answer next ("So why did most of them never post it?"). Don't stack rhetorical questions.
 
 ## Moving between story and argument
 - Story first, meaning after. Tell the episode with its concrete details, then interpret it in one or two short sentences. Never explain the point and then illustrate it.
