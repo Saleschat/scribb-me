@@ -3,8 +3,8 @@
 # On a conflict, the content type wins. For newsletters, pair it with the essay format.
 id: narrative-essay
 kind: style
-version: 0.1.0
-tagline: Issues that read like a story with an argument inside it, told in the first person, with real names and numbers.
+version: 0.2.0
+tagline: Founder issues in a tech-writer voice, with the point up front, first person, real stories as examples and plain headings for longer pieces.
 license: MIT
 traits:
   formality: conversational

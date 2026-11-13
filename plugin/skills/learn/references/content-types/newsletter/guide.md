@@ -18,7 +18,7 @@ Default freedom: balanced. A newsletter can have more personality than docs, but
 - The preview text (the line shown after the subject in the inbox) adds a second reason to open. Don't repeat the subject, and don't leave it to the email client, which will show "View in browser".
 
 ## The opening
-- Get to the point fast. In product updates and regular issues, start with the news. An essay (`formats/essay.md`) may open on a short scene, as long as the point is clear by the end of the second paragraph.
+- Get to the point fast. In product updates and regular issues, start with the news. An essay (`formats/essay.md`) opens with the point too, or with a direct hello and the point.
 - Either way, the first sentence should make sense on its own if the reader stops there.
 - Skip pleasantries and filler: `I hope this email finds you well`, `Happy Monday!`, `It's been a while since our last update`.
 - Don't open by recapping the previous issue. Link to it if it matters.
@@ -32,7 +32,7 @@ Default freedom: balanced. A newsletter can have more personality than docs, but
 
 ## Structure
 - In product updates and regular issues, keep paragraphs short (one to three sentences) and give each item a descriptive heading ("New: scheduled reports", not "Update #2"), so the issue can be skimmed.
-- A single-story essay is read, not skimmed: its story paragraphs may run longer and it needs no headings (`formats/essay.md`).
+- An essay is read, not skimmed: its paragraphs may run a little longer, and a longer one carries 3–6 plain headings, often questions (`formats/essay.md`).
 - Use bullets for lists of things, not for an argument.
 - Put the most important item first. Readers drop off as they scroll.
 - Keep it as long as the content needs. A product update is often 100–250 words; a regular issue can run to 800–1,200 if every section is worth it.
